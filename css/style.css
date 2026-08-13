@@ -1,0 +1,247 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
+/* Definição da Paleta de Cores baseada na Logo Geométrica */
+:root {
+    --cor-fundo: #000000;
+    --cor-amarelo: #E5C627;
+    --cor-azul: #4046B2;
+    --cor-vermelho: #DB3142;
+    --cor-verde: #668E2F;
+    --cor-card-fundo: #0e0e0e;
+    
+    --cor-texto-principal: #FFFFFF;
+    --cor-texto-secundario: #B0B0B0;
+    
+    --font-bauhaus: 'Outfit', sans-serif;
+}
+
+body {
+    background-color: var(--cor-fundo);
+    color: var(--cor-texto-principal);
+    font-family: var(--font-bauhaus);
+    padding-bottom: 60px;
+}
+
+/* Navbar Premium styling */
+.ag-navbar {
+    background-color: rgba(0, 0, 0, 0.9);
+    border-bottom: 3px solid var(--cor-azul);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ag-navbar-filters {
+    display: flex;
+    gap: 15px;
+}
+
+.ag-navbar-filters .ag-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.logo img {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logo img:hover {
+    transform: rotate(-3deg) scale(1.05);
+}
+
+.ag-nav-links a {
+    color: var(--cor-texto-secundario);
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+    padding: 5px 0;
+    border-bottom: 2px solid transparent;
+}
+
+.ag-nav-links a:hover {
+    color: var(--cor-amarelo);
+    border-bottom: 2px solid var(--cor-amarelo);
+}
+
+/* Hero Section */
+.hero-section {
+    text-align: center;
+    padding: 80px 20px 40px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 15px;
+    background: linear-gradient(90deg, #FFFFFF 0%, var(--cor-amarelo) 50%, var(--cor-azul) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero-section p {
+    font-size: 1.2rem;
+    color: var(--cor-texto-secundario);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Filtros */
+#filtros {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.ag-btn {
+    background-color: transparent;
+    color: var(--cor-texto-principal);
+    border: 2px solid var(--cor-texto-secundario);
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 0px; /* Estética Bauhaus reta e geométrica */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.ag-btn:hover {
+    background-color: var(--cor-vermelho);
+    border-color: var(--cor-vermelho);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(219, 49, 66, 0.4);
+}
+
+.ag-btn.active {
+    background-color: var(--cor-amarelo);
+    color: var(--cor-fundo);
+    border-color: var(--cor-amarelo);
+    box-shadow: 0 4px 15px rgba(229, 198, 39, 0.4);
+}
+
+/* Product Cards and Grid */
+.ag-card {
+    background-color: var(--cor-card-fundo);
+    border: 1px solid #222;
+    border-top: 5px solid var(--cor-vermelho);
+    padding: 24px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.ag-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--cor-azul);
+    box-shadow: 0 12px 30px rgba(64, 70, 178, 0.25);
+}
+
+.ag-card::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--cor-vermelho) 0%, var(--cor-azul) 50%, var(--cor-amarelo) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.ag-card:hover::before {
+    opacity: 1;
+}
+
+.img-container {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: #050505;
+}
+
+.ag-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.ag-card:hover img {
+    transform: scale(1.05);
+}
+
+.ag-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--cor-texto-principal);
+}
+
+.ag-card .price {
+    color: var(--cor-verde);
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.ag-btn-primary {
+    background-color: var(--cor-azul);
+    color: var(--cor-texto-principal);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 0px; /* Geometria Bauhaus */
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    margin-top: auto;
+}
+
+.ag-btn-primary:hover {
+    background-color: var(--cor-verde);
+    box-shadow: 0 4px 15px rgba(102, 142, 47, 0.4);
+    transform: scale(1.02);
+}
+
+/* Footer style */
+footer {
+    border-top: 1px solid #222;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--cor-texto-secundario);
+    font-size: 0.9rem;
+    margin-top: 60px;
+}
+
+footer p a {
+    color: var(--cor-amarelo);
+    text-decoration: none;
+}
