@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Open+Sans:wght@300;400;500;600;700;800&display=swap');
+/* Shopfunner-style typography: Helvetica Neue stack */
 
 :root {
     --fun-bg-main: #f4f2ea;
     --fun-bg-card: #f9f8f4;
     --fun-text-main: #1a1a1a;
     --fun-text-sec: #666666;
-    --fun-font: 'Open Sans', sans-serif;
-    --fun-font-title: 'Montserrat', sans-serif;
+    --fun-font: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif;
+    --fun-font-title: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif;
     
     /* Branding Colors */
     --brand-blue: #2b7fff;
