@@ -63,13 +63,27 @@
         </section>
 
         <!-- Product Carousel Section -->
-        <section class="fun-section ag-container" style="overflow: hidden;">
+        <section class="fun-section ag-container" style="overflow: visible;">
             <div class="fun-section-header">
                 <h2>O que você procura hoje?</h2>
                 <button class="fun-btn-dark">Ver tudo</button>
             </div>
-            <div id="catalogo" class="keen-slider">
-                <!-- Dynamic products loaded by javascript -->
+            <div class="slider-wrapper">
+                <button class="arrow-btn prev" id="arrow-prev" aria-label="Anterior">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </button>
+                <div id="catalogo" class="keen-slider">
+                    <!-- Dynamic products loaded by javascript -->
+                </div>
+                <button class="arrow-btn next" id="arrow-next" aria-label="Próximo">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
             </div>
         </section>
 
