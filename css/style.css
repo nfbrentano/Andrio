@@ -47,6 +47,51 @@ h1, h2, h3, h4, h5, h6 {
     z-index: 1000;
 }
 
+.fun-hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 8px;
+    transition: background-color 0.2s ease;
+    z-index: 1002;
+}
+
+.fun-hamburger-btn:hover,
+.fun-hamburger-btn:focus-visible {
+    background-color: rgba(0, 0, 0, 0.05);
+    outline: none;
+}
+
+.hamburger-line {
+    display: block;
+    width: 22px;
+    height: 2.2px;
+    background-color: #1a1a1a;
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+}
+
+.fun-hamburger-btn.is-active .hamburger-line:nth-child(1) {
+    transform: translateY(7.2px) rotate(45deg);
+}
+
+.fun-hamburger-btn.is-active .hamburger-line:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+}
+
+.fun-hamburger-btn.is-active .hamburger-line:nth-child(3) {
+    transform: translateY(-7.2px) rotate(-45deg);
+}
+
 .fun-logo {
     display: flex;
     align-items: center;
@@ -85,6 +130,22 @@ h1, h2, h3, h4, h5, h6 {
 .fun-pill-btn.active {
     border-color: transparent;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.fun-mobile-menu-header {
+    display: none;
+}
+
+.fun-mobile-close-btn {
+    display: none;
+}
+
+.fun-mobile-nav-actions {
+    display: none;
+}
+
+.fun-mobile-overlay {
+    display: none;
 }
 
 .fun-login-link {
@@ -689,14 +750,169 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 768px) {
+    body.menu-open {
+        overflow: hidden;
+    }
+
     .fun-navbar {
-        flex-direction: column;
-        gap: 15px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 20px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        height: 60px;
     }
-    .fun-navbar-filters {
-        flex-wrap: wrap;
+
+    .fun-hamburger-btn {
+        display: flex;
+    }
+
+    .fun-navbar .fun-logo {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
         justify-content: center;
+        z-index: 1001;
     }
+
+    .fun-navbar-actions {
+        display: none;
+    }
+
+    /* Mobile Overlay */
+    .fun-mobile-overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+        z-index: 1001;
+    }
+
+    .fun-mobile-overlay.is-active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Mobile Navigation Drawer */
+    .fun-nav-menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        max-width: 82vw;
+        height: 100vh;
+        height: 100dvh;
+        background-color: #f4f2ea;
+        box-shadow: 8px 0 30px rgba(0, 0, 0, 0.18);
+        z-index: 1002;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 22px 18px;
+        overflow-y: auto;
+    }
+
+    .fun-nav-menu.is-open {
+        transform: translateX(0);
+    }
+
+    .fun-mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 14px;
+        margin-bottom: 18px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .fun-mobile-menu-title {
+        font-family: var(--fun-font-title);
+        font-weight: 800;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #1a1a1a;
+    }
+
+    .fun-mobile-close-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: transparent;
+        border: none;
+        font-size: 1.1rem;
+        color: #666;
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .fun-mobile-close-btn:hover {
+        background-color: rgba(0, 0, 0, 0.06);
+        color: #000;
+    }
+
+    .fun-navbar-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .fun-navbar-filters .fun-pill-btn {
+        width: 100%;
+        text-align: left;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .fun-mobile-nav-actions {
+        display: block;
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .fun-btn-admin-mobile {
+        display: block;
+        width: 100%;
+        text-align: center;
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.88rem;
+        text-decoration: none;
+        letter-spacing: 0.5px;
+        transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .fun-btn-admin-mobile:active {
+        transform: scale(0.98);
+    }
+
     .people-grid {
         grid-template-columns: 1fr;
     }

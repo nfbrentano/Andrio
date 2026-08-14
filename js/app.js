@@ -238,6 +238,72 @@ function inicializarScrollReveal() {
     reveals.forEach(el => observer.observe(el));
 }
 
+// Mobile Navigation Logic
+function inicializarMenuMobile() {
+    const hamburgerBtn = document.getElementById('fun-hamburger');
+    const closeBtn = document.getElementById('fun-close-menu');
+    const navMenu = document.getElementById('fun-nav-menu');
+    const overlay = document.getElementById('fun-mobile-overlay');
+
+    if (!hamburgerBtn || !navMenu) return;
+
+    function openMenu() {
+        hamburgerBtn.classList.add('is-active');
+        hamburgerBtn.setAttribute('aria-expanded', 'true');
+        navMenu.classList.add('is-open');
+        if (overlay) overlay.classList.add('is-active');
+        document.body.classList.add('menu-open');
+    }
+
+    function closeMenu() {
+        hamburgerBtn.classList.remove('is-active');
+        hamburgerBtn.setAttribute('aria-expanded', 'false');
+        navMenu.classList.remove('is-open');
+        if (overlay) overlay.classList.remove('is-active');
+        document.body.classList.remove('menu-open');
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+        const isOpen = navMenu.classList.contains('is-open');
+        if (isOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeMenu);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeMenu);
+    }
+
+    // Close menu on pressing ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navMenu.classList.contains('is-open')) {
+            closeMenu();
+        }
+    });
+
+    // Close menu when clicking filter buttons on mobile
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeMenu();
+            }
+        });
+    });
+
+    // Auto-close on resize to desktop
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && navMenu.classList.contains('is-open')) {
+            closeMenu();
+        }
+    });
+}
+
 // Renderização inicial
 document.addEventListener('DOMContentLoaded', async () => {
     // Set initial active button styling
@@ -247,6 +313,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         activeBtn.style.backgroundColor = targetColor;
         activeBtn.style.color = (targetColor === '#ffeb3b') ? 'black' : 'white';
     }
+    inicializarMenuMobile();
     await carregarProdutos();
     renderizarProdutos();
     inicializarScrollReveal();
