@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração | FUN Cosméticos</title>
+    <link rel="stylesheet" href="css/antigravity.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="admin-body">
+    <header class="fun-navbar">
+        <div class="fun-logo">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center;">
+                <svg viewBox="0 0 160 40" width="120" height="30">
+                    <circle cx="20" cy="20" r="16" fill="#2b7fff" />
+                    <text x="20" y="25" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#ffffff" text-anchor="middle">F</text>
+                    <circle cx="55" cy="20" r="16" fill="#ff5722" />
+                    <text x="55" y="25" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#ffffff" text-anchor="middle">U</text>
+                    <circle cx="90" cy="20" r="16" fill="#ffeb3b" />
+                    <text x="90" y="25" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#000000" text-anchor="middle">N</text>
+                    <circle cx="125" cy="20" r="16" fill="#00b0ff" />
+                    <text x="125" y="25" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#ffffff" text-anchor="middle">S</text>
+                </svg>
+            </a>
+        </div>
+        <div class="admin-header-title">
+            <h1>Painel Administrativo</h1>
+        </div>
+        <div class="fun-navbar-actions">
+            <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Supabase</button>
+            <a href="index.html" class="fun-login-link">Ver Loja</a>
+        </div>
+    </header>
+
+    <!-- Banner de Status da Conexão -->
+    <div id="connection-banner" class="status-banner info">
+        <span class="icon">⚠️</span>
+        <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Supabase para salvar na nuvem.</span>
+    </div>
+
+    <main class="admin-main ag-container">
+        <div class="admin-grid">
+            <!-- Formulário de Cadastro/Edição -->
+            <section class="admin-card form-section">
+                <h2 id="form-title">Cadastrar Novo Produto</h2>
+                <form id="product-form">
+                    <input type="hidden" id="product-id">
+                    
+                    <div class="form-group">
+                        <label for="product-name">Nome do Produto</label>
+                        <input type="text" id="product-name" placeholder="Ex: FUN Shampoo de Brilho" required>
+                    </div>
+
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="product-price">Preço</label>
+                            <input type="text" id="product-price" placeholder="Ex: R$ 89,90" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-category">Categoria</label>
+                            <select id="product-category" required>
+                                <option value="shampoo">Shampoo</option>
+                                <option value="condicionador">Condicionador</option>
+                                <option value="creme">Creme</option>
+                                <option value="mascara">Máscara</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-image">URL da Imagem</label>
+                        <input type="text" id="product-image" placeholder="Ex: assets/prod_shampoo.jpg ou link externo" required>
+                        <div class="image-preset-labels">
+                            <span>Presets de teste:</span>
+                            <button type="button" class="preset-btn" data-url="assets/prod_shampoo.jpg">Shampoo</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_condicionador.jpg">Condicionador</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_creme.jpg">Creme</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_mascara.jpg">Máscara</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="product-color">Cor Temática (Hex)</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="product-color-picker" value="#2b7fff">
+                            <input type="text" id="product-color" value="#2b7fff" placeholder="#2b7fff" pattern="^#[0-9A-Fa-f]{6}$" required>
+                        </div>
+                        <div class="color-presets">
+                            <span class="color-dot" style="background-color: #2b7fff;" data-color="#2b7fff"></span>
+                            <span class="color-dot" style="background-color: #ff5722;" data-color="#ff5722"></span>
+                            <span class="color-dot" style="background-color: #ffeb3b;" data-color="#ffeb3b"></span>
+                            <span class="color-dot" style="background-color: #9c27b0;" data-color="#9c27b0"></span>
+                            <span class="color-dot" style="background-color: #00c853;" data-color="#00c853"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="admin-btn primary" id="btn-submit">Salvar Produto</button>
+                        <button type="button" class="admin-btn secondary" id="btn-cancel" style="display: none;">Cancelar</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Listagem de Produtos Existentes -->
+            <section class="admin-card list-section">
+                <div class="list-header">
+                    <h2>Produtos Cadastrados</h2>
+                    <span id="product-count" class="badge">0 produtos</span>
+                </div>
+                <div class="list-filters">
+                    <input type="text" id="search-input" placeholder="Buscar produtos pelo nome...">
+                </div>
+                <div class="table-container">
+                    <table class="products-table">
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body">
+                            <!-- Inserido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modal de Configuração do Supabase -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-modal">&times;</span>
+            <h2>Configurações do Supabase</h2>
+            <p class="modal-description">Insira os dados do seu projeto Supabase para ativar a persistência na nuvem.</p>
+            
+            <form id="supabase-config-form">
+                <div class="form-group">
+                    <label for="supabase-url">Supabase Project URL</label>
+                    <input type="url" id="supabase-url" placeholder="https://xxxx.supabase.co" required>
+                </div>
+                <div class="form-group">
+                    <label for="supabase-key">Supabase API Key (Anon Public)</label>
+                    <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="admin-btn primary">Conectar Supabase</button>
+                    <button type="button" class="admin-btn secondary" id="btn-disconnect">Desconectar / Usar Local</button>
+                </div>
+            </form>
+
+            <div class="sql-instructions">
+                <h3>Script SQL para o Supabase</h3>
+                <p>Execute este comando no SQL Editor do Supabase antes de conectar:</p>
+                <pre><code>create table produtos (
+  id bigint generated by default as identity primary key,
+  nome text not null,
+  preco text not null,
+  categoria text not null,
+  img text not null,
+  color text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table produtos enable row level security;
+create policy "Acesso público total" on produtos for all using (true);</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Mensagem de feedback</div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
