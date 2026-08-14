@@ -18,7 +18,7 @@
 
 html {
     scroll-behavior: smooth;
-    scroll-padding-top: 80px;
+    scroll-padding-top: 75px;
 }
 
 body {
@@ -34,103 +34,105 @@ h1, h2, h3, h4, h5, h6 {
     font-family: var(--fun-font-title);
 }
 
-/* Navbar */
+/* Navbar — Shopfunner-inspired transparent floating header */
 .fun-navbar {
-    background-color: rgba(244, 242, 234, 0.95);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(10px);
-    padding: 15px 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     position: sticky;
     top: 0;
     z-index: 1000;
-}
-
-.fun-hamburger-btn {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
+    display: flex;
     align-items: center;
-    gap: 5px;
-    width: 40px;
-    height: 40px;
+    padding: 16px 16px;
     background: transparent;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    padding: 8px;
-    transition: background-color 0.2s ease;
-    z-index: 1002;
+    pointer-events: none;
 }
 
-.fun-hamburger-btn:hover,
-.fun-hamburger-btn:focus-visible {
-    background-color: rgba(0, 0, 0, 0.05);
-    outline: none;
+.fun-navbar > * {
+    pointer-events: auto;
 }
 
-.hamburger-line {
-    display: block;
-    width: 22px;
-    height: 2.2px;
-    background-color: #1a1a1a;
-    border-radius: 2px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+/* Three-column layout */
+.fun-navbar-left {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
 }
 
-.fun-hamburger-btn.is-active .hamburger-line:nth-child(1) {
-    transform: translateY(7.2px) rotate(45deg);
+.fun-navbar-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
 }
 
-.fun-hamburger-btn.is-active .hamburger-line:nth-child(2) {
-    opacity: 0;
-    transform: scaleX(0);
+.fun-logo-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
-.fun-hamburger-btn.is-active .hamburger-line:nth-child(3) {
-    transform: translateY(-7.2px) rotate(-45deg);
-}
-
-.fun-logo {
+.fun-logo-wrap {
+    height: 43px;
     display: flex;
     align-items: center;
 }
 
-.fun-nav-menu {
-    flex-grow: 1;
-    display: flex;
+.fun-logo-wrap svg {
+    height: 100%;
+    width: auto;
+}
+
+/* Center Navigation — category pill buttons */
+.fun-nav-center {
+    flex: 1;
+    display: none;
     justify-content: center;
+    gap: 8px;
+}
+
+@media (min-width: 1025px) {
+    .fun-nav-center {
+        display: flex;
+    }
 }
 
 .fun-navbar-filters {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .fun-pill-btn {
-    background-color: transparent;
-    color: #333;
-    border: 1.5px solid #ccc;
-    padding: 8px 20px;
+    background-color: var(--btn-color, #2b7fff);
+    color: #fff;
+    border: 2px solid var(--btn-color, #2b7fff);
+    padding: 10px 22px;
     border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.85rem;
+    font-family: var(--fun-font-title);
+    font-weight: 700;
+    font-size: 0.8rem;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
+    white-space: nowrap;
+    min-width: 110px;
+    text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Yellow pill needs dark text */
+.fun-pill-btn[data-color="#ffeb3b"] {
+    color: #000;
+}
+
 .fun-pill-btn:hover {
-    border-color: #666;
+    background-color: #111 !important;
+    border-color: #111 !important;
+    color: #fff !important;
     transform: translateY(-1px);
 }
 
 .fun-pill-btn.active {
-    border-color: transparent;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
 }
 
 .fun-mobile-menu-header {
@@ -149,25 +151,89 @@ h1, h2, h3, h4, h5, h6 {
     display: none;
 }
 
-.fun-login-link {
-    color: var(--fun-text-main);
+/* Cart / Admin button — rounded pill with border */
+.fun-cart-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 14px;
+    border-radius: 50px;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    color: #1a1a1a;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s;
+    font-family: var(--fun-font-title);
+    font-weight: 700;
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.25s ease;
 }
 
-.fun-login-link:hover {
-    border-color: var(--fun-text-main);
+.fun-cart-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+}
+
+.fun-cart-btn svg {
+    flex-shrink: 0;
+}
+
+/* Hamburger — hidden on desktop, circular on mobile */
+.fun-hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 43px;
+    height: 43px;
+    background: var(--brand-yellow);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    z-index: 1002;
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.fun-hamburger-btn:hover {
+    transform: scale(1.05);
+}
+
+.fun-hamburger-btn:focus-visible {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+}
+
+.hamburger-line {
+    display: block;
+    width: 15px;
+    height: 2px;
+    background-color: #000;
+    border-radius: 2px;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+    transform-origin: center;
+}
+
+.fun-hamburger-btn.is-active .hamburger-line:nth-child(1) {
+    transform: translateY(3px) rotate(45deg);
+}
+
+.fun-hamburger-btn.is-active .hamburger-line:nth-child(2) {
+    transform: translateY(-3px) rotate(-45deg);
 }
 
 /* Hero Section */
 .fun-hero {
     display: flex;
     width: 100%;
-    height: calc(100vh - 70px);
-    min-height: 500px;
+    min-height: 100vh;
+    margin-top: calc(-1 * (43px + 32px)); /* pulls hero behind the transparent navbar */
     background-color: #eae7df;
 }
 
@@ -720,12 +786,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive queries */
 @media (max-width: 1024px) {
-    .fun-navbar {
-        padding: 15px 20px;
-    }
     .fun-hero {
         height: auto;
+        min-height: auto;
         flex-direction: column;
+        margin-top: calc(-1 * (43px + 32px));
     }
     .hero-col {
         width: 100%;
@@ -752,42 +817,28 @@ h1, h2, h3, h4, h5, h6 {
     .footer-columns {
         grid-template-columns: repeat(2, 1fr);
     }
-}
 
-@media (max-width: 768px) {
-    body.menu-open {
-        overflow: hidden;
-    }
-
-    .fun-navbar {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 20px;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        height: 60px;
-    }
-
+    /* Show hamburger & hide desktop nav at this breakpoint */
     .fun-hamburger-btn {
         display: flex;
     }
 
-    .fun-navbar .fun-logo {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1001;
-        pointer-events: auto;
+    .fun-cart-btn span {
+        display: none;
     }
 
-    .fun-navbar-actions {
-        display: none;
+    .fun-cart-btn {
+        width: 40px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    body.menu-open {
+        overflow: hidden;
+    }
+
+    .fun-navbar-left {
+        flex: 0;
     }
 
     /* Mobile Overlay */
@@ -813,12 +864,12 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     /* Mobile Navigation Drawer */
-    .fun-nav-menu {
+    .fun-nav-center {
         position: fixed;
         top: 0;
         left: 0;
-        width: 280px;
-        max-width: 82vw;
+        width: 300px;
+        max-width: 85vw;
         height: 100vh;
         height: 100dvh;
         background-color: #f4f2ea;
@@ -833,7 +884,7 @@ h1, h2, h3, h4, h5, h6 {
         overflow-y: auto;
     }
 
-    .fun-nav-menu.is-open {
+    .fun-nav-center.is-open {
         transform: translateX(0);
     }
 
@@ -918,7 +969,9 @@ h1, h2, h3, h4, h5, h6 {
     .fun-btn-admin-mobile:active {
         transform: scale(0.98);
     }
+}
 
+@media (max-width: 768px) {
     .hero-col {
         height: 50vh;
         min-height: 320px;

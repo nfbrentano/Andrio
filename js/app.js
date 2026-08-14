@@ -221,20 +221,24 @@ function getButtonColor(btn) {
 function applyButtonActiveColor(btn) {
     const targetColor = getButtonColor(btn);
     btn.style.backgroundColor = targetColor;
+    btn.style.borderColor = targetColor;
     btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
 }
 
 filterBtns.forEach(btn => {
+    // Initialize all buttons with their solid colors
+    const color = getButtonColor(btn);
+    btn.style.backgroundColor = color;
+    btn.style.borderColor = color;
+    btn.style.color = (color.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+
     btn.addEventListener('click', (e) => {
         filterBtns.forEach(b => {
             b.classList.remove('active');
-            b.style.backgroundColor = 'transparent';
-            b.style.color = '#333';
         });
         
         const activeBtn = e.currentTarget;
         activeBtn.classList.add('active');
-        applyButtonActiveColor(activeBtn);
         
         renderizarProdutos(activeBtn.dataset.category);
     });
@@ -310,7 +314,7 @@ function inicializarMenuMobile() {
     // Close menu when clicking filter buttons on mobile
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1024) {
                 closeMenu();
             }
         });
@@ -318,7 +322,7 @@ function inicializarMenuMobile() {
 
     // Auto-close on resize to desktop
     window.addEventListener('resize', () => {
-        if (window.innerWidth > 768 && navMenu.classList.contains('is-open')) {
+        if (window.innerWidth > 1024 && navMenu.classList.contains('is-open')) {
             closeMenu();
         }
     });
