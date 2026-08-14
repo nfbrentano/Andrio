@@ -29,6 +29,8 @@ const productIdInput = document.getElementById('product-id');
 const productNameInput = document.getElementById('product-name');
 const productPriceInput = document.getElementById('product-price');
 const productCategoryInput = document.getElementById('product-category');
+const productSubheadInput = document.getElementById('product-subhead');
+const productDescInput = document.getElementById('product-desc');
 const productImageInput = document.getElementById('product-image');
 const productColorInput = document.getElementById('product-color');
 const productColorPicker = document.getElementById('product-color-picker');
@@ -191,6 +193,8 @@ async function prepareEdit(id) {
     productNameInput.value = item.nome;
     productPriceInput.value = item.preco;
     productCategoryInput.value = item.categoria;
+    productSubheadInput.value = item.subhead || '';
+    productDescInput.value = item.desc || '';
     productImageInput.value = item.img;
     productColorInput.value = item.color;
     productColorPicker.value = item.color;
@@ -220,10 +224,12 @@ productForm.addEventListener('submit', async (e) => {
     const nome = productNameInput.value;
     const preco = productPriceInput.value;
     const categoria = productCategoryInput.value;
+    const subhead = productSubheadInput.value.trim() || 'Cuidados Especiais';
+    const desc = productDescInput.value.trim() || 'Desenvolvido com ingredientes selecionados para seu cabelo';
     const img = productImageInput.value;
     const color = productColorInput.value;
 
-    const productData = { nome, preco, categoria, img, color };
+    const productData = { nome, preco, categoria, subhead, desc, img, color, bg: color };
 
     if (isUsingSupabase) {
         try {

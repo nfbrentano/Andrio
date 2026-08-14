@@ -15,6 +15,12 @@
 
     <title>FUN | Cosméticos Capilares</title>
     
+    <!-- Preconnect CDNs e Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='42' fill='white' text-anchor='middle'>FUN</text></svg>">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css">
     <link rel="stylesheet" href="css/antigravity.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -44,11 +50,11 @@
                 <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar Menu">✕</button>
             </div>
             <div id="filtros" class="fun-navbar-filters">
-                <button class="fun-pill-btn active" data-category="all" style="--btn-color: #2b7fff; color: white;">Todos</button>
-                <button class="fun-pill-btn" data-category="shampoo" style="--btn-color: #ff5722; color: white;">Shampoos</button>
-                <button class="fun-pill-btn" data-category="condicionador" style="--btn-color: #ffeb3b; color: black;">Condicionadores</button>
-                <button class="fun-pill-btn" data-category="creme" style="--btn-color: #9c27b0; color: white;">Cremes</button>
-                <button class="fun-pill-btn" data-category="mascara" style="--btn-color: #00c853; color: white;">Máscaras</button>
+                <button class="fun-pill-btn active" data-category="all" data-color="#2b7fff" style="--btn-color: #2b7fff; color: white;">Todos</button>
+                <button class="fun-pill-btn" data-category="shampoo" data-color="#ff5722" style="--btn-color: #ff5722; color: white;">Shampoos</button>
+                <button class="fun-pill-btn" data-category="condicionador" data-color="#ffeb3b" style="--btn-color: #ffeb3b; color: black;">Condicionadores</button>
+                <button class="fun-pill-btn" data-category="creme" data-color="#9c27b0" style="--btn-color: #9c27b0; color: white;">Cremes</button>
+                <button class="fun-pill-btn" data-category="mascara" data-color="#00c853" style="--btn-color: #00c853; color: white;">Máscaras</button>
             </div>
             <div class="fun-mobile-nav-actions">
                 <a href="admin.html" class="fun-btn-admin-mobile">Painel Admin →</a>
@@ -77,10 +83,10 @@
         </section>
 
         <!-- Product Carousel Section -->
-        <section class="fun-section fun-section-fullwidth reveal" style="overflow: visible;">
+        <section id="secao-catalogo" class="fun-section fun-section-fullwidth reveal" style="overflow: visible;">
             <div class="fun-section-header-full">
                 <h2>O que você procura hoje?</h2>
-                <button class="fun-btn-dark">Ver tudo</button>
+                <button class="fun-btn-dark" onclick="document.querySelector('.fun-pill-btn[data-category=\'all\']').click();">Ver todos</button>
             </div>
             <div class="slider-wrapper">
                 <button class="arrow-btn prev" id="arrow-prev" aria-label="Anterior">
@@ -102,7 +108,7 @@
         </section>
 
         <!-- Middle Split Section -->
-        <section class="fun-middle-section reveal">
+        <section id="formulas" class="fun-middle-section reveal">
             <div class="middle-col middle-img">
                 <img src="assets/middle_model.jpg" alt="Modelo sorrindo com cabelo crespo">
             </div>
@@ -120,23 +126,23 @@
         </section>
 
         <!-- People Grid Section -->
-        <section class="fun-section ag-container reveal">
+        <section id="depoimentos" class="fun-section ag-container reveal">
             <div class="fun-section-header">
                 <h2>Quem usa aprova</h2>
-                <button class="fun-btn-dark">Ver depoimentos</button>
+                <a href="#depoimentos" class="fun-btn-dark" style="text-decoration: none; display: inline-flex; align-items: center;">Depoimentos</a>
             </div>
             <div class="people-grid">
                 <div class="people-card">
-                    <img src="assets/people_grid_1.jpg" alt="Cliente usando produtos FUN">
+                    <img src="assets/people_grid_1.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_2.jpg" alt="Cliente usando produtos FUN">
+                    <img src="assets/people_grid_2.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_3.jpg" alt="Cliente usando produtos FUN">
+                    <img src="assets/people_grid_3.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_4.jpg" alt="Cliente usando produtos FUN">
+                    <img src="assets/people_grid_4.jpg" alt="Depoimento de cliente FUN">
                 </div>
             </div>
         </section>
@@ -164,26 +170,25 @@
             <div class="footer-col">
                 <h4>Produtos</h4>
                 <ul>
-                    <li><a href="#shampoo">Shampoos</a></li>
-                    <li><a href="#condicionador">Condicionadores</a></li>
-                    <li><a href="#cremes">Cremes</a></li>
-                    <li><a href="#mascaras">Máscaras</a></li>
+                    <li><a href="#catalogo" onclick="const b = document.querySelector('.fun-pill-btn[data-category=\'shampoo\']'); if(b) b.click();">Shampoos</a></li>
+                    <li><a href="#catalogo" onclick="const b = document.querySelector('.fun-pill-btn[data-category=\'condicionador\']'); if(b) b.click();">Condicionadores</a></li>
+                    <li><a href="#catalogo" onclick="const b = document.querySelector('.fun-pill-btn[data-category=\'creme\']'); if(b) b.click();">Cremes</a></li>
+                    <li><a href="#catalogo" onclick="const b = document.querySelector('.fun-pill-btn[data-category=\'mascara\']'); if(b) b.click();">Máscaras</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Sobre</h4>
                 <ul>
-                    <li><a href="#historia">Nossa História</a></li>
                     <li><a href="#formulas">Fórmulas Limpas</a></li>
-                    <li><a href="#sustentabilidade">Sustentabilidade</a></li>
+                    <li><a href="#depoimentos">Quem usa aprova</a></li>
+                    <li><a href="#secao-catalogo">Nossa Coleção</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Suporte</h4>
                 <ul>
-                    <li><a href="#faq">FAQ</a></li>
-                    <li><a href="#contato">Fale Conosco</a></li>
-                    <li><a href="#envio">Envio e Devolução</a></li>
+                    <li><a href="mailto:contato@funcosmeticos.com.br">Fale Conosco</a></li>
+                    <li><a href="admin.html">Painel Administrativo</a></li>
                 </ul>
             </div>
         </div>

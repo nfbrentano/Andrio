@@ -18,6 +18,7 @@
 
 html {
     scroll-behavior: smooth;
+    scroll-padding-top: 80px;
 }
 
 body {
@@ -203,15 +204,16 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-text-overlay h2 {
-    font-size: 1.5rem;
+    font-size: 2.5rem;
     font-weight: 800;
-    line-height: 1.1;
+    line-height: 1.15;
     margin-bottom: 15px;
 }
 
 .hero-text-overlay p {
-    font-size: 0.6rem;
-    opacity: 0.9;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    opacity: 0.95;
 }
 
 .fun-btn-hero {
@@ -730,7 +732,10 @@ h1, h2, h3, h4, h5, h6 {
         height: 400px;
     }
     .hero-text-overlay h2 {
-        font-size: 1.1rem;
+        font-size: 1.8rem;
+    }
+    .hero-text-overlay p {
+        font-size: 0.95rem;
     }
     .fun-middle-section {
         flex-direction: column;
@@ -778,6 +783,7 @@ h1, h2, h3, h4, h5, h6 {
         align-items: center;
         justify-content: center;
         z-index: 1001;
+        pointer-events: auto;
     }
 
     .fun-navbar-actions {
@@ -913,22 +919,117 @@ h1, h2, h3, h4, h5, h6 {
         transform: scale(0.98);
     }
 
-    .people-grid {
-        grid-template-columns: 1fr;
+    .hero-col {
+        height: 50vh;
+        min-height: 320px;
     }
+
+    .hero-text-overlay {
+        bottom: 24px;
+        left: 20px;
+        right: 20px;
+    }
+
+    .hero-text-overlay h2 {
+        font-size: 1.5rem;
+    }
+
+    .hero-text-overlay p {
+        font-size: 0.9rem;
+    }
+
+    .fun-btn-hero {
+        margin-top: 16px;
+        padding: 10px 24px;
+        font-size: 0.88rem;
+    }
+
+    .fun-section-fullwidth {
+        padding: 40px 16px;
+    }
+
+    .keen-slider__slide {
+        min-width: 280px;
+        max-width: 280px;
+        width: 280px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .middle-content {
+        padding: 40px 20px;
+    }
+
+    .middle-text-box h3 {
+        font-size: 1.8rem;
+    }
+
+    .middle-text-box p {
+        font-size: 1rem;
+    }
+
+    .people-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .footer-columns {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-col {
+        height: auto;
+        min-height: 280px;
+    }
+    
+    .hero-img-left {
+        min-height: 340px;
+    }
+
+    .keen-slider__slide {
+        min-width: 260px;
+        max-width: 260px;
+        width: 260px;
+    }
+
+    .people-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
     .footer-columns {
         grid-template-columns: 1fr;
+        gap: 24px;
     }
 }
 
 /* Reveal Animations */
 .reveal {
     opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transform: translateY(30px);
+    transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Smooth Slide in animation for catalog cards */
+.keen-slider__slide {
+    animation: fadeSlideIn 0.35s ease forwards;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

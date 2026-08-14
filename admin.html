@@ -70,6 +70,17 @@
                         </div>
                     </div>
 
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="product-subhead">Subtítulo (Benefício)</label>
+                            <input type="text" id="product-subhead" placeholder="Ex: Fortifying + Balancing">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-desc">Descrição Rápida</label>
+                            <input type="text" id="product-desc" placeholder="Ex: Fórmulas limpas e nutritivas">
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="product-image">URL da Imagem</label>
                         <input type="text" id="product-image" placeholder="Ex: assets/prod_shampoo.jpg ou link externo" required>
@@ -165,6 +176,9 @@
   categoria text not null,
   img text not null,
   color text not null,
+  subhead text default 'Cuidados Especiais',
+  "desc" text default 'Desenvolvido com ingredientes selecionados para seu cabelo',
+  bg text default '#4190de',
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 

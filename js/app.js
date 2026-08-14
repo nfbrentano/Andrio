@@ -78,6 +78,8 @@ function updateSliderNavigation(slider, prevBtn, nextBtn) {
     }
 }
 
+let sliderResizeHandler = null;
+
 function inicializarSlider() {
     destruirSlider();
     const slides = document.querySelectorAll('#catalogo .keen-slider__slide');
@@ -85,6 +87,11 @@ function inicializarSlider() {
     
     const arrowPrev = document.getElementById("arrow-prev");
     const arrowNext = document.getElementById("arrow-next");
+
+    if (sliderResizeHandler) {
+        window.removeEventListener('resize', sliderResizeHandler);
+        sliderResizeHandler = null;
+    }
 
     if (slidesCount > 0) {
         const shouldLoop = slidesCount > 2;
@@ -105,11 +112,12 @@ function inicializarSlider() {
         });
 
         // Add resize listener to update alignment/arrows dynamically
-        window.addEventListener('resize', () => {
+        sliderResizeHandler = () => {
             if (sliderInstance) {
                 updateSliderNavigation(sliderInstance, arrowPrev, arrowNext);
             }
-        });
+        };
+        window.addEventListener('resize', sliderResizeHandler);
 
         if (arrowPrev && arrowNext) {
             arrowPrev.onclick = (e) => {
@@ -200,6 +208,22 @@ function renderizarProdutos(categoria = 'all') {
     inicializarSlider();
 }
 
+function getButtonColor(btn) {
+    if (!btn) return '#2b7fff';
+    if (btn.dataset.color) return btn.dataset.color;
+    const styleAttr = btn.getAttribute('style') || '';
+    const match = styleAttr.match(/--btn-color:\s*(#[a-fA-F0-9]{3,8})/);
+    if (match && match[1]) return match[1];
+    const computed = window.getComputedStyle(btn).getPropertyValue('--btn-color').trim();
+    return computed || '#2b7fff';
+}
+
+function applyButtonActiveColor(btn) {
+    const targetColor = getButtonColor(btn);
+    btn.style.backgroundColor = targetColor;
+    btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+}
+
 filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         filterBtns.forEach(b => {
@@ -210,11 +234,7 @@ filterBtns.forEach(btn => {
         
         const activeBtn = e.currentTarget;
         activeBtn.classList.add('active');
-        
-        // Apply color dynamically
-        const targetColor = activeBtn.getAttribute('style').match(/--btn-color:\s*(#[a-fA-F0-9]{3,8})/)[1];
-        activeBtn.style.backgroundColor = targetColor;
-        activeBtn.style.color = (targetColor === '#ffeb3b') ? 'black' : 'white';
+        applyButtonActiveColor(activeBtn);
         
         renderizarProdutos(activeBtn.dataset.category);
     });
@@ -309,9 +329,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Set initial active button styling
     const activeBtn = document.querySelector('.fun-pill-btn.active');
     if (activeBtn) {
-        const targetColor = activeBtn.getAttribute('style').match(/--btn-color:\s*(#[a-fA-F0-9]{3,8})/)[1];
-        activeBtn.style.backgroundColor = targetColor;
-        activeBtn.style.color = (targetColor === '#ffeb3b') ? 'black' : 'white';
+        applyButtonActiveColor(activeBtn);
     }
     inicializarMenuMobile();
     await carregarProdutos();
