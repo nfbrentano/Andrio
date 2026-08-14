@@ -4,9 +4,9 @@
     --fun-bg-main: #f4f2ea;
     --fun-bg-card: #f9f8f4;
     --fun-text-main: #1a1a1a;
-    --fun-text-sec: #666666;
-    --fun-font: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif;
-    --fun-font-title: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, sans-serif;
+    --fun-text-sec: #555555;
+    --fun-font: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --fun-font-title: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     
     /* Branding Colors */
     --brand-blue: #2b7fff;
@@ -19,19 +19,26 @@
 html {
     scroll-behavior: smooth;
     scroll-padding-top: 75px;
+    font-size: 16px;
 }
 
 body {
     background-color: var(--fun-bg-main);
     color: var(--fun-text-main);
     font-family: var(--fun-font);
-    line-height: 1.6;
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--fun-font-title);
+    letter-spacing: -0.02em;
+    color: var(--fun-text-main);
 }
 
 /* Navbar — Shopfunner-inspired transparent floating header */
@@ -105,16 +112,16 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--btn-color, #2b7fff);
     color: #fff;
     border: 2px solid var(--btn-color, #2b7fff);
-    padding: 10px 22px;
+    padding: 9px 20px;
     border-radius: 50px;
     font-family: var(--fun-font-title);
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: 0.75rem; /* 12px uppercase */
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.6px;
     white-space: nowrap;
-    min-width: 110px;
+    min-width: 105px;
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -167,8 +174,9 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: none;
     font-family: var(--fun-font-title);
     font-weight: 700;
-    font-size: 0.82rem;
-    letter-spacing: 0.3px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: all 0.25s ease;
 }
@@ -265,34 +273,39 @@ h1, h2, h3, h4, h5, h6 {
     right: 40px;
     color: white;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
-    max-width: 500px;
+    max-width: 520px;
     z-index: 2;
 }
 
 .hero-text-overlay h2 {
-    font-size: 2.5rem;
+    font-size: 2.75rem; /* ~44px */
     font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 15px;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 12px;
+    color: #ffffff;
 }
 
 .hero-text-overlay p {
-    font-size: 1.05rem;
-    line-height: 1.5;
+    font-size: 1.0625rem; /* 17px */
+    line-height: 1.45;
+    letter-spacing: -0.01em;
     opacity: 0.95;
+    margin: 0;
 }
 
 .fun-btn-hero {
     display: inline-block;
-    margin-top: 24px;
+    margin-top: 22px;
     background-color: var(--brand-blue);
     color: white !important;
     text-decoration: none;
-    padding: 12px 32px;
+    padding: 12px 28px;
     border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
+    font-weight: 700;
+    font-size: 0.8125rem; /* 13px */
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
     box-shadow: 0 4px 15px rgba(43, 127, 255, 0.3);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -313,22 +326,27 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    padding-bottom: 10px;
-    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
 }
 
 .fun-section-header h2 {
-    font-size: 1.5rem;
+    font-size: 1.625rem; /* 26px */
     font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
 }
 
 .fun-btn-dark {
     background-color: #111;
     color: white;
     border: none;
-    padding: 10px 24px;
+    padding: 9px 22px;
     border-radius: 50px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 0.75rem; /* 12px */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
 }
@@ -349,13 +367,15 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
-    padding-bottom: 10px;
-    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.12);
 }
 
 .fun-section-header-full h2 {
-    font-size: 1.5rem;
+    font-size: 1.625rem; /* 26px */
     font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
 }
 
 .slider-wrapper {
@@ -539,16 +559,19 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .type-headings {
-    font-size: 0.9rem;
+    font-size: 0.8125rem; /* 13px */
     font-weight: 700;
+    line-height: 1.25;
     margin: 0;
+    letter-spacing: -0.01em;
 }
 
 .type-body {
-    font-size: 0.8rem;
-    line-height: 1.2;
+    font-size: 0.75rem; /* 12px */
+    line-height: 1.35;
     margin: 0;
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.75);
+    letter-spacing: -0.01em;
 }
 
 /* Details Footer */
@@ -617,8 +640,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .type-title {
-    font-size: 0.95rem;
+    font-size: 0.875rem; /* 14px */
     font-weight: 700;
+    letter-spacing: -0.01em;
     margin: 0;
 }
 
@@ -662,15 +686,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .middle-text-box h3 {
-    font-size: 2.5rem;
+    font-size: 2.25rem; /* 36px */
     font-weight: 800;
-    line-height: 1.2;
-    margin-bottom: 20px;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    margin-bottom: 18px;
 }
 
 .middle-text-box p {
-    font-size: 1.1rem;
-    color: var(--fun-text-sec);
+    font-size: 1rem; /* 16px */
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    color: #444444;
 }
 
 /* Large Collection Banner */
@@ -742,17 +769,18 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .brand-col p {
-    margin-top: 20px;
-    font-size: 0.9rem;
+    margin-top: 18px;
+    font-size: 0.8125rem; /* 13px */
+    line-height: 1.5;
     color: var(--fun-text-sec);
 }
 
 .footer-col h4 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 20px;
+    font-size: 0.8125rem; /* 13px */
+    font-weight: 800;
+    margin-bottom: 18px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.8px;
 }
 
 .footer-col ul {
@@ -762,10 +790,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-col ul li {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 
 .footer-col ul li a {
+    font-size: 0.8125rem; /* 13px */
     color: var(--fun-text-sec);
     text-decoration: none;
     transition: color 0.2s;
