@@ -12,16 +12,69 @@
     <meta property="og:description" content="Fórmulas limpas e eficazes que nutrem a beleza natural dos seus cabelos.">
     <meta property="og:image" content="assets/hero_product.jpg">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://funcosmeticos.com.br/">
+    <meta property="og:site_name" content="FUN Cosméticos">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="FUN | Cosméticos Orgânicos e Limpos">
+    <meta name="twitter:description" content="Fórmulas limpas e eficazes que nutrem a beleza natural dos seus cabelos.">
+    <meta name="twitter:image" content="assets/hero_product.jpg">
 
     <title>FUN | Cosméticos Capilares</title>
     
-    <!-- Preconnect CDNs -->
+    <!-- Preconnect CDNs & Fonts -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="css/style.css" as="style">
+    <link rel="preload" href="css/antigravity.min.css" as="style">
+    <link rel="preload" href="js/app.js" as="script">
+
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='42' fill='white' text-anchor='middle'>FUN</text></svg>">
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css">
     <link rel="stylesheet" href="css/antigravity.min.css">
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Structured Data Schema.org (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://funcosmeticos.com.br/#organization",
+          "name": "FUN Cosméticos",
+          "url": "https://funcosmeticos.com.br/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://funcosmeticos.com.br/assets/hero_product.jpg",
+            "caption": "FUN Cosméticos"
+          },
+          "sameAs": [
+            "https://www.instagram.com/funcosmeticos"
+          ]
+        },
+        {
+          "@type": "Store",
+          "@id": "https://funcosmeticos.com.br/#store",
+          "name": "FUN Cosméticos",
+          "url": "https://funcosmeticos.com.br/",
+          "description": "Fórmulas limpas e eficazes para todos os tipos de cabelo. Descubra a nossa linha completa.",
+          "image": "https://funcosmeticos.com.br/assets/hero_product.jpg",
+          "priceRange": "$$",
+          "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "BR"
+          }
+        }
+      ]
+    }
+    </script>
 </head>
 <body>
     <header class="fun-navbar">
@@ -116,7 +169,7 @@
         <!-- Middle Split Section -->
         <section id="formulas" class="fun-middle-section reveal">
             <div class="middle-col middle-img">
-                <img src="assets/middle_model.jpg" alt="Modelo sorrindo com cabelo crespo">
+                <img loading="lazy" src="assets/middle_model.jpg" alt="Modelo sorrindo com cabelo crespo">
             </div>
             <div class="middle-col middle-content">
                 <div class="middle-text-box">
@@ -128,7 +181,7 @@
 
         <!-- Large Collection Banner -->
         <section class="fun-banner-section reveal">
-            <img src="assets/collection_banner.jpg" alt="Apresentação da Coleção Completa" class="collection-banner-img">
+            <img loading="lazy" src="assets/collection_banner.jpg" alt="Apresentação da Coleção Completa" class="collection-banner-img">
         </section>
 
         <!-- People Grid Section -->
@@ -139,23 +192,23 @@
             </div>
             <div class="people-grid">
                 <div class="people-card">
-                    <img src="assets/people_grid_1.jpg" alt="Depoimento de cliente FUN">
+                    <img loading="lazy" src="assets/people_grid_1.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_2.jpg" alt="Depoimento de cliente FUN">
+                    <img loading="lazy" src="assets/people_grid_2.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_3.jpg" alt="Depoimento de cliente FUN">
+                    <img loading="lazy" src="assets/people_grid_3.jpg" alt="Depoimento de cliente FUN">
                 </div>
                 <div class="people-card">
-                    <img src="assets/people_grid_4.jpg" alt="Depoimento de cliente FUN">
+                    <img loading="lazy" src="assets/people_grid_4.jpg" alt="Depoimento de cliente FUN">
                 </div>
             </div>
         </section>
 
         <!-- Lineup Banner Section -->
         <section class="fun-lineup-section reveal">
-            <img src="assets/lineup_products.jpg" alt="Fileira Completa de Produtos FUN" class="lineup-banner-img">
+            <img loading="lazy" src="assets/lineup_products.jpg" alt="Fileira Completa de Produtos FUN" class="lineup-banner-img">
         </section>
     </main>
 
