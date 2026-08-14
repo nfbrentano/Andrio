@@ -56,39 +56,75 @@ function destruirSlider() {
     }
 }
 
+function updateSliderNavigation(slider, prevBtn, nextBtn) {
+    if (!slider || !slider.container) return;
+    
+    const containerWidth = slider.container.getBoundingClientRect().width;
+    let totalSlidesWidth = 0;
+    const slides = slider.container.querySelectorAll('.keen-slider__slide');
+    slides.forEach(slide => {
+        totalSlidesWidth += slide.getBoundingClientRect().width;
+    });
+
+    // If total width of slides is less than container, they all fit.
+    if (totalSlidesWidth <= containerWidth + 10) {
+        if (prevBtn) prevBtn.style.display = 'none';
+        if (nextBtn) nextBtn.style.display = 'none';
+        slider.container.style.justifyContent = 'center';
+    } else {
+        if (prevBtn) prevBtn.style.display = 'flex';
+        if (nextBtn) nextBtn.style.display = 'flex';
+        slider.container.style.justifyContent = 'flex-start';
+    }
+}
+
 function inicializarSlider() {
     destruirSlider();
-    if (document.querySelectorAll('#catalogo .keen-slider__slide').length > 0) {
+    const slides = document.querySelectorAll('#catalogo .keen-slider__slide');
+    const slidesCount = slides.length;
+    
+    const arrowPrev = document.getElementById("arrow-prev");
+    const arrowNext = document.getElementById("arrow-next");
+
+    if (slidesCount > 0) {
+        const shouldLoop = slidesCount > 2;
+        
         sliderInstance = new KeenSlider("#catalogo", {
-            loop: true,
+            loop: shouldLoop,
             mode: "free-snap",
             slides: {
-                perView: 1,
+                perView: "auto",
                 spacing: 0,
             },
-            breakpoints: {
-                "(min-width: 1024px)": {
-                    slides: {
-                        perView: 3,
-                        spacing: 0,
-                    }
-                }
+            created: (s) => {
+                updateSliderNavigation(s, arrowPrev, arrowNext);
+            },
+            detailsChanged: (s) => {
+                updateSliderNavigation(s, arrowPrev, arrowNext);
             }
         });
 
-        // Bind Arrow Navigation Click Events
-        const arrowPrev = document.getElementById("arrow-prev");
-        const arrowNext = document.getElementById("arrow-next");
+        // Add resize listener to update alignment/arrows dynamically
+        window.addEventListener('resize', () => {
+            if (sliderInstance) {
+                updateSliderNavigation(sliderInstance, arrowPrev, arrowNext);
+            }
+        });
 
         if (arrowPrev && arrowNext) {
             arrowPrev.onclick = (e) => {
                 e.preventDefault();
-                sliderInstance.prev();
+                if (sliderInstance) sliderInstance.prev();
             };
             arrowNext.onclick = (e) => {
                 e.preventDefault();
-                sliderInstance.next();
+                if (sliderInstance) sliderInstance.next();
             };
+        }
+    } else {
+        if (arrowPrev && arrowNext) {
+            arrowPrev.style.display = 'none';
+            arrowNext.style.display = 'none';
         }
     }
 }
@@ -184,6 +220,24 @@ filterBtns.forEach(btn => {
     });
 });
 
+// Intersection Observer for Scroll Reveal
+function inicializarScrollReveal() {
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.05,
+        rootMargin: "0px 0px -20px 0px"
+    });
+    
+    reveals.forEach(el => observer.observe(el));
+}
+
 // Renderização inicial
 document.addEventListener('DOMContentLoaded', async () => {
     // Set initial active button styling
@@ -195,4 +249,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     await carregarProdutos();
     renderizarProdutos();
+    inicializarScrollReveal();
 });
