@@ -63,10 +63,33 @@ function inicializarSlider() {
             loop: true,
             mode: "free-snap",
             slides: {
-                perView: "auto",
+                perView: 1,
                 spacing: 0,
             },
+            breakpoints: {
+                "(min-width: 1024px)": {
+                    slides: {
+                        perView: 3,
+                        spacing: 0,
+                    }
+                }
+            }
         });
+
+        // Bind Arrow Navigation Click Events
+        const arrowPrev = document.getElementById("arrow-prev");
+        const arrowNext = document.getElementById("arrow-next");
+
+        if (arrowPrev && arrowNext) {
+            arrowPrev.onclick = (e) => {
+                e.preventDefault();
+                sliderInstance.prev();
+            };
+            arrowNext.onclick = (e) => {
+                e.preventDefault();
+                sliderInstance.next();
+            };
+        }
     }
 }
 

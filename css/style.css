@@ -170,6 +170,12 @@ body {
 }
 
 /* Keen Slider & Slide Custom Styling */
+.slider-wrapper {
+    position: relative;
+    width: 100%;
+    overflow: visible;
+}
+
 .keen-slider {
     display: flex;
     overflow: hidden;
@@ -188,6 +194,7 @@ body {
     min-height: 100%;
     box-sizing: border-box;
     padding-left: 16px;
+    padding-right: 16px;
     min-width: 322px;
     max-width: 322px;
     flex-shrink: 0;
@@ -195,8 +202,49 @@ body {
 
 @media (min-width: 1024px) {
     .keen-slider__slide {
-        min-width: calc(100vw / 3.2);
-        max-widh: calc(100vw / 3.2);
+        min-width: calc(100% / 3);
+        max-width: calc(100% / 3);
+    }
+}
+
+/* Arrow Navigation Buttons */
+.arrow-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.25s ease;
+}
+
+.arrow-btn:hover {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #1a1a1a;
+    transform: translateY(-50%) scale(1.05);
+}
+
+.arrow-btn.prev {
+    left: -24px;
+}
+
+.arrow-btn.next {
+    right: -24px;
+}
+
+@media (max-width: 1024px) {
+    .arrow-btn {
+        display: none;
     }
 }
 
