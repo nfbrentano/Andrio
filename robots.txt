@@ -1,0 +1,6 @@
+# robots.txt for https://funcosmeticos.com.br/
+User-agent: *
+Allow: /
+Disallow: /admin.html
+
+Sitemap: https://funcosmeticos.com.br/sitemap.xml
