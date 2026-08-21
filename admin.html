@@ -36,6 +36,7 @@
         </div>
         <div class="fun-navbar-actions">
             <span id="user-display" class="admin-user-tag" style="display: none;">👤 <span id="user-email">admin</span></span>
+            <button class="fun-pill-btn" id="btn-drive-config" style="--btn-color: #0f9d58; color: white;">📁 Pasta Google Drive</button>
             <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Firebase</button>
             <a href="catalogo.html" class="fun-login-link" target="_blank">Ver Catálogo</a>
             <a href="index.html" class="fun-login-link">Ver Loja</a>
@@ -43,10 +44,23 @@
         </div>
     </header>
 
-    <!-- Banner de Status da Conexão -->
+    <!-- Banner de Status da Conexão Firebase -->
     <div id="connection-banner" class="status-banner info" role="status" aria-live="polite">
         <span class="icon" aria-hidden="true">⚠️</span>
         <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Firebase para salvar na nuvem.</span>
+    </div>
+
+    <!-- Banner de Status da Pasta do Google Drive -->
+    <div id="drive-folder-banner" class="drive-folder-banner" style="display: none;" role="status">
+        <div class="drive-banner-left">
+            <span class="drive-icon">📁</span>
+            <span class="drive-label">Pasta Google Drive:</span>
+            <strong id="drive-banner-name">Fotos Móveis PACO</strong>
+        </div>
+        <div class="drive-banner-actions">
+            <a id="btn-open-drive-folder" href="#" target="_blank" class="drive-action-link" rel="noopener noreferrer">Abrir Pasta no Drive ↗</a>
+            <button type="button" id="btn-edit-drive-folder" class="drive-action-btn">Alterar</button>
+        </div>
     </div>
 
     <main class="admin-main ag-container" id="admin-main" tabindex="-1">
@@ -128,15 +142,38 @@
 
                         <!-- Inserção de link do Google Drive ou URL Externa -->
                         <div class="manual-url-toggle">
-                            <button type="button" id="btn-toggle-manual-url">🔗 Inserir link do Google Drive / URL externa</button>
+                            <button type="button" id="btn-toggle-manual-url">🔗 Inserir links do Google Drive / URL externa</button>
                         </div>
                         <div id="manual-url-box" class="manual-url-box" style="display: none;">
-                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                                <input type="text" id="product-image-url-input" placeholder="Cole o link do Google Drive (ex: https://drive.google.com/file/d/...) ou URL externa" style="flex: 1;">
+                            <!-- Atalho da pasta conectada -->
+                            <div class="drive-quick-helper">
+                                <div>
+                                    <span>📁 Pasta Conectada: <strong id="drive-current-folder-text">Nenhuma pasta definida</strong></span>
+                                </div>
+                                <a id="drive-quick-open-link" href="#" target="_blank" class="drive-link-btn" style="display: none;" rel="noopener noreferrer">Abrir Pasta no Drive ↗</a>
+                            </div>
+
+                            <label for="product-image-url-input" style="font-size: 0.82rem; font-weight: 600; color: #c9d1d9; margin-bottom: 4px; display: block;">Adicionar Foto Individual:</label>
+                            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                                <input type="text" id="product-image-url-input" placeholder="Cole o link do Google Drive (ex: https://drive.google.com/file/d/...) ou URL direta" style="flex: 1;">
                                 <button type="button" id="btn-add-manual-image" class="admin-btn primary" style="padding: 8px 14px; font-size: 0.85rem; flex: none;">+ Adicionar Foto</button>
                             </div>
+
+                            <!-- Importador em lote de fotos do Drive -->
+                            <div class="bulk-drive-box">
+                                <label for="bulk-drive-urls">📥 Colar múltiplos links de fotos do Google Drive (um por linha ou separados por vírgula):</label>
+                                <textarea id="bulk-drive-urls" rows="3" placeholder="https://drive.google.com/file/d/1ABC.../view&#10;https://drive.google.com/file/d/2XYZ.../view"></textarea>
+                                <button type="button" id="btn-import-bulk-drive" class="admin-btn secondary" style="margin-top: 8px; width: 100%; font-size: 0.85rem;">Importar Todas as Fotos Acima</button>
+                            </div>
+
+                            <!-- Pasta específica deste produto no Drive -->
+                            <div class="form-group" style="margin-top: 14px; margin-bottom: 8px;">
+                                <label for="product-drive-folder" style="font-size: 0.82rem; font-weight: 600; color: #c9d1d9;">Pasta do Google Drive deste Móvel (Opcional):</label>
+                                <input type="text" id="product-drive-folder" placeholder="Ex: https://drive.google.com/drive/folders/1ABC... (pasta exclusiva deste produto)">
+                            </div>
+
                             <input type="hidden" id="product-image">
-                            <div class="image-preset-labels">
+                            <div class="image-preset-labels" style="margin-top: 12px;">
                                 <span>Presets rápidos:</span>
                                 <button type="button" class="preset-btn" data-url="assets/prod_poltrona.webp">Poltrona</button>
                                 <button type="button" class="preset-btn" data-url="assets/prod_sofa.webp">Sofá</button>
@@ -291,6 +328,52 @@
         </div>
     </main>
 
+    <!-- Modal de Configuração do Google Drive -->
+    <div id="drive-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-drive-title" aria-hidden="true">
+        <div class="modal-content">
+            <button type="button" class="close-btn" id="close-drive-modal" aria-label="Fechar janela do Google Drive">&times;</button>
+            <div class="modal-header-drive">
+                <span style="font-size: 2.2rem;">📁</span>
+                <div>
+                    <h2 id="modal-drive-title" style="margin: 0;">Pasta do Google Drive</h2>
+                    <p class="modal-description" style="margin: 4px 0 0 0;">Configure a pasta do Google Drive onde as fotos dos móveis são salvas e organizadas.</p>
+                </div>
+            </div>
+            
+            <form id="drive-config-form" style="margin-top: 18px;">
+                <div class="form-group">
+                    <label for="drive-folder-url">Link ou ID da Pasta do Google Drive *</label>
+                    <input type="text" id="drive-folder-url" placeholder="Cole o link da pasta (ex: https://drive.google.com/drive/folders/1aBcDeFgHiJk...)" required>
+                    <div id="drive-id-feedback" class="drive-id-feedback" style="display: none;">
+                        <span class="drive-badge-id">ID Detectado: <code id="detected-drive-id">...</code></span>
+                        <a id="test-drive-link" href="#" target="_blank" class="drive-test-btn" rel="noopener noreferrer">Testar / Abrir Pasta ↗</a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="drive-folder-name">Nome de Identificação da Pasta (Opcional)</label>
+                    <input type="text" id="drive-folder-name" placeholder="Ex: Fotos do Catálogo PACO Móveis 2026">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="admin-btn primary" id="btn-save-drive">💾 Salvar no Banco de Dados</button>
+                    <button type="button" class="admin-btn secondary" id="btn-clear-drive">Remover Pasta</button>
+                </div>
+            </form>
+
+            <div class="drive-instructions">
+                <h3>💡 Como configurar o acesso público no Google Drive:</h3>
+                <ol>
+                    <li>Abra o seu <strong>Google Drive</strong> e crie (ou abra) a pasta onde ficarão as fotos dos móveis.</li>
+                    <li>Clique com o botão direito na pasta ➔ <strong>Compartilhar</strong> ➔ <strong>Compartilhar</strong>.</li>
+                    <li>Em <em>Acesso Geral</em>, mude de <strong>"Restrito"</strong> para <strong>"Qualquer pessoa com o link"</strong> (como <em>Leitor</em>).</li>
+                    <li>Clique em <strong>Copiar link</strong> e cole no campo acima.</li>
+                    <li>Pronto! Todas as fotos colocadas nessa pasta poderão ser vinculadas aos móveis e carregarão com alta qualidade no site.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal de Configuração do Firebase -->
     <div id="config-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-config-title" aria-hidden="true">
         <div class="modal-content">
@@ -323,6 +406,10 @@
 service cloud.firestore {
   match /databases/{database}/documents {
     match /produtos/{produtoId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /configuracoes/{configId} {
       allow read: if true;
       allow write: if request.auth != null;
     }

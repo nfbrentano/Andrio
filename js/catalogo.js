@@ -123,11 +123,17 @@ function normalizarUrlImagem(url) {
     const trimmed = String(url).trim();
 
     const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                       trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
                        trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
-                       trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+                       trimmed.match(/thumbnail\?id=([a-zA-Z0-9_-]+)/) ||
+                       trimmed.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
                        
     if (driveMatch && driveMatch[1]) {
         return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    }
+
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
+        return `https://drive.google.com/thumbnail?id=${trimmed}&sz=w1600`;
     }
 
     return trimmed;

@@ -145,13 +145,41 @@ const manualUrlBox = document.getElementById('manual-url-box');
 // Venda Casada
 const crossSellSelector = document.getElementById('cross-sell-selector');
 
-// Modal de Configuração
+// Modal de Configuração Firebase
 const configModal = document.getElementById('config-modal');
 const btnConfig = document.getElementById('btn-config');
 const closeModal = document.getElementById('close-modal');
 const firebaseConfigForm = document.getElementById('firebase-config-form');
 const adminFirebaseJson = document.getElementById('admin-firebase-json');
 const btnDisconnect = document.getElementById('btn-disconnect');
+
+// Google Drive - Elementos do DOM
+const btnDriveConfig = document.getElementById('btn-drive-config');
+const driveModal = document.getElementById('drive-modal');
+const closeDriveModal = document.getElementById('close-drive-modal');
+const driveConfigForm = document.getElementById('drive-config-form');
+const driveFolderUrlInput = document.getElementById('drive-folder-url');
+const driveFolderNameInput = document.getElementById('drive-folder-name');
+const driveIdFeedback = document.getElementById('drive-id-feedback');
+const detectedDriveId = document.getElementById('detected-drive-id');
+const testDriveLink = document.getElementById('test-drive-link');
+const btnSaveDrive = document.getElementById('btn-save-drive');
+const btnClearDrive = document.getElementById('btn-clear-drive');
+
+// Google Drive - Banners e Helpers
+const driveFolderBanner = document.getElementById('drive-folder-banner');
+const driveBannerName = document.getElementById('drive-banner-name');
+const btnOpenDriveFolder = document.getElementById('btn-open-drive-folder');
+const btnEditDriveFolder = document.getElementById('btn-edit-drive-folder');
+const driveCurrentFolderText = document.getElementById('drive-current-folder-text');
+const driveQuickOpenLink = document.getElementById('drive-quick-open-link');
+
+// Importador em Lote e Pasta do Móvel
+const bulkDriveUrls = document.getElementById('bulk-drive-urls');
+const btnImportBulkDrive = document.getElementById('btn-import-bulk-drive');
+const productDriveFolderInput = document.getElementById('product-drive-folder');
+
+let currentDriveConfig = null;
 
 // Atualização visual do status de conexão
 function updateConnectionStatus() {
@@ -203,21 +231,164 @@ async function fetchProducts() {
     }
 }
 
+// Extração de ID de pasta do Google Drive
+function extractDriveFolderId(input) {
+    if (!input) return null;
+    const str = String(input).trim();
+    const match = str.match(/folders\/([a-zA-Z0-9_-]+)/) ||
+                  str.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) return match[1];
+    if (/^[a-zA-Z0-9_-]{20,}$/.test(str) && !str.includes('/') && !str.includes('.')) {
+        return str;
+    }
+    return null;
+}
+
+// Extração de ID de arquivo/foto do Google Drive
+function extractDriveFileId(input) {
+    if (!input) return null;
+    const str = String(input).trim();
+    const match = str.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) ||
+                  str.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+                  str.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                  str.match(/thumbnail\?id=([a-zA-Z0-9_-]+)/) ||
+                  str.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) return match[1];
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(str) && !str.includes('/') && !str.includes('.')) {
+        return str;
+    }
+    return null;
+}
+
 // Função para normalizar e converter links do Google Drive e URLs externas
 function normalizarUrlImagem(url) {
     if (!url) return 'assets/prod_poltrona.webp';
-    const trimmed = url.trim();
+    const trimmed = String(url).trim();
 
-    // Converte links de compartilhamento do Google Drive para link direto de alta definição
-    const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
-                       trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
-                       trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
-                       
-    if (driveMatch && driveMatch[1]) {
-        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    // Converte links de arquivos/fotos do Google Drive para URL direta de alta definição
+    const fileId = extractDriveFileId(trimmed);
+    if (fileId) {
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
     }
 
     return trimmed;
+}
+
+// Gerenciamento e Persistência da Pasta do Google Drive
+async function loadDriveConfig() {
+    let config = null;
+
+    if (FirebaseService.isConfigured && FirebaseService.db) {
+        try {
+            const doc = await FirebaseService.db.collection('configuracoes').doc('google_drive').get();
+            if (doc.exists) {
+                config = doc.data();
+                localStorage.setItem('fun_google_drive_config', JSON.stringify(config));
+            }
+        } catch (err) {
+            console.warn('[Google Drive] Não foi possível carregar do Firestore. Usando cache local.', err);
+        }
+    }
+
+    if (!config) {
+        const saved = localStorage.getItem('fun_google_drive_config');
+        if (saved) {
+            try { config = JSON.parse(saved); } catch (e) {}
+        }
+    }
+
+    currentDriveConfig = config;
+    updateDriveUI();
+    return config;
+}
+
+function updateDriveUI() {
+    if (currentDriveConfig && currentDriveConfig.folder_url) {
+        const folderUrl = currentDriveConfig.folder_url;
+        const folderName = currentDriveConfig.folder_name || 'Fotos Móveis PACO';
+        const folderId = currentDriveConfig.folder_id || extractDriveFolderId(folderUrl) || '';
+
+        // Atualiza Banner Superior
+        if (driveFolderBanner) {
+            driveFolderBanner.style.display = 'flex';
+            driveBannerName.textContent = folderName;
+            btnOpenDriveFolder.href = folderUrl;
+        }
+
+        // Atualiza Helper no Formulário
+        if (driveCurrentFolderText) {
+            driveCurrentFolderText.textContent = folderName;
+        }
+        if (driveQuickOpenLink) {
+            driveQuickOpenLink.href = folderUrl;
+            driveQuickOpenLink.style.display = 'inline-flex';
+        }
+
+        // Atualiza campos do modal se estiverem vazios
+        if (driveFolderUrlInput && !driveFolderUrlInput.value) {
+            driveFolderUrlInput.value = folderUrl;
+        }
+        if (driveFolderNameInput && !driveFolderNameInput.value) {
+            driveFolderNameInput.value = folderName;
+        }
+        if (folderId && driveIdFeedback) {
+            driveIdFeedback.style.display = 'flex';
+            detectedDriveId.textContent = folderId;
+            testDriveLink.href = folderUrl;
+        }
+    } else {
+        if (driveFolderBanner) driveFolderBanner.style.display = 'none';
+        if (driveCurrentFolderText) driveCurrentFolderText.textContent = 'Nenhuma pasta definida';
+        if (driveQuickOpenLink) driveQuickOpenLink.style.display = 'none';
+        if (driveIdFeedback) driveIdFeedback.style.display = 'none';
+    }
+}
+
+async function saveDriveConfig(folderUrl, folderName) {
+    const trimmedUrl = folderUrl.trim();
+    const folderId = extractDriveFolderId(trimmedUrl);
+
+    if (!folderId && !trimmedUrl.startsWith('http')) {
+        throw new Error('Por favor, informe uma URL válida da pasta do Google Drive.');
+    }
+
+    const fullUrl = trimmedUrl.startsWith('http') 
+        ? trimmedUrl 
+        : `https://drive.google.com/drive/folders/${folderId}`;
+
+    const configData = {
+        folder_url: fullUrl,
+        folder_id: folderId || '',
+        folder_name: folderName.trim() || 'Fotos Móveis PACO',
+        updated_at: new Date().toISOString(),
+        updated_by: (FirebaseService.auth && FirebaseService.auth.currentUser && FirebaseService.auth.currentUser.email) || 'admin'
+    };
+
+    if (FirebaseService.isConfigured && FirebaseService.db) {
+        await FirebaseService.db.collection('configuracoes').doc('google_drive').set(configData, { merge: true });
+    }
+
+    localStorage.setItem('fun_google_drive_config', JSON.stringify(configData));
+    currentDriveConfig = configData;
+    updateDriveUI();
+    showToast("Pasta do Google Drive configurada e salva com sucesso!");
+}
+
+async function clearDriveConfig() {
+    if (FirebaseService.isConfigured && FirebaseService.db) {
+        try {
+            await FirebaseService.db.collection('configuracoes').doc('google_drive').delete();
+        } catch (e) {
+            console.error('Erro ao deletar config no Firestore:', e);
+        }
+    }
+
+    localStorage.removeItem('fun_google_drive_config');
+    currentDriveConfig = null;
+    if (driveFolderUrlInput) driveFolderUrlInput.value = '';
+    if (driveFolderNameInput) driveFolderNameInput.value = '';
+    updateDriveUI();
+    showToast("Configuração da pasta do Google Drive removida.");
 }
 
 // Renderizar Galeria de Miniaturas no Form
@@ -448,6 +619,9 @@ async function prepareEdit(id) {
     productDepthInput.value = item.profundidade_cm || '';
     productHeightInput.value = item.altura_cm || '';
     productWeightInput.value = item.peso_kg || '';
+    if (productDriveFolderInput) {
+        productDriveFolderInput.value = item.pasta_drive_url || '';
+    }
 
     currentGalleryImages = Array.isArray(item.imagens) && item.imagens.length > 0 
         ? [...item.imagens] 
@@ -469,6 +643,8 @@ async function prepareEdit(id) {
 function resetForm() {
     productIdInput.value = '';
     productForm.reset();
+    if (productDriveFolderInput) productDriveFolderInput.value = '';
+    if (bulkDriveUrls) bulkDriveUrls.value = '';
     currentGalleryImages = [];
     currentRelatedProducts = [];
     renderGalleryPreview();
@@ -520,6 +696,7 @@ productForm.addEventListener('submit', async (e) => {
         profundidade_cm: productDepthInput.value ? parseFloat(productDepthInput.value) : null,
         altura_cm: productHeightInput.value ? parseFloat(productHeightInput.value) : null,
         peso_kg: productWeightInput.value ? parseFloat(productWeightInput.value) : null,
+        pasta_drive_url: productDriveFolderInput ? productDriveFolderInput.value.trim() || null : null,
         produtos_relacionados: currentRelatedProducts,
         created_at: new Date().toISOString()
     };
@@ -645,6 +822,12 @@ if (btnAddManualImage && productImageUrlInput) {
             return;
         }
 
+        const isFolder = extractDriveFolderId(rawUrl) && !extractDriveFileId(rawUrl);
+        if (isFolder) {
+            showToast("Você colou o link de uma pasta. Abra a pasta e copie os links das fotos individuais.");
+            return;
+        }
+
         const normalized = normalizarUrlImagem(rawUrl);
         currentGalleryImages.push(normalized);
         productImageUrlInput.value = '';
@@ -656,6 +839,105 @@ if (btnAddManualImage && productImageUrlInput) {
         if (e.key === 'Enter') {
             e.preventDefault();
             btnAddManualImage.click();
+        }
+    });
+}
+
+// Importador em lote de fotos do Google Drive
+if (btnImportBulkDrive && bulkDriveUrls) {
+    btnImportBulkDrive.addEventListener('click', () => {
+        const rawText = bulkDriveUrls.value.trim();
+        if (!rawText) {
+            showToast("Cole os links das fotos do Google Drive na caixa de texto.");
+            return;
+        }
+
+        // Separa por quebra de linha, vírgula ou ponto e vírgula
+        const lines = rawText.split(/[\n,;]+/).map(l => l.trim()).filter(Boolean);
+        let addedCount = 0;
+
+        lines.forEach(line => {
+            if (line) {
+                const normalized = normalizarUrlImagem(line);
+                currentGalleryImages.push(normalized);
+                addedCount++;
+            }
+        });
+
+        if (addedCount > 0) {
+            bulkDriveUrls.value = '';
+            renderGalleryPreview();
+            showToast(`${addedCount} foto(s) importada(s) para a galeria!`);
+        } else {
+            showToast("Nenhum link válido encontrado.");
+        }
+    });
+}
+
+// Modal do Google Drive - Eventos
+if (btnDriveConfig && driveModal) {
+    btnDriveConfig.addEventListener('click', () => {
+        if (currentDriveConfig) {
+            driveFolderUrlInput.value = currentDriveConfig.folder_url || '';
+            driveFolderNameInput.value = currentDriveConfig.folder_name || '';
+            const fid = currentDriveConfig.folder_id || extractDriveFolderId(currentDriveConfig.folder_url);
+            if (fid) {
+                driveIdFeedback.style.display = 'flex';
+                detectedDriveId.textContent = fid;
+                testDriveLink.href = currentDriveConfig.folder_url;
+            }
+        }
+        driveModal.classList.add('open');
+    });
+}
+
+if (btnEditDriveFolder && driveModal) {
+    btnEditDriveFolder.addEventListener('click', () => {
+        btnDriveConfig.click();
+    });
+}
+
+if (closeDriveModal && driveModal) {
+    closeDriveModal.addEventListener('click', () => driveModal.classList.remove('open'));
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target === driveModal) driveModal.classList.remove('open');
+});
+
+// Feedback em tempo real ao digitar a URL da pasta do Drive
+if (driveFolderUrlInput) {
+    driveFolderUrlInput.addEventListener('input', (e) => {
+        const val = e.target.value.trim();
+        const folderId = extractDriveFolderId(val);
+        if (folderId) {
+            driveIdFeedback.style.display = 'flex';
+            detectedDriveId.textContent = folderId;
+            testDriveLink.href = val.startsWith('http') ? val : `https://drive.google.com/drive/folders/${folderId}`;
+        } else {
+            driveIdFeedback.style.display = 'none';
+        }
+    });
+}
+
+// Salvar Configuração do Google Drive
+if (driveConfigForm) {
+    driveConfigForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await saveDriveConfig(driveFolderUrlInput.value, driveFolderNameInput.value);
+            driveModal.classList.remove('open');
+        } catch (err) {
+            showToast(err.message);
+        }
+    });
+}
+
+if (btnClearDrive) {
+    btnClearDrive.addEventListener('click', async () => {
+        if (confirm("Deseja remover a pasta do Google Drive configurada?")) {
+            await clearDriveConfig();
+            driveModal.classList.remove('open');
         }
     });
 }
@@ -694,7 +976,7 @@ btnLogout.addEventListener('click', async () => {
     }
 });
 
-// Modal de Configuração
+// Modal de Configuração Firebase
 btnConfig.addEventListener('click', () => configModal.classList.add('open'));
 closeModal.addEventListener('click', () => configModal.classList.remove('open'));
 window.addEventListener('click', (e) => {
@@ -707,6 +989,7 @@ btnCancel.addEventListener('click', resetForm);
 // Inicialização Principal com Guard de Autenticação
 document.addEventListener('DOMContentLoaded', async () => {
     updateConnectionStatus();
+    await loadDriveConfig();
 
     const user = await Auth.requireAuth();
     if (user) {
