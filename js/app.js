@@ -2,10 +2,10 @@ let produtosAtuais = [];
 let sliderInstance = null;
 
 const PRODUTOS_PADRAO = [
-    { id: 1, nome: "Poltrona Clássica Veludo", preco: "R$ 2.890,00", categoria: "poltrona", img: "assets/prod_poltrona.jpg", color: "#2b7fff", subhead: "Conforto + Elegância", desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", bg: "#4190de" },
-    { id: 2, nome: "Sofá Moderno Terracota", preco: "R$ 4.590,00", categoria: "sofa", img: "assets/prod_sofa.jpg", color: "#ff5722", subhead: "Design + Funcionalidade", desc: "Sofá três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", bg: "#fe5100" },
-    { id: 3, nome: "Cadeira de Jantar Mostarda", preco: "R$ 1.290,00", categoria: "cadeira", img: "assets/prod_cadeira.jpg", color: "#ffeb3b", subhead: "Versatilidade + Estilo", desc: "Cadeira estofada em veludo mostarda com pés em metal dourado, design moderno e elegante", bg: "#ffcd01" },
-    { id: 4, nome: "Mesa Lateral Mármore", preco: "R$ 1.890,00", categoria: "mesa", img: "assets/prod_mesa.jpg", color: "#9c27b0", subhead: "Sofisticação + Minimalismo", desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", bg: "#7c55c6" }
+    { id: 1, nome: "Poltrona Clássica Veludo", preco: "R$ 2.890,00", categoria: "poltrona", img: "assets/prod_poltrona.webp", color: "#2b7fff", subhead: "Conforto + Elegância", desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", bg: "#4190de" },
+    { id: 2, nome: "Sofá Moderno Terracota", preco: "R$ 4.590,00", categoria: "sofa", img: "assets/prod_sofa.webp", color: "#ff5722", subhead: "Design + Funcionalidade", desc: "Sofá três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", bg: "#fe5100" },
+    { id: 3, nome: "Cadeira de Jantar Mostarda", preco: "R$ 1.290,00", categoria: "cadeira", img: "assets/prod_cadeira.webp", color: "#ffeb3b", subhead: "Versatilidade + Estilo", desc: "Cadeira estofada em veludo mostarda com pés em metal dourado, design moderno e elegante", bg: "#ffcd01" },
+    { id: 4, nome: "Mesa Lateral Mármore", preco: "R$ 1.890,00", categoria: "mesa", img: "assets/prod_mesa.webp", color: "#9c27b0", subhead: "Sofisticação + Minimalismo", desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", bg: "#7c55c6" }
 ];
 
 async function carregarProdutos() {

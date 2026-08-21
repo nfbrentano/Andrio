@@ -1,9 +1,9 @@
 // Configuração inicial / fallbacks locais de demonstração
 const PRODUTOS_PADRAO = [
-    { id: 1, nome: "FUN Shampoo Hidratante", preco: "R$ 89,90", categoria: "shampoo", img: "assets/prod_shampoo.jpg", color: "#2b7fff" },
-    { id: 2, nome: "FUN Condicionador Reconstrutor", preco: "R$ 94,90", categoria: "condicionador", img: "assets/prod_condicionador.jpg", color: "#ff5722" },
-    { id: 3, nome: "FUN Creme de Pentear Leve", preco: "R$ 79,90", categoria: "creme", img: "assets/prod_creme.jpg", color: "#ffeb3b" },
-    { id: 4, nome: "FUN Máscara Nutrição Intensa", preco: "R$ 119,90", categoria: "mascara", img: "assets/prod_mascara.jpg", color: "#9c27b0" }
+    { id: 1, nome: "FUN Shampoo Hidratante", preco: "R$ 89,90", categoria: "shampoo", img: "assets/prod_shampoo.webp", color: "#2b7fff" },
+    { id: 2, nome: "FUN Condicionador Reconstrutor", preco: "R$ 94,90", categoria: "condicionador", img: "assets/prod_condicionador.webp", color: "#ff5722" },
+    { id: 3, nome: "FUN Creme de Pentear Leve", preco: "R$ 79,90", categoria: "creme", img: "assets/prod_creme.webp", color: "#ffeb3b" },
+    { id: 4, nome: "FUN Máscara Nutrição Intensa", preco: "R$ 119,90", categoria: "mascara", img: "assets/prod_mascara.webp", color: "#9c27b0" }
 ];
 
 let localProducts = JSON.parse(localStorage.getItem('fun_produtos')) || PRODUTOS_PADRAO;
@@ -145,7 +145,7 @@ async function renderTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>
-                <img src="${p.img}" alt="${p.nome}" class="table-img-preview" onerror="this.src='assets/prod_shampoo.jpg'">
+                <img src="${p.img}" alt="${p.nome}" class="table-img-preview" onerror="this.src='assets/prod_shampoo.webp'">
             </td>
             <td>
                 <div style="display: flex; align-items: center; gap: 8px;">

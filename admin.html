@@ -84,13 +84,17 @@
 
                     <div class="form-group">
                         <label for="product-image">URL da Imagem</label>
-                        <input type="text" id="product-image" placeholder="Ex: assets/prod_shampoo.jpg ou link externo" required>
+                        <input type="text" id="product-image" placeholder="Ex: assets/prod_shampoo.webp ou link externo" required>
                         <div class="image-preset-labels">
                             <span>Presets de teste:</span>
-                            <button type="button" class="preset-btn" data-url="assets/prod_shampoo.jpg">Shampoo</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_condicionador.jpg">Condicionador</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_creme.jpg">Creme</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_mascara.jpg">Máscara</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_shampoo.webp">Shampoo</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_condicionador.webp">Condicionador</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_creme.webp">Creme</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_mascara.webp">Máscara</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_poltrona.webp">Poltrona</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_sofa.webp">Sofá</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_cadeira.webp">Cadeira</button>
+                            <button type="button" class="preset-btn" data-url="assets/prod_mesa.webp">Mesa</button>
                         </div>
                     </div>
 
@@ -193,5 +197,14 @@ create policy "Acesso público total" on produtos for all using (true);</code></
     <div id="toast" class="toast">Mensagem de feedback</div>
 
     <script src="js/admin.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('[SW] Registrado com sucesso:', reg.scope))
+                    .catch((err) => console.warn('[SW] Erro ao registrar:', err));
+            });
+        }
+    </script>
 </body>
 </html>
