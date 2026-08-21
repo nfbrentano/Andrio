@@ -59,30 +59,31 @@ function destruirSlider() {
 function updateSliderNavigation(slider, prevBtn, nextBtn) {
     if (!slider || !slider.container) return;
     
-    const containerWidth = slider.container.getBoundingClientRect().width;
+    // Batch layout reads
+    const containerWidth = slider.container.clientWidth;
     let totalSlidesWidth = 0;
-    const slides = slider.container.querySelectorAll('.keen-slider__slide');
-    slides.forEach(slide => {
-        totalSlidesWidth += slide.getBoundingClientRect().width;
-    });
-
-    // If total width of slides is less than container, they all fit.
-    if (totalSlidesWidth <= containerWidth + 10) {
-        if (prevBtn) prevBtn.style.display = 'none';
-        if (nextBtn) nextBtn.style.display = 'none';
-        slider.container.style.justifyContent = 'center';
-    } else {
-        if (prevBtn) prevBtn.style.display = 'flex';
-        if (nextBtn) nextBtn.style.display = 'flex';
-        slider.container.style.justifyContent = 'flex-start';
+    const slides = slider.container.children;
+    for (let i = 0; i < slides.length; i++) {
+        totalSlidesWidth += slides[i].offsetWidth;
     }
+
+    const fitsAll = totalSlidesWidth <= containerWidth + 10;
+
+    // Batch layout writes in animation frame
+    requestAnimationFrame(() => {
+        if (prevBtn) prevBtn.style.display = fitsAll ? 'none' : 'flex';
+        if (nextBtn) nextBtn.style.display = fitsAll ? 'none' : 'flex';
+        if (slider.container) {
+            slider.container.style.justifyContent = fitsAll ? 'center' : 'flex-start';
+        }
+    });
 }
 
-let sliderResizeHandler = null;
+let sliderResizeRaf = null;
 
 function inicializarSlider() {
     destruirSlider();
-    const slides = document.querySelectorAll('#catalogo .keen-slider__slide');
+    const slides = catalogo.querySelectorAll('.keen-slider__slide');
     const slidesCount = slides.length;
     
     const arrowPrev = document.getElementById("arrow-prev");
@@ -106,18 +107,21 @@ function inicializarSlider() {
             created: (s) => {
                 updateSliderNavigation(s, arrowPrev, arrowNext);
             },
-            detailsChanged: (s) => {
+            updated: (s) => {
                 updateSliderNavigation(s, arrowPrev, arrowNext);
             }
         });
 
-        // Add resize listener to update alignment/arrows dynamically
+        // Add debounced resize listener to update alignment/arrows dynamically
         sliderResizeHandler = () => {
-            if (sliderInstance) {
-                updateSliderNavigation(sliderInstance, arrowPrev, arrowNext);
-            }
+            if (sliderResizeRaf) cancelAnimationFrame(sliderResizeRaf);
+            sliderResizeRaf = requestAnimationFrame(() => {
+                if (sliderInstance) {
+                    updateSliderNavigation(sliderInstance, arrowPrev, arrowNext);
+                }
+            });
         };
-        window.addEventListener('resize', sliderResizeHandler);
+        window.addEventListener('resize', sliderResizeHandler, { passive: true });
 
         if (arrowPrev && arrowNext) {
             arrowPrev.onclick = (e) => {
@@ -139,7 +143,6 @@ function inicializarSlider() {
 
 function renderizarProdutos(categoria = 'all') {
     destruirSlider();
-    catalogo.innerHTML = ''; 
     
     const produtosFiltrados = categoria === 'all' 
         ? produtosAtuais 
@@ -150,10 +153,8 @@ function renderizarProdutos(categoria = 'all') {
         return;
     }
 
-    produtosFiltrados.forEach((produto) => {
-        const slide = document.createElement('div');
-        slide.className = 'keen-slider__slide';
-        slide.innerHTML = `
+    const htmlCards = produtosFiltrados.map((produto) => `
+        <div class="keen-slider__slide">
             <a class="group relative block" aria-label="${produto.nome}" href="#">
                 <div class="aspect-3-4">
                     <div class="aspect-3-4-inner">
@@ -201,11 +202,15 @@ function renderizarProdutos(categoria = 'all') {
                     </div>
                 </div>
             </a>
-        `;
-        catalogo.appendChild(slide);
-    });
+        </div>
+    `).join('');
 
-    inicializarSlider();
+    catalogo.innerHTML = htmlCards;
+
+    // Wait for the browser to settle layout before KeenSlider measures elements
+    requestAnimationFrame(() => {
+        inicializarSlider();
+    });
 }
 
 function getButtonColor(btn) {
