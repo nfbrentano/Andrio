@@ -169,7 +169,7 @@ function renderizarProdutos(categoria = 'all') {
 
     const htmlCards = produtosFiltrados.map((produto) => `
         <div class="keen-slider__slide">
-            <a class="group relative block" aria-label="${produto.nome}" href="#">
+            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="#secao-catalogo">
                 <div class="aspect-3-4">
                     <div class="aspect-3-4-inner">
                         <div class="size-full">
@@ -182,7 +182,7 @@ function renderizarProdutos(categoria = 'all') {
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} Hover" class="object-cover-img" src="${produto.img}" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${produto.img}" width="500" height="669">
                                 </div>
                             </div>
                         </div>
@@ -190,7 +190,7 @@ function renderizarProdutos(categoria = 'all') {
                 </div>
                 
                 <!-- Hover description block -->
-                <div class="hover-info-panel">
+                <div class="hover-info-panel" aria-hidden="true">
                     <div class="hover-info-content" style="background-color: ${produto.bg || '#ffcd01'}">
                         <p class="type-headings">${produto.subhead}</p>
                         <p class="type-body">${produto.desc}</p>
@@ -201,7 +201,7 @@ function renderizarProdutos(categoria = 'all') {
                 <div class="details-footer">
                     <div class="details-row">
                         <div class="details-left">
-                            <div class="dots-container">
+                            <div class="dots-container" aria-hidden="true">
                                 <div style="background-color: ${produto.color || '#4190de'}" class="outer-dot"></div>
                                 <div class="inner-dot-overlay">
                                     <div class="inner-dot"></div>
@@ -212,7 +212,7 @@ function renderizarProdutos(categoria = 'all') {
                                 <p class="type-body">${produto.subhead}</p>
                             </div>
                         </div>
-                        <p class="type-title">${produto.preco}</p>
+                        <p class="type-title" aria-label="Preço: ${produto.preco}">${produto.preco}</p>
                     </div>
                 </div>
             </a>
@@ -254,10 +254,12 @@ filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
         filterBtns.forEach(b => {
             b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
         });
         
         const activeBtn = e.currentTarget;
         activeBtn.classList.add('active');
+        activeBtn.setAttribute('aria-selected', 'true');
         
         renderizarProdutos(activeBtn.dataset.category);
     });
@@ -281,7 +283,7 @@ function inicializarScrollReveal() {
     reveals.forEach(el => observer.observe(el));
 }
 
-// Mobile Navigation Logic
+// Mobile Navigation Logic with Accessible Focus Management
 function inicializarMenuMobile() {
     const hamburgerBtn = document.getElementById('fun-hamburger');
     const closeBtn = document.getElementById('fun-close-menu');
@@ -290,43 +292,97 @@ function inicializarMenuMobile() {
 
     if (!hamburgerBtn || !navMenu) return;
 
+    function syncMenuAria() {
+        if (window.innerWidth <= 1024) {
+            navMenu.setAttribute('aria-hidden', navMenu.classList.contains('is-open') ? 'false' : 'true');
+        } else {
+            navMenu.setAttribute('aria-hidden', 'false');
+        }
+    }
+    syncMenuAria();
+
     function openMenu() {
         hamburgerBtn.classList.add('is-active');
         hamburgerBtn.setAttribute('aria-expanded', 'true');
         navMenu.classList.add('is-open');
-        if (overlay) overlay.classList.add('is-active');
+        navMenu.setAttribute('aria-hidden', 'false');
+        if (overlay) {
+            overlay.classList.add('is-active');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
         document.body.classList.add('menu-open');
+
+        // Direct focus to the close button inside the modal navigation
+        requestAnimationFrame(() => {
+            if (closeBtn) closeBtn.focus();
+        });
     }
 
-    function closeMenu() {
+    function closeMenu(restoreFocus = true) {
         hamburgerBtn.classList.remove('is-active');
         hamburgerBtn.setAttribute('aria-expanded', 'false');
         navMenu.classList.remove('is-open');
-        if (overlay) overlay.classList.remove('is-active');
+        if (window.innerWidth <= 1024) {
+            navMenu.setAttribute('aria-hidden', 'true');
+        }
+        if (overlay) {
+            overlay.classList.remove('is-active');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
         document.body.classList.remove('menu-open');
+
+        // Return focus to trigger button
+        if (restoreFocus && hamburgerBtn) {
+            hamburgerBtn.focus();
+        }
     }
 
     hamburgerBtn.addEventListener('click', () => {
         const isOpen = navMenu.classList.contains('is-open');
         if (isOpen) {
-            closeMenu();
+            closeMenu(true);
         } else {
             openMenu();
         }
     });
 
     if (closeBtn) {
-        closeBtn.addEventListener('click', closeMenu);
+        closeBtn.addEventListener('click', () => closeMenu(true));
     }
 
     if (overlay) {
-        overlay.addEventListener('click', closeMenu);
+        overlay.addEventListener('click', () => closeMenu(true));
     }
 
-    // Close menu on pressing ESC
+    // Close menu on pressing ESC and trap focus inside mobile drawer
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && navMenu.classList.contains('is-open')) {
-            closeMenu();
+        if (!navMenu.classList.contains('is-open')) return;
+
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            closeMenu(true);
+            return;
+        }
+
+        // Focus trap when menu is open on mobile
+        if (e.key === 'Tab' && window.innerWidth <= 1024) {
+            const focusableElements = navMenu.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusableElements.length === 0) return;
+
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (e.shiftKey) {
+                if (document.activeElement === firstElement) {
+                    e.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                if (document.activeElement === lastElement) {
+                    e.preventDefault();
+                    firstElement.focus();
+                }
+            }
         }
     });
 
@@ -334,15 +390,16 @@ function inicializarMenuMobile() {
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             if (window.innerWidth <= 1024) {
-                closeMenu();
+                closeMenu(false);
             }
         });
     });
 
-    // Auto-close on resize to desktop
+    // Auto-close on resize to desktop & sync ARIA
     window.addEventListener('resize', () => {
+        syncMenuAria();
         if (window.innerWidth > 1024 && navMenu.classList.contains('is-open')) {
-            closeMenu();
+            closeMenu(false);
         }
     });
 }

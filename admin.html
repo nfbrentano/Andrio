@@ -12,9 +12,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="admin-body">
-    <header class="fun-navbar">
+    <a href="#admin-main" class="skip-link">Pular para o conteúdo principal</a>
+
+    <header class="fun-navbar" role="banner">
         <div class="fun-logo">
-            <a href="index.html" style="text-decoration: none; display: flex; align-items: center;" aria-label="Voltar para Loja PACO">
+            <a href="index.html" style="text-decoration: none; display: flex; align-items: center;" aria-label="Voltar para a Página Inicial da PACO">
                 <img src="assets/pacosvg.svg" alt="PACO Móveis" style="height: 38px; width: auto; object-fit: contain;">
             </a>
         </div>
@@ -28,12 +30,12 @@
     </header>
 
     <!-- Banner de Status da Conexão -->
-    <div id="connection-banner" class="status-banner info">
-        <span class="icon">⚠️</span>
+    <div id="connection-banner" class="status-banner info" role="status" aria-live="polite">
+        <span class="icon" aria-hidden="true">⚠️</span>
         <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Supabase para salvar na nuvem.</span>
     </div>
 
-    <main class="admin-main ag-container">
+    <main class="admin-main ag-container" id="admin-main" tabindex="-1">
         <div class="admin-grid">
             <!-- Formulário de Cadastro/Edição -->
             <section class="admin-card form-section">
@@ -141,10 +143,10 @@
     </main>
 
     <!-- Modal de Configuração do Supabase -->
-    <div id="config-modal" class="modal">
+    <div id="config-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-config-title" aria-hidden="true">
         <div class="modal-content">
-            <span class="close-btn" id="close-modal">&times;</span>
-            <h2>Configurações do Supabase</h2>
+            <button type="button" class="close-btn" id="close-modal" aria-label="Fechar janela de configurações">&times;</button>
+            <h2 id="modal-config-title">Configurações do Supabase</h2>
             <p class="modal-description">Insira os dados do seu projeto Supabase para ativar a persistência na nuvem.</p>
             
             <form id="supabase-config-form">

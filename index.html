@@ -79,32 +79,35 @@
     </script>
 </head>
 <body>
-    <header class="fun-navbar">
+    <!-- Skip to main content link for keyboard accessibility -->
+    <a href="#conteudo-principal" class="skip-link">Pular para o conteúdo principal</a>
+
+    <header class="fun-navbar" role="banner">
         <div class="fun-navbar-left">
-            <a href="index.html" class="fun-logo-link" aria-label="PACO Móveis Home">
+            <a href="index.html" class="fun-logo-link" aria-label="PACO Móveis - Página Inicial">
                 <div class="fun-logo-wrap">
                     <img src="assets/pacosvg.svg" alt="PACO Móveis" class="fun-logo-img" width="145" height="43" fetchpriority="high">
                 </div>
             </a>
         </div>
-        <nav class="fun-nav-center" id="fun-nav-menu">
+        <nav class="fun-nav-center" id="fun-nav-menu" aria-label="Categorias de produtos" aria-hidden="false">
             <div class="fun-mobile-menu-header">
                 <span class="fun-mobile-menu-title">Categorias</span>
-                <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar Menu">✕</button>
+                <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar menu de categorias">✕</button>
             </div>
-            <div id="filtros" class="fun-navbar-filters">
-                <button class="fun-pill-btn active" data-category="all" data-color="#2b7fff" style="--btn-color: #2b7fff;">Todos</button>
-                <button class="fun-pill-btn" data-category="poltrona" data-color="#ff5722" style="--btn-color: #ff5722;">Poltronas</button>
-                <button class="fun-pill-btn" data-category="sofa" data-color="#ffeb3b" style="--btn-color: #ffeb3b;">Sofás</button>
-                <button class="fun-pill-btn" data-category="cadeira" data-color="#9c27b0" style="--btn-color: #9c27b0;">Cadeiras</button>
-                <button class="fun-pill-btn" data-category="mesa" data-color="#00c853" style="--btn-color: #00c853;">Mesas</button>
+            <div id="filtros" class="fun-navbar-filters" role="tablist" aria-label="Filtrar produtos por categoria">
+                <button class="fun-pill-btn active" role="tab" aria-selected="true" data-category="all" data-color="#2b7fff" style="--btn-color: #2b7fff;">Todos</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="poltrona" data-color="#ff5722" style="--btn-color: #ff5722;">Poltronas</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="sofa" data-color="#ffeb3b" style="--btn-color: #ffeb3b;">Sofás</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="cadeira" data-color="#9c27b0" style="--btn-color: #9c27b0;">Cadeiras</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="mesa" data-color="#00c853" style="--btn-color: #00c853;">Mesas</button>
             </div>
             <div class="fun-mobile-nav-actions">
                 <a href="admin.html" class="fun-btn-admin-mobile">Painel Admin →</a>
             </div>
         </nav>
         <div class="fun-navbar-right">
-            <a href="admin.html" class="fun-cart-btn" aria-label="Painel Administrativo">
+            <a href="admin.html" class="fun-cart-btn" aria-label="Acessar Painel Administrativo">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -112,21 +115,21 @@
                 </svg>
                 <span>Admin</span>
             </a>
-            <button class="fun-hamburger-btn" id="fun-hamburger" aria-label="Abrir Menu" aria-expanded="false">
+            <button class="fun-hamburger-btn" id="fun-hamburger" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="fun-nav-menu">
                 <span class="hamburger-line"></span>
                 <span class="hamburger-line"></span>
             </button>
         </div>
-        <div class="fun-mobile-overlay" id="fun-mobile-overlay"></div>
+        <div class="fun-mobile-overlay" id="fun-mobile-overlay" aria-hidden="true"></div>
     </header>
 
-    <main>
+    <main id="conteudo-principal" tabindex="-1">
         <!-- Hero Section 50/50 -->
-        <section class="fun-hero">
+        <section class="fun-hero" aria-labelledby="hero-title">
             <div class="hero-col hero-img-left">
                 <img src="assets/hero_left_chair.webp" alt="Poltrona de design autoral em madeira e couro" fetchpriority="high" width="750" height="822">
                 <div class="hero-text-overlay">
-                    <h1>Design que transforma ambientes</h1>
+                    <h1 id="hero-title">Design que transforma ambientes</h1>
                     <p>Peças exclusivas de design autoral, feitas com materiais nobres e acabamento artesanal.</p>
                     <a href="#catalogo" class="fun-btn-hero">Conhecer Peças →</a>
                 </div>
@@ -137,23 +140,23 @@
         </section>
 
         <!-- Product Carousel Section -->
-        <section id="secao-catalogo" class="fun-section fun-section-fullwidth reveal" style="overflow: visible;">
+        <section id="secao-catalogo" class="fun-section fun-section-fullwidth reveal" aria-labelledby="catalogo-heading" style="overflow: visible;">
             <div class="fun-section-header-full">
-                <h2>O que você procura hoje?</h2>
-                <button class="fun-btn-dark" onclick="document.querySelector('.fun-pill-btn[data-category=\'all\']').click();">Ver todas as peças</button>
+                <h2 id="catalogo-heading">O que você procura hoje?</h2>
+                <button class="fun-btn-dark" aria-label="Ver todas as peças da coleção" onclick="document.querySelector('.fun-pill-btn[data-category=\'all\']').click();">Ver todas as peças</button>
             </div>
             <div class="slider-wrapper">
-                <button class="arrow-btn prev" id="arrow-prev" aria-label="Anterior">
-                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <button class="arrow-btn prev" id="arrow-prev" aria-label="Visualizar produto anterior" aria-controls="catalogo">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
                 </button>
-                <div id="catalogo" class="keen-slider">
+                <div id="catalogo" class="keen-slider" role="region" aria-label="Carrossel de Produtos">
                     <!-- Dynamic products loaded by javascript -->
                 </div>
-                <button class="arrow-btn next" id="arrow-next" aria-label="Próximo">
-                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <button class="arrow-btn next" id="arrow-next" aria-label="Visualizar próximo produto" aria-controls="catalogo">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
@@ -162,28 +165,28 @@
         </section>
 
         <!-- Middle Split Section -->
-        <section id="formulas" class="fun-middle-section reveal">
+        <section id="formulas" class="fun-middle-section reveal" aria-labelledby="design-autoral-heading">
             <div class="middle-col middle-img">
                 <img loading="lazy" src="assets/middle_model.webp" alt="Ambiente elegante com sofá e decoração sofisticada" width="600" height="803">
             </div>
             <div class="middle-col middle-content">
                 <div class="middle-text-box">
-                    <h3>Design autoral e materiais nobres</h3>
+                    <h3 id="design-autoral-heading">Design autoral e materiais nobres</h3>
                     <p>Nossas peças são produzidas com madeiras selecionadas, couros naturais e acabamentos artesanais. Cada móvel é pensado para unir funcionalidade, conforto e beleza atemporal ao seu espaço.</p>
                 </div>
             </div>
         </section>
 
         <!-- Large Collection Banner -->
-        <section class="fun-banner-section reveal">
+        <section class="fun-banner-section reveal" aria-label="Banner de Destaque da Coleção">
             <img loading="lazy" src="assets/pana_06.webp" alt="Coleção completa de cadeiras, bancos e luminária de design autoral" class="collection-banner-img" width="1000" height="526">
         </section>
 
         <!-- People Grid Section -->
-        <section id="depoimentos" class="fun-section ag-container reveal">
+        <section id="depoimentos" class="fun-section ag-container reveal" aria-labelledby="inspiracoes-heading">
             <div class="fun-section-header">
-                <h2>Ambientes que inspiram</h2>
-                <a href="#depoimentos" class="fun-btn-dark" style="text-decoration: none; display: inline-flex; align-items: center;">Inspirações</a>
+                <h2 id="inspiracoes-heading">Ambientes que inspiram</h2>
+                <a href="#depoimentos" class="fun-btn-dark" style="text-decoration: none; display: inline-flex; align-items: center;" aria-label="Ver mais fotos de inspirações">Inspirações</a>
             </div>
             <div class="people-grid">
                 <div class="people-card">
@@ -202,13 +205,13 @@
         </section>
 
         <!-- Lineup Banner Section -->
-        <section class="fun-lineup-section reveal">
+        <section class="fun-lineup-section reveal" aria-label="Linha completa de produtos">
             <img loading="lazy" src="assets/lineup_products.webp" alt="Fileira completa de móveis de design PACO" class="lineup-banner-img" width="900" height="502">
         </section>
     </main>
 
     <!-- Footer Links and Decorative Graphic -->
-    <footer class="fun-footer">
+    <footer class="fun-footer" role="contentinfo">
         <div class="footer-columns ag-container">
             <div class="footer-col brand-col">
                 <img src="assets/pacosvg.svg" alt="PACO Móveis" class="footer-brand-logo" width="140" height="41" loading="lazy">
