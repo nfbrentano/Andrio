@@ -104,9 +104,14 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
 }
 
-.fun-logo-wrap svg {
+.fun-logo-wrap svg,
+.fun-logo-wrap img,
+.fun-logo-img {
     height: 100%;
     width: auto;
+    max-height: 43px;
+    object-fit: contain;
+    display: block;
 }
 
 /* Center Navigation — category pill buttons */
@@ -842,13 +847,48 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--brand-blue);
 }
 
+.footer-brand-logo {
+    height: 38px;
+    width: auto;
+    max-width: 140px;
+    object-fit: contain;
+    margin-bottom: 12px;
+    display: block;
+}
+
 .fun-footer-graphic {
     width: 100%;
     overflow: hidden;
-    padding: 20px 0 0 0;
+    padding: 32px 20px 24px 20px;
     display: flex;
     justify-content: center;
+    align-items: center;
     background-color: #ffffff;
+    border-top: 1px solid var(--fun-border);
+}
+
+.fun-footer-logo-large {
+    width: 100%;
+    max-width: 850px;
+    height: auto;
+    max-height: 220px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    opacity: 0.95;
+    transition: transform var(--transition-normal), opacity var(--transition-normal);
+}
+
+.fun-footer-logo-large:hover {
+    transform: scale(1.02);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .fun-footer-logo-large {
+        max-width: 90%;
+        max-height: 120px;
+    }
 }
 
 /* Responsive queries */

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paco-cache-v3';
+const CACHE_NAME = 'paco-cache-v4';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
@@ -10,6 +10,7 @@ const PRECACHE_ASSETS = [
     'css/admin.css',
     'js/app.js',
     'js/admin.js',
+    'assets/pacosvg.svg',
     'assets/hero_left_chair.webp',
     'assets/hero_right_chair.webp',
     'assets/hero_product.webp',
