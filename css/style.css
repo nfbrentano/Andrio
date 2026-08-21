@@ -748,6 +748,7 @@ h1, h2, h3, h4, h5, h6 {
 .collection-banner-img {
     width: 100%;
     height: auto;
+    aspect-ratio: 1000 / 526;
     max-height: 600px;
     object-fit: cover;
     display: block;
@@ -787,6 +788,7 @@ h1, h2, h3, h4, h5, h6 {
 .lineup-banner-img {
     width: 100%;
     height: auto;
+    aspect-ratio: 900 / 502;
     display: block;
 }
 

@@ -8,27 +8,41 @@ const PRODUTOS_PADRAO = [
     { id: 4, nome: "Mesa Lateral Mármore", preco: "R$ 1.890,00", categoria: "mesa", img: "assets/prod_mesa.webp", color: "#9c27b0", subhead: "Sofisticação + Minimalismo", desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", bg: "#7c55c6" }
 ];
 
+function carregarSupabaseScript() {
+    if (window.supabase) return Promise.resolve(window.supabase);
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+        script.onload = () => resolve(window.supabase);
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
 async function carregarProdutos() {
     const url = localStorage.getItem('supabase_url');
     const key = localStorage.getItem('supabase_key');
     
     if (url && key) {
         try {
-            const supabaseClient = supabase.createClient(url, key);
-            const { data, error } = await supabaseClient
-                .from('produtos')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (!error && data) {
-                // Map values to make sure we have subhead, desc, bg fallback fields
-                produtosAtuais = data.map(item => ({
-                    ...item,
-                    subhead: item.subhead || "Cuidados Especiais",
-                    desc: item.desc || "Desenvolvido com ingredientes selecionados para seu cabelo",
-                    bg: item.bg || item.color || "#4190de"
-                }));
-                return;
+            await carregarSupabaseScript();
+            if (window.supabase) {
+                const supabaseClient = window.supabase.createClient(url, key);
+                const { data, error } = await supabaseClient
+                    .from('produtos')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (!error && data) {
+                    // Map values to make sure we have subhead, desc, bg fallback fields
+                    produtosAtuais = data.map(item => ({
+                        ...item,
+                        subhead: item.subhead || "Cuidados Especiais",
+                        desc: item.desc || "Desenvolvido com ingredientes selecionados para seu cabelo",
+                        bg: item.bg || item.color || "#4190de"
+                    }));
+                    return;
+                }
             }
         } catch (e) {
             console.error("Erro ao conectar ao Supabase:", e);
