@@ -162,13 +162,13 @@ function renderizarProdutos(categoria = 'all') {
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${produto.img}">
+                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${produto.img}" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} Hover" class="object-cover-img" src="${produto.img}">
+                                    <img loading="lazy" alt="${produto.nome} Hover" class="object-cover-img" src="${produto.img}" width="500" height="669">
                                 </div>
                             </div>
                         </div>
