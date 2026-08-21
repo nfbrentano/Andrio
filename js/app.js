@@ -63,7 +63,18 @@ async function carregarProdutos() {
 const catalogo = document.getElementById('catalogo');
 const filterBtns = document.querySelectorAll('.fun-pill-btn');
 
+let sliderResizeRaf = null;
+let sliderResizeHandler = null;
+
 function destruirSlider() {
+    if (sliderResizeHandler) {
+        window.removeEventListener('resize', sliderResizeHandler);
+        sliderResizeHandler = null;
+    }
+    if (sliderResizeRaf) {
+        cancelAnimationFrame(sliderResizeRaf);
+        sliderResizeRaf = null;
+    }
     if (sliderInstance) {
         sliderInstance.destroy();
         sliderInstance = null;
@@ -93,8 +104,6 @@ function updateSliderNavigation(slider, prevBtn, nextBtn) {
     });
 }
 
-let sliderResizeRaf = null;
-
 function inicializarSlider() {
     destruirSlider();
     const slides = catalogo.querySelectorAll('.keen-slider__slide');
@@ -102,11 +111,6 @@ function inicializarSlider() {
     
     const arrowPrev = document.getElementById("arrow-prev");
     const arrowNext = document.getElementById("arrow-next");
-
-    if (sliderResizeHandler) {
-        window.removeEventListener('resize', sliderResizeHandler);
-        sliderResizeHandler = null;
-    }
 
     if (slidesCount > 0) {
         const shouldLoop = slidesCount > 2;
