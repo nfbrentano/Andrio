@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Catálogo Completo PACO Móveis - Conheça nossa coleção de poltronas, sofás, cadeiras e mesas de design autoral contemporâneo.">
+    <meta name="keywords" content="catálogo móveis, móveis de luxo, design autoral, poltrona, sofá, cadeira, mesa, decoração">
+    <meta name="author" content="PACO Móveis">
+    
+    <title>Catálogo Completo | PACO Móveis de Design</title>
+    
+    <!-- Preconnect CDNs -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
+    
+    <link rel="stylesheet" href="css/antigravity.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="catalogo-page">
+    <a href="#catalogo-main" class="skip-link">Pular para o conteúdo principal</a>
+
+    <!-- Header Navbar PACO -->
+    <header class="fun-navbar" role="banner">
+        <div class="fun-navbar-left">
+            <a href="index.html" class="fun-logo-link" aria-label="PACO Móveis - Página Inicial">
+                <div class="fun-logo-wrap">
+                    <img src="assets/pacosvg.svg" alt="PACO Móveis" class="fun-logo-img" width="145" height="43" fetchpriority="high">
+                </div>
+            </a>
+        </div>
+        <nav class="fun-nav-center" id="fun-nav-menu" aria-label="Categorias de produtos" aria-hidden="false">
+            <div class="fun-mobile-menu-header">
+                <span class="fun-mobile-menu-title">Categorias</span>
+                <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar menu de categorias">✕</button>
+            </div>
+            <div id="filtros" class="fun-navbar-filters" role="tablist" aria-label="Filtrar produtos por categoria">
+                <button class="fun-pill-btn active" role="tab" aria-selected="true" data-category="all" data-color="#2b7fff" style="--btn-color: #2b7fff;">Todos</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="poltrona" data-color="#ff5722" style="--btn-color: #ff5722;">Poltronas</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="sofa" data-color="#ffeb3b" style="--btn-color: #ffeb3b;">Sofás</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="cadeira" data-color="#9c27b0" style="--btn-color: #9c27b0;">Cadeiras</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="mesa" data-color="#00c853" style="--btn-color: #00c853;">Mesas</button>
+            </div>
+            <div class="fun-mobile-nav-actions">
+                <a href="index.html" class="fun-btn-admin-mobile">← Voltar para a Loja</a>
+                <a href="admin.html" class="fun-btn-admin-mobile">Painel Admin →</a>
+            </div>
+        </nav>
+        <div class="fun-navbar-right">
+            <a href="index.html" class="fun-cart-btn" aria-label="Voltar para a Página Inicial" style="margin-right: 8px;">
+                <span>Início</span>
+            </a>
+            <a href="admin.html" class="fun-cart-btn" aria-label="Acessar Painel Administrativo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span>Admin</span>
+            </a>
+            <button class="fun-hamburger-btn" id="fun-hamburger" aria-label="Abrir menu de navegação" aria-expanded="false" aria-controls="fun-nav-menu">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+        <div class="fun-mobile-overlay" id="fun-mobile-overlay" aria-hidden="true"></div>
+    </header>
+
+    <main id="catalogo-main" tabindex="-1">
+        <!-- Hero Header do Catálogo -->
+        <section class="catalogo-hero">
+            <div class="ag-container">
+                <span class="catalogo-hero-tag">Coleção Completa</span>
+                <h1 class="catalogo-hero-title">Design Autoral e Peças Exclusivas</h1>
+                <p class="catalogo-hero-subtitle">Móveis desenhados para proporcionar conforto, estética atemporal e durabilidade excepcional.</p>
+            </div>
+        </section>
+
+        <!-- Barra de Controle (Busca, Contador e Ordenação) -->
+        <section class="catalogo-toolbar-section">
+            <div class="ag-container catalogo-toolbar-wrapper">
+                <div class="catalogo-search-box">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="catalogo-search" placeholder="Buscar por nome, tipo de madeira, acabamento...">
+                </div>
+
+                <div class="catalogo-toolbar-right">
+                    <span id="catalogo-count" class="catalogo-count-badge">Carregando catálogo...</span>
+                    
+                    <div class="catalogo-sort-wrapper">
+                        <label for="catalogo-sort">Ordenar por:</label>
+                        <select id="catalogo-sort">
+                            <option value="recent">Mais Recentes</option>
+                            <option value="price-asc">Menor Preço</option>
+                            <option value="price-desc">Maior Preço</option>
+                            <option value="name-asc">Nome (A - Z)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Grid de Produtos do Catálogo -->
+        <section class="catalogo-grid-section">
+            <div class="ag-container">
+                <div id="catalogo-grid" class="catalogo-grid">
+                    <!-- Cards inseridos dinamicamente pelo JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal de Detalhes do Produto & Galeria & Venda Casada -->
+    <div id="product-detail-modal" class="detail-modal" role="dialog" aria-modal="true" aria-hidden="true">
+        <div class="detail-modal-overlay" id="close-modal-overlay"></div>
+        <div class="detail-modal-card">
+            <button type="button" class="detail-modal-close" id="btn-close-detail" aria-label="Fechar detalhes">&times;</button>
+            
+            <div class="detail-modal-body" id="detail-modal-content">
+                <!-- Conteúdo carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer PACO -->
+    <footer class="fun-footer" role="contentinfo">
+        <div class="footer-columns ag-container">
+            <div class="footer-col brand-col">
+                <img src="assets/pacosvg.svg" alt="PACO Móveis" class="footer-brand-logo" width="140" height="41" loading="lazy">
+                <p>&copy; 2026 PACO Móveis. Todos os direitos reservados.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Categorias</h4>
+                <ul>
+                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'poltrona\']')?.click(); return false;">Poltronas</a></li>
+                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'sofa\']')?.click(); return false;">Sofás</a></li>
+                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'cadeira\']')?.click(); return false;">Cadeiras</a></li>
+                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'mesa\']')?.click(); return false;">Mesas</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="index.html">Página Inicial</a></li>
+                    <li><a href="catalogo.html">Catálogo Completo</a></li>
+                    <li><a href="admin.html">Painel Administrativo</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Atendimento</h4>
+                <ul>
+                    <li><a href="mailto:contato@pacomoveis.com.br">contato@pacomoveis.com.br</a></li>
+                    <li><span>Seg. a Sex. das 09h às 18h</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="fun-footer-graphic">
+            <img src="assets/pacosvg.svg" alt="PACO Móveis" class="fun-footer-logo-large" loading="lazy" width="1600" height="471">
+        </div>
+    </footer>
+
+    <script src="js/catalogo.js"></script>
+</body>
+</html>

@@ -1,0 +1,226 @@
+/* Estilos da Página de Login PACO Móveis */
+:root {
+    --login-bg: #0d1117;
+    --login-card-bg: rgba(22, 27, 34, 0.85);
+    --login-border: rgba(255, 255, 255, 0.12);
+    --login-primary: #2b7fff;
+    --login-primary-hover: #1e6beb;
+    --login-text: #f0f6fc;
+    --login-text-muted: #8b949e;
+}
+
+body.login-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at top right, #1f2937, #0d1117 60%, #05070a);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--login-text);
+    overflow-x: hidden;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 440px;
+    padding: 24px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+}
+
+.login-card {
+    background: var(--login-card-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--login-border);
+    border-radius: 20px;
+    padding: 40px 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.2);
+    animation: loginFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes loginFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.login-logo {
+    height: 44px;
+    width: auto;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 2px 8px rgba(43, 127, 255, 0.2));
+}
+
+.login-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+}
+
+.login-header p {
+    color: var(--login-text-muted);
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.login-form .form-group {
+    margin-bottom: 20px;
+}
+
+.login-form label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--login-text);
+    margin-bottom: 8px;
+}
+
+.login-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.login-input-wrapper input {
+    width: 100%;
+    padding: 13px 16px;
+    background: rgba(13, 17, 23, 0.8);
+    border: 1px solid var(--login-border);
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.login-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--login-primary);
+    box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.25);
+    background: #0d1117;
+}
+
+.login-btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--login-primary);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+}
+
+.login-btn-primary:hover {
+    background: var(--login-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(43, 127, 255, 0.35);
+}
+
+.login-btn-primary:active {
+    transform: translateY(0);
+}
+
+.login-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.login-alert {
+    padding: 12px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 18px;
+    display: none;
+}
+
+.login-alert.error {
+    background: rgba(248, 81, 73, 0.15);
+    border: 1px solid rgba(248, 81, 73, 0.4);
+    color: #ff7b72;
+    display: block;
+}
+
+.login-alert.info {
+    background: rgba(43, 127, 255, 0.15);
+    border: 1px solid rgba(43, 127, 255, 0.4);
+    color: #79c0ff;
+    display: block;
+}
+
+.login-footer {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 0.85rem;
+}
+
+.login-footer a {
+    color: var(--login-text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-footer a:hover {
+    color: var(--login-primary);
+    text-decoration: underline;
+}
+
+.login-config-toggle {
+    margin-top: 18px;
+    text-align: center;
+}
+
+.login-config-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--login-text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.login-config-toggle button:hover {
+    color: #fff;
+}
+
+.supabase-setup-box {
+    margin-top: 16px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+    border: 1px dashed var(--login-border);
+    display: none;
+}
+
+.supabase-setup-box.open {
+    display: block;
+}
+
+.supabase-setup-box h3 {
+    margin: 0 0 10px 0;
+    font-size: 0.85rem;
+    color: var(--login-primary);
+}

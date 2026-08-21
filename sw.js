@@ -1,15 +1,21 @@
-const CACHE_NAME = 'paco-cache-v7';
+const CACHE_NAME = 'paco-cache-v8';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
     './',
     'index.html',
+    'catalogo.html',
     'admin.html',
+    'login.html',
     'css/style.css',
     'css/antigravity.min.css',
     'css/admin.css',
+    'css/login.css',
     'js/app.js',
     'js/admin.js',
+    'js/auth.js',
+    'js/catalogo.js',
+    'js/image-optimizer.js',
     'assets/pacosvg.svg',
     'assets/hero_left_chair.webp',
     'assets/hero_right_chair.webp',
@@ -24,11 +30,7 @@ const PRECACHE_ASSETS = [
     'assets/prod_poltrona.webp',
     'assets/prod_sofa.webp',
     'assets/prod_cadeira.webp',
-    'assets/prod_mesa.webp',
-    'assets/prod_shampoo.webp',
-    'assets/prod_condicionador.webp',
-    'assets/prod_creme.webp',
-    'assets/prod_mascara.webp'
+    'assets/prod_mesa.webp'
 ];
 
 // Instalação do Service Worker

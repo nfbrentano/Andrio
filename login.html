@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Entrar | Painel Administrativo PACO Móveis</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
+    
+    <link rel="stylesheet" href="css/antigravity.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+</head>
+<body class="login-body">
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <a href="index.html" aria-label="Ir para a página inicial">
+                    <img src="assets/pacosvg.svg" alt="PACO Móveis" class="login-logo">
+                </a>
+                <h1>Acesso Administrativo</h1>
+                <p>Gerencie produtos, estoque, acabamentos e vitrine</p>
+            </div>
+
+            <div id="login-alert" class="login-alert" role="alert"></div>
+
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="admin-email">E-mail</label>
+                    <div class="login-input-wrapper">
+                        <input type="email" id="admin-email" placeholder="admin@pacomoveis.com.br" required autocomplete="email" autofocus>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="admin-password">Senha</label>
+                    <div class="login-input-wrapper">
+                        <input type="password" id="admin-password" placeholder="••••••••" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-login-submit" class="login-btn-primary">
+                    <span id="btn-text">Entrar no Painel</span>
+                    <span id="btn-spinner" style="display: none;">Acessando...</span>
+                </button>
+            </form>
+
+            <div class="login-config-toggle">
+                <button type="button" id="btn-toggle-config">⚙️ Configurar conexão Supabase</button>
+            </div>
+
+            <div id="supabase-config-box" class="supabase-setup-box">
+                <h3>Conexão Supabase</h3>
+                <div class="form-group">
+                    <label for="cfg-supabase-url" style="font-size: 0.75rem;">URL do Projeto</label>
+                    <div class="login-input-wrapper">
+                        <input type="url" id="cfg-supabase-url" placeholder="https://xxxx.supabase.co" style="font-size: 0.8rem; padding: 8px 10px;">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="cfg-supabase-key" style="font-size: 0.75rem;">Anon Key</label>
+                    <div class="login-input-wrapper">
+                        <input type="password" id="cfg-supabase-key" placeholder="eyJhbGci..." style="font-size: 0.8rem; padding: 8px 10px;">
+                    </div>
+                </div>
+                <button type="button" id="btn-save-config" class="login-btn-primary" style="margin-top: 10px; padding: 8px; font-size: 0.85rem;">Salvar Credenciais</button>
+            </div>
+
+            <div class="login-footer">
+                <a href="index.html">← Voltar para a Loja PACO</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const loginForm = document.getElementById('login-form');
+            const emailInput = document.getElementById('admin-email');
+            const passInput = document.getElementById('admin-password');
+            const alertBox = document.getElementById('login-alert');
+            const btnSubmit = document.getElementById('btn-login-submit');
+            const btnText = document.getElementById('btn-text');
+            const btnSpinner = document.getElementById('btn-spinner');
+
+            const btnToggleConfig = document.getElementById('btn-toggle-config');
+            const configBox = document.getElementById('supabase-config-box');
+            const cfgUrl = document.getElementById('cfg-supabase-url');
+            const cfgKey = document.getElementById('cfg-supabase-key');
+            const btnSaveConfig = document.getElementById('btn-save-config');
+
+            // Carrega credenciais salvas nos inputs de configuração
+            cfgUrl.value = localStorage.getItem('supabase_url') || '';
+            cfgKey.value = localStorage.getItem('supabase_key') || '';
+
+            btnToggleConfig.addEventListener('click', () => {
+                configBox.classList.toggle('open');
+            });
+
+            btnSaveConfig.addEventListener('click', () => {
+                const url = cfgUrl.value.trim();
+                const key = cfgKey.value.trim();
+                if (url && key) {
+                    localStorage.setItem('supabase_url', url);
+                    localStorage.setItem('supabase_key', key);
+                    showAlert('Credenciais do Supabase salvas com sucesso!', 'info');
+                    configBox.classList.remove('open');
+                    Auth.client = null; // Reinicializa cliente
+                } else {
+                    showAlert('Por favor, preencha URL e Chave do Supabase.', 'error');
+                }
+            });
+
+            function showAlert(msg, type = 'error') {
+                alertBox.textContent = msg;
+                alertBox.className = `login-alert ${type}`;
+                alertBox.style.display = 'block';
+            }
+
+            // Checa se já está logado
+            const session = await Auth.getSession();
+            if (session) {
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                alertBox.style.display = 'none';
+
+                const email = emailInput.value;
+                const password = passInput.value;
+
+                btnSubmit.disabled = true;
+                btnText.style.display = 'none';
+                btnSpinner.style.display = 'inline';
+
+                const url = localStorage.getItem('supabase_url');
+                const key = localStorage.getItem('supabase_key');
+
+                if (!url || !key) {
+                    showAlert('Configure a URL e a Anon Key do Supabase antes de entrar.', 'error');
+                    configBox.classList.add('open');
+                    btnSubmit.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpinner.style.display = 'none';
+                    return;
+                }
+
+                try {
+                    await Auth.signIn(email, password);
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect') || 'admin.html';
+                    window.location.href = redirect;
+                } catch (err) {
+                    console.error('Erro de autenticação:', err);
+                    showAlert(err.message || 'Erro ao autenticar. Verifique email e senha.', 'error');
+                    btnSubmit.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnSpinner.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

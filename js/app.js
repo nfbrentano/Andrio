@@ -171,9 +171,13 @@ function renderizarProdutos(categoria = 'all') {
         return;
     }
 
-    const htmlCards = produtosFiltrados.map((produto) => `
+    const htmlCards = produtosFiltrados.map((produto) => {
+        const fotos = Array.isArray(produto.imagens) && produto.imagens.length > 0 ? produto.imagens : [produto.img];
+        const fotoHover = fotos.length > 1 ? fotos[1] : fotos[0];
+        
+        return `
         <div class="keen-slider__slide">
-            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="#secao-catalogo">
+            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="catalogo.html">
                 <div class="aspect-3-4">
                     <div class="aspect-3-4-inner">
                         <div class="size-full">
@@ -186,7 +190,7 @@ function renderizarProdutos(categoria = 'all') {
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${produto.img}" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" width="500" height="669">
                                 </div>
                             </div>
                         </div>
@@ -196,8 +200,8 @@ function renderizarProdutos(categoria = 'all') {
                 <!-- Hover description block -->
                 <div class="hover-info-panel" aria-hidden="true">
                     <div class="hover-info-content" style="background-color: ${produto.bg || '#ffcd01'}">
-                        <p class="type-headings">${produto.subhead}</p>
-                        <p class="type-body">${produto.desc}</p>
+                        <p class="type-headings">${produto.subhead || 'Design Autoral'}</p>
+                        <p class="type-body">${produto.desc || ''}</p>
                     </div>
                 </div>
                 

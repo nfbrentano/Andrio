@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
     <title>Painel de Administração | PACO Móveis</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
+    
     <link rel="stylesheet" href="css/antigravity.min.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
-    <!-- Supabase JS Client -->
+    
+    <!-- Supabase JS Client & Auth -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/image-optimizer.js"></script>
 </head>
 <body class="admin-body">
     <a href="#admin-main" class="skip-link">Pular para o conteúdo principal</a>
@@ -24,8 +30,11 @@
             <h1>Painel Administrativo</h1>
         </div>
         <div class="fun-navbar-actions">
+            <span id="user-display" class="admin-user-tag" style="display: none;">👤 <span id="user-email">admin</span></span>
             <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Supabase</button>
+            <a href="catalogo.html" class="fun-login-link" target="_blank">Ver Catálogo</a>
             <a href="index.html" class="fun-login-link">Ver Loja</a>
+            <button id="btn-logout" class="admin-btn-logout" title="Encerrar Sessão">Sair</button>
         </div>
     </header>
 
@@ -39,76 +48,205 @@
         <div class="admin-grid">
             <!-- Formulário de Cadastro/Edição -->
             <section class="admin-card form-section">
-                <h2 id="form-title">Cadastrar Novo Produto</h2>
+                <div class="card-header-flex">
+                    <h2 id="form-title">Cadastrar Novo Móvel</h2>
+                    <span class="step-badge">Ficha Técnica & Fotos</span>
+                </div>
+                
                 <form id="product-form">
                     <input type="hidden" id="product-id">
                     
+                    <!-- Bloco 1: Informações Básicas -->
                     <div class="form-group">
-                        <label for="product-name">Nome do Produto</label>
-                        <input type="text" id="product-name" placeholder="Ex: FUN Shampoo de Brilho" required>
+                        <label for="product-name">Nome da Peça *</label>
+                        <input type="text" id="product-name" placeholder="Ex: Poltrona Ipanema Veludo Terracota" required>
                     </div>
 
                     <div class="form-group-row">
                         <div class="form-group">
-                            <label for="product-price">Preço</label>
-                            <input type="text" id="product-price" placeholder="Ex: R$ 89,90" required>
+                            <label for="product-price">Preço (R$) *</label>
+                            <input type="text" id="product-price" placeholder="Ex: R$ 2.890,00" required>
                         </div>
                         <div class="form-group">
-                            <label for="product-category">Categoria</label>
+                            <label for="product-category">Categoria do Móvel *</label>
                             <select id="product-category" required>
-                                <option value="shampoo">Shampoo</option>
-                                <option value="condicionador">Condicionador</option>
-                                <option value="creme">Creme</option>
-                                <option value="mascara">Máscara</option>
+                                <option value="poltrona">Poltrona</option>
+                                <option value="sofa">Sofá</option>
+                                <option value="cadeira">Cadeira</option>
+                                <option value="mesa">Mesa</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-group-row">
                         <div class="form-group">
-                            <label for="product-subhead">Subtítulo (Benefício)</label>
-                            <input type="text" id="product-subhead" placeholder="Ex: Fortifying + Balancing">
+                            <label for="product-subhead">Conceito / Subtítulo *</label>
+                            <input type="text" id="product-subhead" placeholder="Ex: Conforto + Elegância Contemporânea">
                         </div>
                         <div class="form-group">
-                            <label for="product-desc">Descrição Rápida</label>
-                            <input type="text" id="product-desc" placeholder="Ex: Fórmulas limpas e nutritivas">
+                            <label for="product-availability">Disponibilidade</label>
+                            <select id="product-availability">
+                                <option value="pronta_entrega">Pronta Entrega</option>
+                                <option value="encomenda_15">Sob Encomenda (15 dias)</option>
+                                <option value="encomenda_30">Sob Encomenda (30 dias)</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="product-image">URL da Imagem</label>
-                        <input type="text" id="product-image" placeholder="Ex: assets/prod_shampoo.webp ou link externo" required>
-                        <div class="image-preset-labels">
-                            <span>Presets de teste:</span>
-                            <button type="button" class="preset-btn" data-url="assets/prod_shampoo.webp">Shampoo</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_condicionador.webp">Condicionador</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_creme.webp">Creme</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_mascara.webp">Máscara</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_poltrona.webp">Poltrona</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_sofa.webp">Sofá</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_cadeira.webp">Cadeira</button>
-                            <button type="button" class="preset-btn" data-url="assets/prod_mesa.webp">Mesa</button>
+                        <label for="product-desc">Descrição Detalhada do Design</label>
+                        <textarea id="product-desc" rows="3" placeholder="Ex: Estrutura torneada em nogueira maciça, almofadas com espuma D33 e toque aveludado acetinado."></textarea>
+                    </div>
+
+                    <!-- Bloco 2: Upload Otimizado de Imagens (Galeria) -->
+                    <div class="form-group upload-box-container">
+                        <label>Fotos do Produto (Galeria & Capa)</label>
+                        <div class="upload-dropzone" id="upload-dropzone">
+                            <input type="file" id="image-file-input" multiple accept="image/*" style="display: none;">
+                            <div class="dropzone-content">
+                                <span class="upload-icon">📸</span>
+                                <strong>Clique para selecionar ou arraste as fotos aqui</strong>
+                                <small>Imagens são otimizadas e compactadas para WebP automaticamente no navegador</small>
+                            </div>
+                        </div>
+
+                        <!-- Barra de progresso / status de compressão -->
+                        <div id="upload-status" class="upload-status-bar" style="display: none;">
+                            <div class="spinner-small"></div>
+                            <span id="upload-status-text">Otimizando e enviando imagens...</span>
+                        </div>
+
+                        <!-- Miniaturas da Galeria -->
+                        <div id="gallery-preview" class="gallery-preview-grid">
+                            <!-- Inserido dinamicamente -->
+                        </div>
+
+                        <!-- Fallback URL Manual -->
+                        <div class="manual-url-toggle">
+                            <button type="button" id="btn-toggle-manual-url">🔗 Inserir URL manual de imagem</button>
+                        </div>
+                        <div id="manual-url-box" class="manual-url-box" style="display: none;">
+                            <input type="text" id="product-image" placeholder="Ex: assets/prod_poltrona.webp ou URL externa">
+                            <div class="image-preset-labels">
+                                <span>Presets:</span>
+                                <button type="button" class="preset-btn" data-url="assets/prod_poltrona.webp">Poltrona</button>
+                                <button type="button" class="preset-btn" data-url="assets/prod_sofa.webp">Sofá</button>
+                                <button type="button" class="preset-btn" data-url="assets/prod_cadeira.webp">Cadeira</button>
+                                <button type="button" class="preset-btn" data-url="assets/prod_mesa.webp">Mesa</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="product-color">Cor Temática (Hex)</label>
-                        <div class="color-picker-wrapper">
-                            <input type="color" id="product-color-picker" value="#2b7fff">
-                            <input type="text" id="product-color" value="#2b7fff" placeholder="#2b7fff" pattern="^#[0-9A-Fa-f]{6}$" required>
+                    <!-- Bloco 3: Atributos Específicos de Móveis -->
+                    <div class="furniture-specs-group">
+                        <h3 class="specs-title">🪵 Especificações e Materiais do Móvel</h3>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label for="product-wood">Tipo de Madeira / Estrutura</label>
+                                <select id="product-wood">
+                                    <option value="Nogueira Nobre">Nogueira Nobre</option>
+                                    <option value="Freijó Natural">Freijó Natural</option>
+                                    <option value="Carvalho Americano">Carvalho Americano</option>
+                                    <option value="Imbuia Maciça">Imbuia Maciça</option>
+                                    <option value="Teca Tratada">Teca Tratada</option>
+                                    <option value="MDF Laminado Premium">MDF Laminado Premium</option>
+                                    <option value="Pinus Maciço">Pinus Maciço</option>
+                                    <option value="Mogno Clássico">Mogno Clássico</option>
+                                    <option value="Estrutura Metálica Dourada">Estrutura Metálica Dourada</option>
+                                    <option value="Aço Carbono Preto Fosco">Aço Carbono Preto Fosco</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-finish">Acabamento</label>
+                                <select id="product-finish">
+                                    <option value="Verniz PU Acetinado Fosco">Verniz PU Acetinado Fosco</option>
+                                    <option value="Óleo Mineral Natural">Óleo Mineral Natural</option>
+                                    <option value="Laca Branca Acetinada">Laca Branca Acetinada</option>
+                                    <option value="Laca Preta Fosca">Laca Preta Fosca</option>
+                                    <option value="Cera de Abelha Artesanal">Cera de Abelha Artesanal</option>
+                                    <option value="Metal Dourado Escovado">Metal Dourado Escovado</option>
+                                    <option value="Verniz Alto Brilho">Verniz Alto Brilho</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="color-presets">
-                            <span class="color-dot" style="background-color: #2b7fff;" data-color="#2b7fff"></span>
-                            <span class="color-dot" style="background-color: #ff5722;" data-color="#ff5722"></span>
-                            <span class="color-dot" style="background-color: #ffeb3b;" data-color="#ffeb3b"></span>
-                            <span class="color-dot" style="background-color: #9c27b0;" data-color="#9c27b0"></span>
-                            <span class="color-dot" style="background-color: #00c853;" data-color="#00c853"></span>
+
+                        <div class="form-group-row">
+                            <div class="form-group">
+                                <label for="product-fabric">Material do Estofado</label>
+                                <select id="product-fabric">
+                                    <option value="Veludo Italiano Nobre">Veludo Italiano Nobre</option>
+                                    <option value="Linho Puro Rústico">Linho Puro Rústico</option>
+                                    <option value="Couro Natural Legítimo">Couro Natural Legítimo</option>
+                                    <option value="Couro Sintético Premium">Couro Sintético Premium</option>
+                                    <option value="Suede Aveludado">Suede Aveludado</option>
+                                    <option value="Sarja 100% Algodão">Sarja 100% Algodão</option>
+                                    <option value="Sem Estofado (Madeira Aparente)">Sem Estofado (Madeira Aparente)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="product-upholstery-color-name">Nome da Cor do Estofado</label>
+                                <input type="text" id="product-upholstery-color-name" placeholder="Ex: Terracota Queimado, Bege Areia...">
+                            </div>
+                        </div>
+
+                        <!-- Seletor Visual de Cores -->
+                        <div class="form-group">
+                            <label>Cor Temática da Peça</label>
+                            <div class="color-picker-wrapper">
+                                <input type="color" id="product-color-picker" value="#2b7fff">
+                                <input type="text" id="product-color" value="#2b7fff" placeholder="#2b7fff" pattern="^#[0-9A-Fa-f]{6}$" required>
+                            </div>
+                            <div class="color-swatches-grid">
+                                <button type="button" class="swatch-btn" style="--swatch-color: #2b7fff;" data-color="#2b7fff" title="Azul Royal"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #ff5722;" data-color="#ff5722" title="Terracota"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #ffeb3b;" data-color="#ffeb3b" title="Mostarda"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #9c27b0;" data-color="#9c27b0" title="Púrpura Mármore"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #00c853;" data-color="#00c853" title="Verde Esmeralda"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #d7ccc8;" data-color="#d7ccc8" title="Bege Linho"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #5d4037;" data-color="#5d4037" title="Madeira Nogueira"></button>
+                                <button type="button" class="swatch-btn" style="--swatch-color: #212121;" data-color="#212121" title="Grafite Preto"></button>
+                            </div>
+                        </div>
+
+                        <!-- Dimensões e Peso -->
+                        <div class="dimensions-grid">
+                            <div class="form-group">
+                                <label for="product-width">Largura (cm)</label>
+                                <input type="number" id="product-width" step="0.5" placeholder="85">
+                            </div>
+                            <div class="form-group">
+                                <label for="product-depth">Profundidade (cm)</label>
+                                <input type="number" id="product-depth" step="0.5" placeholder="90">
+                            </div>
+                            <div class="form-group">
+                                <label for="product-height">Altura (cm)</label>
+                                <input type="number" id="product-height" step="0.5" placeholder="78">
+                            </div>
+                            <div class="form-group">
+                                <label for="product-weight">Peso (kg)</label>
+                                <input type="number" id="product-weight" step="0.5" placeholder="22">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bloco 4: Venda Casada / Cross-sell (Combina com / Compre Junto) -->
+                    <div class="cross-sell-group">
+                        <div class="cross-sell-header">
+                            <h3 class="specs-title">🔗 Venda Casada ("Combina com / Compre Junto")</h3>
+                            <small>Vincule peças que complementam este móvel na vitrine e no catálogo</small>
+                        </div>
+                        <div id="cross-sell-selector" class="cross-sell-items-grid">
+                            <!-- Inserido dinamicamente com os produtos existentes -->
+                            <p class="empty-state-text">Carregando catálogo para sugestões...</p>
                         </div>
                     </div>
 
                     <div class="form-actions">
-                        <button type="submit" class="admin-btn primary" id="btn-submit">Salvar Produto</button>
-                        <button type="button" class="admin-btn secondary" id="btn-cancel" style="display: none;">Cancelar</button>
+                        <button type="submit" class="admin-btn primary" id="btn-submit">Salvar Móvel</button>
+                        <button type="button" class="admin-btn secondary" id="btn-cancel" style="display: none;">Cancelar Edição</button>
                     </div>
                 </form>
             </section>
@@ -116,20 +254,22 @@
             <!-- Listagem de Produtos Existentes -->
             <section class="admin-card list-section">
                 <div class="list-header">
-                    <h2>Produtos Cadastrados</h2>
+                    <h2>Móveis Cadastrados</h2>
                     <span id="product-count" class="badge">0 produtos</span>
                 </div>
                 <div class="list-filters">
-                    <input type="text" id="search-input" placeholder="Buscar produtos pelo nome...">
+                    <input type="text" id="search-input" placeholder="Buscar por nome, madeira, tecido ou categoria...">
                 </div>
                 <div class="table-container">
                     <table class="products-table">
                         <thead>
                             <tr>
-                                <th>Imagem</th>
-                                <th>Nome</th>
+                                <th>Foto</th>
+                                <th>Nome & Madeira</th>
                                 <th>Categoria</th>
                                 <th>Preço</th>
+                                <th>Fotos</th>
+                                <th>Venda Casada</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
@@ -147,7 +287,7 @@
         <div class="modal-content">
             <button type="button" class="close-btn" id="close-modal" aria-label="Fechar janela de configurações">&times;</button>
             <h2 id="modal-config-title">Configurações do Supabase</h2>
-            <p class="modal-description">Insira os dados do seu projeto Supabase para ativar a persistência na nuvem.</p>
+            <p class="modal-description">Insira os dados do seu projeto Supabase para ativar a persistência na nuvem, autenticação e upload de imagens.</p>
             
             <form id="supabase-config-form">
                 <div class="form-group">
@@ -165,23 +305,73 @@
             </form>
 
             <div class="sql-instructions">
-                <h3>Script SQL para o Supabase</h3>
-                <p>Execute este comando no SQL Editor do Supabase antes de conectar:</p>
-                <pre><code>create table produtos (
-  id bigint generated by default as identity primary key,
-  nome text not null,
-  preco text not null,
-  categoria text not null,
-  img text not null,
-  color text not null,
-  subhead text default 'Cuidados Especiais',
-  "desc" text default 'Desenvolvido com ingredientes selecionados para seu cabelo',
-  bg text default '#4190de',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+                <h3>Script SQL para o Supabase (Tabela, RLS e Storage)</h3>
+                <p>Execute este comando completo no SQL Editor do Supabase:</p>
+                <pre><code>-- 1. Criar ou Atualizar a tabela de produtos de móveis
+CREATE TABLE IF NOT EXISTS produtos (
+  id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  nome text NOT NULL,
+  preco text NOT NULL,
+  categoria text NOT NULL CHECK (categoria IN ('poltrona', 'sofa', 'cadeira', 'mesa')),
+  img text NOT NULL,
+  imagens text[] DEFAULT ARRAY[]::text[],
+  color text NOT NULL DEFAULT '#2b7fff',
+  subhead text DEFAULT 'Design Autoral',
+  "desc" text DEFAULT 'Peça exclusiva de design autoral em materiais nobres.',
+  bg text DEFAULT '#4190de',
+
+  -- Atributos de Móveis
+  cor_estofado text DEFAULT NULL,
+  tipo_madeira text DEFAULT NULL,
+  acabamento text DEFAULT NULL,
+  material_estofado text DEFAULT NULL,
+  largura_cm numeric DEFAULT NULL,
+  profundidade_cm numeric DEFAULT NULL,
+  altura_cm numeric DEFAULT NULL,
+  peso_kg numeric DEFAULT NULL,
+  disponibilidade text DEFAULT 'pronta_entrega',
+
+  -- Vendas Casadas (IDs dos produtos relacionados)
+  produtos_relacionados bigint[] DEFAULT ARRAY[]::bigint[],
+
+  created_at timestamptz DEFAULT timezone('utc', now()) NOT NULL
 );
 
-alter table produtos enable row level security;
-create policy "Acesso público total" on produtos for all using (true);</code></pre>
+-- Se a tabela já existir, adicionar colunas extras:
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS imagens text[] DEFAULT ARRAY[]::text[];
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS cor_estofado text DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS tipo_madeira text DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS acabamento text DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS material_estofado text DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS largura_cm numeric DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS profundidade_cm numeric DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS altura_cm numeric DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS peso_kg numeric DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS disponibilidade text DEFAULT 'pronta_entrega';
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS produtos_relacionados bigint[] DEFAULT ARRAY[]::bigint[];
+
+-- 2. Políticas de RLS
+ALTER TABLE produtos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Leitura pública" ON produtos;
+CREATE POLICY "Leitura pública" ON produtos FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Escrita autenticada" ON produtos;
+CREATE POLICY "Escrita autenticada" ON produtos FOR ALL USING (auth.role() = 'authenticated');
+
+-- 3. Configurar Bucket de Imagens no Storage
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('produtos', 'produtos', true)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "Imagens públicas para visualização" ON storage.objects;
+CREATE POLICY "Imagens públicas para visualização" 
+  ON storage.objects FOR SELECT USING (bucket_id = 'produtos');
+
+DROP POLICY IF EXISTS "Usuários autenticados podem enviar imagens" ON storage.objects;
+CREATE POLICY "Usuários autenticados podem enviar imagens" 
+  ON storage.objects FOR INSERT 
+  WITH CHECK (bucket_id = 'produtos' AND auth.role() = 'authenticated');</code></pre>
             </div>
         </div>
     </div>
@@ -190,14 +380,5 @@ create policy "Acesso público total" on produtos for all using (true);</code></
     <div id="toast" class="toast">Mensagem de feedback</div>
 
     <script src="js/admin.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then((reg) => console.log('[SW] Registrado com sucesso:', reg.scope))
-                    .catch((err) => console.warn('[SW] Erro ao registrar:', err));
-            });
-        }
-    </script>
 </body>
 </html>
