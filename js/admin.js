@@ -1,7 +1,7 @@
 // Configuração inicial / móveis de demonstração com atributos completos
 const PRODUTOS_PADRAO = [
     { 
-        id: 1, 
+        id: "demo_1", 
         nome: "Poltrona Clássica Veludo", 
         preco: "R$ 2.890,00", 
         categoria: "poltrona", 
@@ -20,10 +20,10 @@ const PRODUTOS_PADRAO = [
         altura_cm: 78,
         peso_kg: 22,
         disponibilidade: "pronta_entrega",
-        produtos_relacionados: [4] // Linkado com a Mesa Lateral
+        produtos_relacionados: ["demo_4"]
     },
     { 
-        id: 2, 
+        id: "demo_2", 
         nome: "Sofá Moderno Terracota", 
         preco: "R$ 4.590,00", 
         categoria: "sofa", 
@@ -42,10 +42,10 @@ const PRODUTOS_PADRAO = [
         altura_cm: 82,
         peso_kg: 58,
         disponibilidade: "pronta_entrega",
-        produtos_relacionados: [1, 4]
+        produtos_relacionados: ["demo_1", "demo_4"]
     },
     { 
-        id: 3, 
+        id: "demo_3", 
         nome: "Cadeira de Jantar Mostarda", 
         preco: "R$ 1.290,00", 
         categoria: "cadeira", 
@@ -64,10 +64,10 @@ const PRODUTOS_PADRAO = [
         altura_cm: 86,
         peso_kg: 7.5,
         disponibilidade: "pronta_entrega",
-        produtos_relacionados: [4]
+        produtos_relacionados: ["demo_4"]
     },
     { 
-        id: 4, 
+        id: "demo_4", 
         nome: "Mesa Lateral Mármore", 
         preco: "R$ 1.890,00", 
         categoria: "mesa", 
@@ -86,7 +86,7 @@ const PRODUTOS_PADRAO = [
         altura_cm: 55,
         peso_kg: 14,
         disponibilidade: "pronta_entrega",
-        produtos_relacionados: [1, 2]
+        produtos_relacionados: ["demo_1", "demo_2"]
     }
 ];
 
@@ -95,10 +95,8 @@ if (!localStorage.getItem('fun_produtos')) {
     localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
 }
 
-let supabaseClient = null;
-let isUsingSupabase = false;
-let currentGalleryImages = []; // Array com URLs das fotos atuais no form
-let currentRelatedProducts = []; // Array com IDs dos produtos de venda casada
+let currentGalleryImages = [];
+let currentRelatedProducts = [];
 
 // Elementos do DOM
 const connectionBanner = document.getElementById('connection-banner');
@@ -151,43 +149,25 @@ const crossSellSelector = document.getElementById('cross-sell-selector');
 const configModal = document.getElementById('config-modal');
 const btnConfig = document.getElementById('btn-config');
 const closeModal = document.getElementById('close-modal');
-const supabaseConfigForm = document.getElementById('supabase-config-form');
-const supabaseUrlInput = document.getElementById('supabase-url');
-const supabaseKeyInput = document.getElementById('supabase-key');
+const firebaseConfigForm = document.getElementById('firebase-config-form');
+const adminFirebaseJson = document.getElementById('admin-firebase-json');
 const btnDisconnect = document.getElementById('btn-disconnect');
 
-// Inicialização do Supabase
-function initSupabase() {
-    const url = localStorage.getItem('supabase_url');
-    const key = localStorage.getItem('supabase_key');
+// Atualização visual do status de conexão
+function updateConnectionStatus() {
+    const isConnected = FirebaseService.init();
+    const config = FirebaseService.getConfig();
 
-    if (url && key && window.supabase) {
-        try {
-            supabaseClient = window.supabase.createClient(url, key);
-            isUsingSupabase = true;
-            
-            connectionBanner.className = "status-banner success";
-            connectionBanner.querySelector('.icon').textContent = "⚡";
-            connectionBanner.querySelector('.message').textContent = `Conectado ao Supabase: ${url}`;
-            
-            supabaseUrlInput.value = url;
-            supabaseKeyInput.value = key;
-        } catch (error) {
-            console.error("Erro ao inicializar Supabase:", error);
-            showToast("Erro ao conectar ao Supabase. Verifique as credenciais.");
-            useLocalMode();
-        }
+    if (isConnected && config) {
+        connectionBanner.className = "status-banner success";
+        connectionBanner.querySelector('.icon').textContent = "🔥";
+        connectionBanner.querySelector('.message').textContent = `Conectado ao Firebase: ${config.projectId}`;
+        adminFirebaseJson.value = JSON.stringify(config, null, 2);
     } else {
-        useLocalMode();
+        connectionBanner.className = "status-banner info";
+        connectionBanner.querySelector('.icon').textContent = "⚠️";
+        connectionBanner.querySelector('.message').textContent = "Usando banco de dados local (Modo de Demonstração). Configure o Firebase para salvar na nuvem.";
     }
-}
-
-function useLocalMode() {
-    supabaseClient = null;
-    isUsingSupabase = false;
-    connectionBanner.className = "status-banner info";
-    connectionBanner.querySelector('.icon').textContent = "⚠️";
-    connectionBanner.querySelector('.message').textContent = "Usando banco de dados local (Modo de Demonstração). Configure o Supabase para salvar na nuvem.";
 }
 
 function showToast(message) {
@@ -199,20 +179,23 @@ function showToast(message) {
     }, 3200);
 }
 
-// Buscar produtos
+// Buscar produtos do Firestore ou localStorage
 async function fetchProducts() {
-    if (isUsingSupabase && supabaseClient) {
+    if (FirebaseService.isConfigured && FirebaseService.db) {
         try {
-            const { data, error } = await supabaseClient
-                .from('produtos')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const snapshot = await FirebaseService.db.collection('produtos')
+                .orderBy('created_at', 'desc')
+                .get();
 
-            if (error) throw error;
-            return data || [];
+            const items = [];
+            snapshot.forEach(doc => {
+                items.push({ id: doc.id, ...doc.data() });
+            });
+
+            return items;
         } catch (error) {
-            console.error("Erro ao carregar dados do Supabase:", error);
-            showToast("Falha ao buscar dados do Supabase. Usando fallback local.");
+            console.error("Erro ao carregar dados do Firestore:", error);
+            showToast("Falha ao buscar do Firestore. Usando fallback local.");
             return localProducts;
         }
     } else {
@@ -220,23 +203,40 @@ async function fetchProducts() {
     }
 }
 
+// Função para normalizar e converter links do Google Drive e URLs externas
+function normalizarUrlImagem(url) {
+    if (!url) return 'assets/prod_poltrona.webp';
+    const trimmed = url.trim();
+
+    // Converte links de compartilhamento do Google Drive para link direto de alta definição
+    const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                       trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                       trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+                       
+    if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    }
+
+    return trimmed;
+}
+
 // Renderizar Galeria de Miniaturas no Form
 function renderGalleryPreview() {
     galleryPreview.innerHTML = '';
     
-    // Garante que o input principal de imagem tenha o valor da primeira foto
     if (currentGalleryImages.length > 0) {
         productImageInput.value = currentGalleryImages[0];
     } else if (productImageInput.value) {
-        currentGalleryImages = [productImageInput.value];
+        currentGalleryImages = [normalizarUrlImagem(productImageInput.value)];
     }
 
     currentGalleryImages.forEach((imgUrl, index) => {
+        const normalized = normalizarUrlImagem(imgUrl);
         const isCover = index === 0;
         const card = document.createElement('div');
         card.className = `gallery-thumb-card ${isCover ? 'is-cover' : ''}`;
         card.innerHTML = `
-            <img src="${imgUrl}" alt="Foto ${index + 1}">
+            <img src="${normalized}" alt="Foto ${index + 1}" onerror="this.src='assets/prod_poltrona.webp'">
             ${isCover ? '<span class="badge-cover">Capa</span>' : ''}
             <div class="thumb-actions">
                 ${!isCover ? `<button type="button" class="btn-thumb-cover" data-index="${index}">Tornar Capa</button>` : '<span></span>'}
@@ -246,12 +246,11 @@ function renderGalleryPreview() {
         galleryPreview.appendChild(card);
     });
 
-    // Eventos dos botões das miniaturas
     galleryPreview.querySelectorAll('.btn-thumb-cover').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const idx = parseInt(e.currentTarget.dataset.index, 10);
             const chosen = currentGalleryImages.splice(idx, 1)[0];
-            currentGalleryImages.unshift(chosen); // Coloca como primeira (capa)
+            currentGalleryImages.unshift(chosen);
             renderGalleryPreview();
         });
     });
@@ -265,7 +264,7 @@ function renderGalleryPreview() {
     });
 }
 
-// Otimizar e Fazer Upload das Fotos
+// Otimizar e Fazer Upload das Fotos para o Firebase Storage
 async function handleFilesUpload(files) {
     if (!files || files.length === 0) return;
 
@@ -278,16 +277,15 @@ async function handleFilesUpload(files) {
             uploadStatusText.textContent = `Comprimindo [${i + 1}/${files.length}]: ${file.name}...`;
             const compressed = await ImageOptimizer.compressToWebP(file);
             
-            const origKB = (compressed.originalSize / 1024).toFixed(0);
             const compKB = (compressed.compressedSize / 1024).toFixed(0);
             const reduction = Math.round((1 - compressed.compressedSize / compressed.originalSize) * 100);
 
-            if (isUsingSupabase && supabaseClient) {
-                uploadStatusText.textContent = `Enviando para Supabase Storage (${compKB} KB, -${reduction}%)...`;
-                const publicUrl = await ImageOptimizer.uploadToSupabase(compressed.blob, compressed.name, supabaseClient);
+            if (FirebaseService.isConfigured && FirebaseService.storage) {
+                uploadStatusText.textContent = `Enviando ao Firebase Storage (${compKB} KB, -${reduction}%)...`;
+                const publicUrl = await ImageOptimizer.uploadToFirebase(compressed.blob, compressed.name);
                 currentGalleryImages.push(publicUrl);
             } else {
-                // Modo offline / demonstração -> usa Data URL gerada
+                // Modo offline / local
                 const dataUrl = await new Promise(r => {
                     const reader = new FileReader();
                     reader.onload = (e) => r(e.target.result);
@@ -309,7 +307,7 @@ async function handleFilesUpload(files) {
 // Renderizar Seletor de Venda Casada / Cross-sell
 async function renderCrossSellSelector(currentEditingId = null) {
     const products = await fetchProducts();
-    const otherProducts = products.filter(p => p.id != currentEditingId);
+    const otherProducts = products.filter(p => String(p.id) !== String(currentEditingId));
 
     if (otherProducts.length === 0) {
         crossSellSelector.innerHTML = '<p class="empty-state-text">Nenhum outro móvel para vincular ainda.</p>';
@@ -318,7 +316,7 @@ async function renderCrossSellSelector(currentEditingId = null) {
 
     crossSellSelector.innerHTML = '';
     otherProducts.forEach(p => {
-        const isSelected = currentRelatedProducts.includes(Number(p.id)) || currentRelatedProducts.includes(String(p.id));
+        const isSelected = currentRelatedProducts.includes(String(p.id));
         const item = document.createElement('div');
         item.className = `cross-sell-item ${isSelected ? 'selected' : ''}`;
         item.dataset.id = p.id;
@@ -332,12 +330,12 @@ async function renderCrossSellSelector(currentEditingId = null) {
         `;
 
         item.addEventListener('click', () => {
-            const numId = Number(p.id);
-            const idx = currentRelatedProducts.indexOf(numId);
+            const strId = String(p.id);
+            const idx = currentRelatedProducts.indexOf(strId);
             if (idx > -1) {
                 currentRelatedProducts.splice(idx, 1);
             } else {
-                currentRelatedProducts.push(numId);
+                currentRelatedProducts.push(strId);
             }
             renderCrossSellSelector(currentEditingId);
         });
@@ -351,7 +349,7 @@ async function renderTable() {
     const query = searchInput.value.toLowerCase();
     const products = await fetchProducts();
     
-    if (isUsingSupabase) {
+    if (FirebaseService.isConfigured) {
         localStorage.setItem('fun_produtos', JSON.stringify(products));
     }
 
@@ -408,7 +406,6 @@ async function renderTable() {
         productTableBody.appendChild(tr);
     });
 
-    // Eventos de Ação
     document.querySelectorAll('.action-btn.edit').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             const id = e.currentTarget.dataset.id;
@@ -429,7 +426,7 @@ async function renderTable() {
 // Preparar formulário para edição
 async function prepareEdit(id) {
     const products = await fetchProducts();
-    const item = products.find(p => p.id == id);
+    const item = products.find(p => String(p.id) === String(id));
     if (!item) return;
 
     productIdInput.value = item.id;
@@ -452,15 +449,13 @@ async function prepareEdit(id) {
     productHeightInput.value = item.altura_cm || '';
     productWeightInput.value = item.peso_kg || '';
 
-    // Carrega galeria de fotos
     currentGalleryImages = Array.isArray(item.imagens) && item.imagens.length > 0 
         ? [...item.imagens] 
         : [item.img];
     renderGalleryPreview();
 
-    // Carrega itens de venda casada
     currentRelatedProducts = Array.isArray(item.produtos_relacionados) 
-        ? [...item.produtos_relacionados.map(Number)] 
+        ? [...item.produtos_relacionados.map(String)] 
         : [];
     await renderCrossSellSelector(item.id);
 
@@ -525,40 +520,34 @@ productForm.addEventListener('submit', async (e) => {
         profundidade_cm: productDepthInput.value ? parseFloat(productDepthInput.value) : null,
         altura_cm: productHeightInput.value ? parseFloat(productHeightInput.value) : null,
         peso_kg: productWeightInput.value ? parseFloat(productWeightInput.value) : null,
-        produtos_relacionados: currentRelatedProducts
+        produtos_relacionados: currentRelatedProducts,
+        created_at: new Date().toISOString()
     };
 
-    if (isUsingSupabase && supabaseClient) {
+    if (FirebaseService.isConfigured && FirebaseService.db) {
         try {
             if (id) {
-                const { error } = await supabaseClient
-                    .from('produtos')
-                    .update(productData)
-                    .eq('id', id);
-                if (error) throw error;
-                showToast("Móvel atualizado no Supabase!");
+                await FirebaseService.db.collection('produtos').doc(id).set(productData, { merge: true });
+                showToast("Móvel atualizado no Firestore!");
             } else {
-                const { error } = await supabaseClient
-                    .from('produtos')
-                    .insert([productData]);
-                if (error) throw error;
-                showToast("Móvel cadastrado no Supabase!");
+                await FirebaseService.db.collection('produtos').add(productData);
+                showToast("Móvel cadastrado no Firestore!");
             }
         } catch (error) {
-            console.error("Erro na operação do Supabase:", error);
-            showToast(`Erro ao salvar no Supabase: ${error.message}`);
+            console.error("Erro na operação do Firestore:", error);
+            showToast(`Erro ao salvar no Firestore: ${error.message}`);
             return;
         }
     } else {
         // Modo LocalStorage
         if (id) {
-            const index = localProducts.findIndex(p => p.id == id);
+            const index = localProducts.findIndex(p => String(p.id) === String(id));
             if (index !== -1) {
                 localProducts[index] = { ...localProducts[index], ...productData };
             }
             showToast("Móvel atualizado localmente!");
         } else {
-            const newId = localProducts.length > 0 ? Math.max(...localProducts.map(p => Number(p.id))) + 1 : 1;
+            const newId = "local_" + Date.now();
             localProducts.push({ id: newId, ...productData });
             showToast("Móvel cadastrado localmente!");
         }
@@ -571,21 +560,17 @@ productForm.addEventListener('submit', async (e) => {
 
 // Remover Produto
 async function deleteProduct(id) {
-    if (isUsingSupabase && supabaseClient) {
+    if (FirebaseService.isConfigured && FirebaseService.db) {
         try {
-            const { error } = await supabaseClient
-                .from('produtos')
-                .delete()
-                .eq('id', id);
-            if (error) throw error;
-            showToast("Móvel excluído do Supabase!");
+            await FirebaseService.db.collection('produtos').doc(id).delete();
+            showToast("Móvel excluído do Firestore!");
         } catch (error) {
-            console.error("Erro ao deletar no Supabase:", error);
-            showToast("Erro ao excluir do Supabase.");
+            console.error("Erro ao deletar no Firestore:", error);
+            showToast("Erro ao excluir do Firestore.");
             return;
         }
     } else {
-        localProducts = localProducts.filter(p => p.id != id);
+        localProducts = localProducts.filter(p => String(p.id) !== String(id));
         localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
         showToast("Móvel removido localmente!");
     }
@@ -593,32 +578,36 @@ async function deleteProduct(id) {
     await renderTable();
 }
 
-// Configurações do Supabase
-supabaseConfigForm.addEventListener('submit', (e) => {
+// Configurações do Firebase
+firebaseConfigForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const url = supabaseUrlInput.value.trim();
-    const key = supabaseKeyInput.value.trim();
+    const rawText = adminFirebaseJson.value.trim();
 
-    localStorage.setItem('supabase_url', url);
-    localStorage.setItem('supabase_key', key);
+    try {
+        let jsonText = rawText;
+        const match = rawText.match(/\{[\s\S]*\}/);
+        if (match) jsonText = match[0];
+        
+        const parsed = JSON.parse(jsonText);
+        FirebaseService.saveConfig(parsed);
 
-    configModal.classList.remove('open');
-    initSupabase();
-    renderTable();
-    renderCrossSellSelector();
-    showToast("Supabase conectado com sucesso!");
+        configModal.classList.remove('open');
+        updateConnectionStatus();
+        renderTable();
+        renderCrossSellSelector();
+        showToast("Firebase conectado com sucesso!");
+    } catch (err) {
+        showToast("JSON de configuração inválido.");
+    }
 });
 
 btnDisconnect.addEventListener('click', () => {
-    localStorage.removeItem('supabase_url');
-    localStorage.removeItem('supabase_key');
-    supabaseUrlInput.value = '';
-    supabaseKeyInput.value = '';
+    FirebaseService.clearConfig();
     configModal.classList.remove('open');
-    useLocalMode();
+    updateConnectionStatus();
     renderTable();
     renderCrossSellSelector();
-    showToast("Desconectado do Supabase. Usando modo local.");
+    showToast("Desconectado do Firebase. Usando modo local.");
 });
 
 // Upload via Drag and Drop & Input File
@@ -640,10 +629,36 @@ uploadDropzone.addEventListener('drop', (e) => {
     handleFilesUpload(e.dataTransfer.files);
 });
 
-// Toggle URL Manual
+// Toggle URL Manual & Google Drive
 btnToggleManualUrl.addEventListener('click', () => {
     manualUrlBox.style.display = manualUrlBox.style.display === 'none' ? 'block' : 'none';
 });
+
+const btnAddManualImage = document.getElementById('btn-add-manual-image');
+const productImageUrlInput = document.getElementById('product-image-url-input');
+
+if (btnAddManualImage && productImageUrlInput) {
+    btnAddManualImage.addEventListener('click', () => {
+        const rawUrl = productImageUrlInput.value.trim();
+        if (!rawUrl) {
+            showToast("Por favor, cole um link de imagem.");
+            return;
+        }
+
+        const normalized = normalizarUrlImagem(rawUrl);
+        currentGalleryImages.push(normalized);
+        productImageUrlInput.value = '';
+        renderGalleryPreview();
+        showToast("Foto adicionada à galeria!");
+    });
+
+    productImageUrlInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            btnAddManualImage.click();
+        }
+    });
+}
 
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -691,9 +706,8 @@ btnCancel.addEventListener('click', resetForm);
 
 // Inicialização Principal com Guard de Autenticação
 document.addEventListener('DOMContentLoaded', async () => {
-    initSupabase();
+    updateConnectionStatus();
 
-    // Verificação de autenticação
     const user = await Auth.requireAuth();
     if (user) {
         userDisplay.style.display = 'inline-flex';

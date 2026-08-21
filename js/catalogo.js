@@ -117,31 +117,62 @@ function parsePrice(priceStr) {
     return parseFloat(clean) || 0;
 }
 
+// Função para normalizar e converter links do Google Drive
+function normalizarUrlImagem(url) {
+    if (!url) return 'assets/prod_poltrona.webp';
+    const trimmed = String(url).trim();
+
+    const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                       trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                       trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+                       
+    if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    }
+
+    return trimmed;
+}
+
 // Carregar produtos
 async function carregarProdutosCatalogo() {
-    const url = localStorage.getItem('supabase_url');
-    const key = localStorage.getItem('supabase_key');
+    if (typeof FirebaseService !== 'undefined') {
+        FirebaseService.init();
 
-    if (url && key && window.supabase) {
-        try {
-            const client = window.supabase.createClient(url, key);
-            const { data, error } = await client
-                .from('produtos')
-                .select('*')
-                .order('created_at', { ascending: false });
+        if (FirebaseService.isConfigured && FirebaseService.db) {
+            try {
+                const snapshot = await FirebaseService.db.collection('produtos')
+                    .orderBy('created_at', 'desc')
+                    .get();
 
-            if (!error && data && data.length > 0) {
-                catalogoProdutos = data;
-                return;
+                const items = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    items.push({ 
+                        id: doc.id, 
+                        ...data,
+                        img: normalizarUrlImagem(data.img),
+                        imagens: Array.isArray(data.imagens) ? data.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(data.img)]
+                    });
+                });
+
+                if (items.length > 0) {
+                    catalogoProdutos = items;
+                    return;
+                }
+            } catch (err) {
+                console.warn('[Catalogo] Erro ao carregar do Firestore:', err);
             }
-        } catch (err) {
-            console.warn('[Catalogo] Erro ao carregar do Supabase:', err);
         }
     }
 
     // Fallback Local
     const local = localStorage.getItem('fun_produtos');
-    catalogoProdutos = local ? JSON.parse(local) : PRODUTOS_PADRAO;
+    const raw = local ? JSON.parse(local) : PRODUTOS_PADRAO;
+    catalogoProdutos = raw.map(p => ({
+        ...p,
+        img: normalizarUrlImagem(p.img),
+        imagens: Array.isArray(p.imagens) ? p.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(p.img)]
+    }));
 }
 
 // Renderizar o Grid de Produtos

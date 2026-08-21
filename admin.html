@@ -12,8 +12,13 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/admin.css">
     
-    <!-- Supabase JS Client & Auth -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/image-optimizer.js"></script>
 </head>
@@ -31,7 +36,7 @@
         </div>
         <div class="fun-navbar-actions">
             <span id="user-display" class="admin-user-tag" style="display: none;">👤 <span id="user-email">admin</span></span>
-            <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Supabase</button>
+            <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Firebase</button>
             <a href="catalogo.html" class="fun-login-link" target="_blank">Ver Catálogo</a>
             <a href="index.html" class="fun-login-link">Ver Loja</a>
             <button id="btn-logout" class="admin-btn-logout" title="Encerrar Sessão">Sair</button>
@@ -41,7 +46,7 @@
     <!-- Banner de Status da Conexão -->
     <div id="connection-banner" class="status-banner info" role="status" aria-live="polite">
         <span class="icon" aria-hidden="true">⚠️</span>
-        <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Supabase para salvar na nuvem.</span>
+        <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Firebase para salvar na nuvem.</span>
     </div>
 
     <main class="admin-main ag-container" id="admin-main" tabindex="-1">
@@ -121,14 +126,18 @@
                             <!-- Inserido dinamicamente -->
                         </div>
 
-                        <!-- Fallback URL Manual -->
+                        <!-- Inserção de link do Google Drive ou URL Externa -->
                         <div class="manual-url-toggle">
-                            <button type="button" id="btn-toggle-manual-url">🔗 Inserir URL manual de imagem</button>
+                            <button type="button" id="btn-toggle-manual-url">🔗 Inserir link do Google Drive / URL externa</button>
                         </div>
                         <div id="manual-url-box" class="manual-url-box" style="display: none;">
-                            <input type="text" id="product-image" placeholder="Ex: assets/prod_poltrona.webp ou URL externa">
+                            <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                                <input type="text" id="product-image-url-input" placeholder="Cole o link do Google Drive (ex: https://drive.google.com/file/d/...) ou URL externa" style="flex: 1;">
+                                <button type="button" id="btn-add-manual-image" class="admin-btn primary" style="padding: 8px 14px; font-size: 0.85rem; flex: none;">+ Adicionar Foto</button>
+                            </div>
+                            <input type="hidden" id="product-image">
                             <div class="image-preset-labels">
-                                <span>Presets:</span>
+                                <span>Presets rápidos:</span>
                                 <button type="button" class="preset-btn" data-url="assets/prod_poltrona.webp">Poltrona</button>
                                 <button type="button" class="preset-btn" data-url="assets/prod_sofa.webp">Sofá</button>
                                 <button type="button" class="preset-btn" data-url="assets/prod_cadeira.webp">Cadeira</button>
@@ -282,96 +291,54 @@
         </div>
     </main>
 
-    <!-- Modal de Configuração do Supabase -->
+    <!-- Modal de Configuração do Firebase -->
     <div id="config-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-config-title" aria-hidden="true">
         <div class="modal-content">
             <button type="button" class="close-btn" id="close-modal" aria-label="Fechar janela de configurações">&times;</button>
-            <h2 id="modal-config-title">Configurações do Supabase</h2>
-            <p class="modal-description">Insira os dados do seu projeto Supabase para ativar a persistência na nuvem, autenticação e upload de imagens.</p>
+            <h2 id="modal-config-title">Configurações do Firebase</h2>
+            <p class="modal-description">Insira a configuração do seu projeto Firebase (Firestore + Storage + Auth) para ativar a nuvem.</p>
             
-            <form id="supabase-config-form">
+            <form id="firebase-config-form">
                 <div class="form-group">
-                    <label for="supabase-url">Supabase Project URL</label>
-                    <input type="url" id="supabase-url" placeholder="https://xxxx.supabase.co" required>
-                </div>
-                <div class="form-group">
-                    <label for="supabase-key">Supabase API Key (Anon Public)</label>
-                    <input type="password" id="supabase-key" placeholder="eyJhbGciOi..." required>
+                    <label for="admin-firebase-json">Objeto de Configuração Firebase (JSON)</label>
+                    <textarea id="admin-firebase-json" rows="8" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "paco-moveis.firebaseapp.com",
+  "projectId": "paco-moveis",
+  "storageBucket": "paco-moveis.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}' required style="font-size: 0.8rem; font-family: monospace;"></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button type="submit" class="admin-btn primary">Conectar Supabase</button>
+                    <button type="submit" class="admin-btn primary">Conectar Firebase</button>
                     <button type="button" class="admin-btn secondary" id="btn-disconnect">Desconectar / Usar Local</button>
                 </div>
             </form>
 
             <div class="sql-instructions">
-                <h3>Script SQL para o Supabase (Tabela, RLS e Storage)</h3>
-                <p>Execute este comando completo no SQL Editor do Supabase:</p>
-                <pre><code>-- 1. Criar ou Atualizar a tabela de produtos de móveis
-CREATE TABLE IF NOT EXISTS produtos (
-  id bigint GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
-  nome text NOT NULL,
-  preco text NOT NULL,
-  categoria text NOT NULL CHECK (categoria IN ('poltrona', 'sofa', 'cadeira', 'mesa')),
-  img text NOT NULL,
-  imagens text[] DEFAULT ARRAY[]::text[],
-  color text NOT NULL DEFAULT '#2b7fff',
-  subhead text DEFAULT 'Design Autoral',
-  "desc" text DEFAULT 'Peça exclusiva de design autoral em materiais nobres.',
-  bg text DEFAULT '#4190de',
+                <h3>Regras de Segurança Recomendadas (Firebase Console)</h3>
+                <p><strong>1. Regras do Cloud Firestore</strong> (Aba <em>Firestore Database</em> ➔ <em>Rules</em>):</p>
+                <pre><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /produtos/{produtoId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}</code></pre>
 
-  -- Atributos de Móveis
-  cor_estofado text DEFAULT NULL,
-  tipo_madeira text DEFAULT NULL,
-  acabamento text DEFAULT NULL,
-  material_estofado text DEFAULT NULL,
-  largura_cm numeric DEFAULT NULL,
-  profundidade_cm numeric DEFAULT NULL,
-  altura_cm numeric DEFAULT NULL,
-  peso_kg numeric DEFAULT NULL,
-  disponibilidade text DEFAULT 'pronta_entrega',
-
-  -- Vendas Casadas (IDs dos produtos relacionados)
-  produtos_relacionados bigint[] DEFAULT ARRAY[]::bigint[],
-
-  created_at timestamptz DEFAULT timezone('utc', now()) NOT NULL
-);
-
--- Se a tabela já existir, adicionar colunas extras:
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS imagens text[] DEFAULT ARRAY[]::text[];
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS cor_estofado text DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS tipo_madeira text DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS acabamento text DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS material_estofado text DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS largura_cm numeric DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS profundidade_cm numeric DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS altura_cm numeric DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS peso_kg numeric DEFAULT NULL;
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS disponibilidade text DEFAULT 'pronta_entrega';
-ALTER TABLE produtos ADD COLUMN IF NOT EXISTS produtos_relacionados bigint[] DEFAULT ARRAY[]::bigint[];
-
--- 2. Políticas de RLS
-ALTER TABLE produtos ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Leitura pública" ON produtos;
-CREATE POLICY "Leitura pública" ON produtos FOR SELECT USING (true);
-
-DROP POLICY IF EXISTS "Escrita autenticada" ON produtos;
-CREATE POLICY "Escrita autenticada" ON produtos FOR ALL USING (auth.role() = 'authenticated');
-
--- 3. Configurar Bucket de Imagens no Storage
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('produtos', 'produtos', true)
-ON CONFLICT (id) DO NOTHING;
-
-DROP POLICY IF EXISTS "Imagens públicas para visualização" ON storage.objects;
-CREATE POLICY "Imagens públicas para visualização" 
-  ON storage.objects FOR SELECT USING (bucket_id = 'produtos');
-
-DROP POLICY IF EXISTS "Usuários autenticados podem enviar imagens" ON storage.objects;
-CREATE POLICY "Usuários autenticados podem enviar imagens" 
-  ON storage.objects FOR INSERT 
-  WITH CHECK (bucket_id = 'produtos' AND auth.role() = 'authenticated');</code></pre>
+                <p style="margin-top: 12px;"><strong>2. Regras do Firebase Storage</strong> (Aba <em>Storage</em> ➔ <em>Rules</em>):</p>
+                <pre><code>rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /produtos/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}</code></pre>
             </div>
         </div>
     </div>

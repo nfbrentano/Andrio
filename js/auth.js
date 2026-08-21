@@ -1,73 +1,57 @@
 /**
- * Módulo de Autenticação Supabase Auth para PACO Móveis Admin
+ * Módulo de Autenticação Firebase Auth para PACO Móveis Admin
  */
 
 const Auth = {
-    client: null,
+    // Retorna a promessa com o usuário atual ou null
+    getCurrentUser() {
+        return new Promise((resolve) => {
+            if (!FirebaseService.isConfigured || !FirebaseService.auth) {
+                resolve(null);
+                return;
+            }
 
-    // Inicializa o cliente Supabase para Auth
-    getClient() {
-        if (this.client) return this.client;
-        
-        const url = localStorage.getItem('supabase_url');
-        const key = localStorage.getItem('supabase_key');
-
-        if (url && key && window.supabase) {
-            this.client = window.supabase.createClient(url, key);
-            return this.client;
-        }
-        return null;
+            const unsubscribe = FirebaseService.auth.onAuthStateChanged((user) => {
+                unsubscribe();
+                resolve(user);
+            }, (err) => {
+                console.error('[Auth] Erro no listener de auth:', err);
+                resolve(null);
+            });
+        });
     },
 
-    // Retorna a sessão ativa atual
-    async getSession() {
-        const client = this.getClient();
-        if (!client) return null;
+    // Efetua login com e-mail e senha no Firebase
+    async signIn(email, password) {
+        if (!FirebaseService.isConfigured || !FirebaseService.auth) {
+            FirebaseService.init();
+            if (!FirebaseService.isConfigured) {
+                throw new Error('Firebase não configurado. Por favor, cole as credenciais do seu projeto Firebase.');
+            }
+        }
 
         try {
-            const { data, error } = await client.auth.getSession();
-            if (error) {
-                console.error('[Auth] Erro ao obter sessão:', error.message);
-                return null;
+            const userCredential = await FirebaseService.auth.signInWithEmailAndPassword(
+                email.trim(),
+                password
+            );
+            return userCredential.user;
+        } catch (error) {
+            let message = error.message;
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                message = 'E-mail ou senha incorretos.';
+            } else if (error.code === 'auth/too-many-requests') {
+                message = 'Muitas tentativas sem sucesso. Aguarde alguns instantes.';
             }
-            return data.session;
-        } catch (err) {
-            console.error('[Auth] Exceção ao obter sessão:', err);
-            return null;
+            throw new Error(message);
         }
-    },
-
-    // Retorna o usuário logado atualmente
-    async getUser() {
-        const session = await this.getSession();
-        return session ? session.user : null;
-    },
-
-    // Efetua login com email e senha
-    async signIn(email, password) {
-        const client = this.getClient();
-        if (!client) {
-            throw new Error('Supabase não configurado. Por favor, configure a URL e a Anon Key no Painel ou na tela de Login.');
-        }
-
-        const { data, error } = await client.auth.signInWithPassword({
-            email: email.trim(),
-            password: password
-        });
-
-        if (error) {
-            throw error;
-        }
-
-        return data;
     },
 
     // Efetua logout
     async signOut() {
-        const client = this.getClient();
-        if (client) {
+        if (FirebaseService.auth) {
             try {
-                await client.auth.signOut();
+                await FirebaseService.auth.signOut();
             } catch (err) {
                 console.warn('[Auth] Erro ao deslogar:', err);
             }
@@ -76,23 +60,19 @@ const Auth = {
         window.location.href = 'login.html';
     },
 
-    // Protege a página de administração (chamar no carregamento do admin.html)
+    // Protege a rota administrativa (admin.html)
     async requireAuth() {
-        const url = localStorage.getItem('supabase_url');
-        const key = localStorage.getItem('supabase_key');
+        FirebaseService.init();
 
-        // Se o Supabase estiver configurado, exige autenticação real
-        if (url && key) {
-            const session = await this.getSession();
-            if (!session) {
-                // Redireciona para o login salvando a intenção de retorno
+        if (FirebaseService.isConfigured) {
+            const user = await this.getCurrentUser();
+            if (!user) {
                 window.location.href = 'login.html?redirect=admin.html';
                 return false;
             }
-            return session.user;
+            return user;
         } else {
-            // Se estiver em modo local/demo sem Supabase configurado, permite acesso direto com aviso
-            console.warn('[Auth] Modo Demonstração Local ativo (sem Supabase configurado).');
+            console.warn('[Auth] Modo Demonstração Local ativo (sem Firebase configurado).');
             return { email: 'admin@local.demo', isDemo: true };
         }
     }

@@ -11,8 +11,13 @@
     <link rel="stylesheet" href="css/antigravity.min.css">
     <link rel="stylesheet" href="css/login.css">
     
-    <!-- Supabase JS CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+    
+    <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
 </head>
 <body class="login-body">
@@ -50,24 +55,23 @@
             </form>
 
             <div class="login-config-toggle">
-                <button type="button" id="btn-toggle-config">⚙️ Configurar conexão Supabase</button>
+                <button type="button" id="btn-toggle-config">⚙️ Configurar conexão Firebase</button>
             </div>
 
-            <div id="supabase-config-box" class="supabase-setup-box">
-                <h3>Conexão Supabase</h3>
+            <div id="firebase-config-box" class="supabase-setup-box">
+                <h3>Credenciais do Projeto Firebase</h3>
+                <p style="font-size: 0.75rem; color: #8b949e; margin-bottom: 8px;">Cole o objeto <code>firebaseConfig</code> copiado das Configurações do Projeto no Firebase Console:</p>
                 <div class="form-group">
-                    <label for="cfg-supabase-url" style="font-size: 0.75rem;">URL do Projeto</label>
-                    <div class="login-input-wrapper">
-                        <input type="url" id="cfg-supabase-url" placeholder="https://xxxx.supabase.co" style="font-size: 0.8rem; padding: 8px 10px;">
-                    </div>
+                    <textarea id="cfg-firebase-json" rows="6" placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "paco-moveis.firebaseapp.com",
+  "projectId": "paco-moveis",
+  "storageBucket": "paco-moveis.appspot.com",
+  "messagingSenderId": "...",
+  "appId": "..."
+}' style="font-size: 0.75rem; font-family: monospace;"></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="cfg-supabase-key" style="font-size: 0.75rem;">Anon Key</label>
-                    <div class="login-input-wrapper">
-                        <input type="password" id="cfg-supabase-key" placeholder="eyJhbGci..." style="font-size: 0.8rem; padding: 8px 10px;">
-                    </div>
-                </div>
-                <button type="button" id="btn-save-config" class="login-btn-primary" style="margin-top: 10px; padding: 8px; font-size: 0.85rem;">Salvar Credenciais</button>
+                <button type="button" id="btn-save-config" class="login-btn-primary" style="margin-top: 10px; padding: 8px; font-size: 0.85rem;">Salvar Configuração Firebase</button>
             </div>
 
             <div class="login-footer">
@@ -87,30 +91,35 @@
             const btnSpinner = document.getElementById('btn-spinner');
 
             const btnToggleConfig = document.getElementById('btn-toggle-config');
-            const configBox = document.getElementById('supabase-config-box');
-            const cfgUrl = document.getElementById('cfg-supabase-url');
-            const cfgKey = document.getElementById('cfg-supabase-key');
+            const configBox = document.getElementById('firebase-config-box');
+            const cfgJson = document.getElementById('cfg-firebase-json');
             const btnSaveConfig = document.getElementById('btn-save-config');
 
-            // Carrega credenciais salvas nos inputs de configuração
-            cfgUrl.value = localStorage.getItem('supabase_url') || '';
-            cfgKey.value = localStorage.getItem('supabase_key') || '';
+            // Carrega configuração salva se existir
+            const savedConfig = FirebaseService.getConfig();
+            if (savedConfig) {
+                cfgJson.value = JSON.stringify(savedConfig, null, 2);
+            }
 
             btnToggleConfig.addEventListener('click', () => {
                 configBox.classList.toggle('open');
             });
 
             btnSaveConfig.addEventListener('click', () => {
-                const url = cfgUrl.value.trim();
-                const key = cfgKey.value.trim();
-                if (url && key) {
-                    localStorage.setItem('supabase_url', url);
-                    localStorage.setItem('supabase_key', key);
-                    showAlert('Credenciais do Supabase salvas com sucesso!', 'info');
+                const text = cfgJson.value.trim();
+                try {
+                    // Extrai objeto JSON mesmo se o usuário colou "const firebaseConfig = { ... };"
+                    let jsonText = text;
+                    const match = text.match(/\{[\s\S]*\}/);
+                    if (match) {
+                        jsonText = match[0];
+                    }
+                    const parsed = JSON.parse(jsonText);
+                    FirebaseService.saveConfig(parsed);
+                    showAlert('Configuração do Firebase salva com sucesso!', 'info');
                     configBox.classList.remove('open');
-                    Auth.client = null; // Reinicializa cliente
-                } else {
-                    showAlert('Por favor, preencha URL e Chave do Supabase.', 'error');
+                } catch (err) {
+                    showAlert('Formato JSON inválido. Verifique o código colado.', 'error');
                 }
             });
 
@@ -121,8 +130,8 @@
             }
 
             // Checa se já está logado
-            const session = await Auth.getSession();
-            if (session) {
+            const user = await Auth.getCurrentUser();
+            if (user) {
                 window.location.href = 'admin.html';
                 return;
             }
@@ -138,11 +147,8 @@
                 btnText.style.display = 'none';
                 btnSpinner.style.display = 'inline';
 
-                const url = localStorage.getItem('supabase_url');
-                const key = localStorage.getItem('supabase_key');
-
-                if (!url || !key) {
-                    showAlert('Configure a URL e a Anon Key do Supabase antes de entrar.', 'error');
+                if (!FirebaseService.isConfigured) {
+                    showAlert('Por favor, configure as credenciais do Firebase antes de entrar.', 'error');
                     configBox.classList.add('open');
                     btnSubmit.disabled = false;
                     btnText.style.display = 'inline';

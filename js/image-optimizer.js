@@ -1,10 +1,9 @@
 /**
  * Utilitário de Otimização e Compressão de Imagens no Cliente
- * Converte imagens para WebP com redimensionamento proporcional e envia ao Supabase Storage.
+ * Converte imagens para WebP com redimensionamento proporcional e envia ao Firebase Storage.
  */
 
 const ImageOptimizer = {
-    // Configurações padrão de compressão
     MAX_WIDTH: 1600,
     MAX_HEIGHT: 1600,
     WEBP_QUALITY: 0.82,
@@ -25,7 +24,6 @@ const ImageOptimizer = {
                     let width = img.width;
                     let height = img.height;
 
-                    // Cálculo proporcional de redimensionamento
                     if (width > height) {
                         if (width > ImageOptimizer.MAX_WIDTH) {
                             height = Math.round((height * ImageOptimizer.MAX_WIDTH) / width);
@@ -43,12 +41,10 @@ const ImageOptimizer = {
                     canvas.height = height;
 
                     const ctx = canvas.getContext('2d');
-                    // Melhor interpolação de imagem
                     ctx.imageSmoothingEnabled = true;
                     ctx.imageSmoothingQuality = 'high';
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    // Converte para WebP
                     canvas.toBlob(
                         (blob) => {
                             if (!blob) {
@@ -56,7 +52,6 @@ const ImageOptimizer = {
                                 return;
                             }
 
-                            // Gera nome sanitizado com timestamp
                             const cleanName = file.name
                                 .toLowerCase()
                                 .replace(/\.[^/.]+$/, '')
@@ -77,46 +72,32 @@ const ImageOptimizer = {
                         ImageOptimizer.WEBP_QUALITY
                     );
                 };
-                img.onerror = (err) => reject(new Error('Erro ao carregar imagem para compressão'));
+                img.onerror = () => reject(new Error('Erro ao carregar imagem para compressão'));
             };
-            reader.onerror = (err) => reject(new Error('Erro ao ler arquivo'));
+            reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
         });
     },
 
     /**
-     * Envia o blob para o bucket do Supabase Storage
+     * Envia o blob para o Firebase Storage
      * @param {Blob} blob - Arquivo comprimido
      * @param {string} fileName - Nome do arquivo
-     * @param {Object} supabaseClient - Instância do cliente Supabase
-     * @returns {Promise<string>} URL pública da imagem
+     * @returns {Promise<string>} URL pública de download da imagem
      */
-    async uploadToSupabase(blob, fileName, supabaseClient) {
-        if (!supabaseClient) {
-            throw new Error('Cliente Supabase não está conectado.');
+    async uploadToFirebase(blob, fileName) {
+        if (!FirebaseService.isConfigured || !FirebaseService.storage) {
+            throw new Error('Firebase Storage não está conectado.');
         }
 
-        const bucketName = 'produtos';
+        const storageRef = FirebaseService.storage.ref(`produtos/${fileName}`);
+        const metadata = {
+            contentType: 'image/webp',
+            cacheControl: 'public, max-age=31536000'
+        };
 
-        // Faz o upload no bucket
-        const { data, error } = await supabaseClient.storage
-            .from(bucketName)
-            .upload(`galeria/${fileName}`, blob, {
-                contentType: 'image/webp',
-                cacheControl: '31536000', // 1 ano de cache
-                upsert: true
-            });
-
-        if (error) {
-            console.error('[Storage Upload Error]:', error);
-            throw new Error(`Erro ao enviar foto para o Supabase Storage: ${error.message}`);
-        }
-
-        // Obtém a URL pública direta
-        const { data: publicData } = supabaseClient.storage
-            .from(bucketName)
-            .getPublicUrl(`galeria/${fileName}`);
-
-        return publicData.publicUrl;
+        const snapshot = await storageRef.put(blob, metadata);
+        const downloadUrl = await snapshot.ref.getDownloadURL();
+        return downloadUrl;
     }
 };
 

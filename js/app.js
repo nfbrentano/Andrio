@@ -19,43 +19,67 @@ function carregarSupabaseScript() {
     });
 }
 
+// Função para normalizar e converter links do Google Drive
+function normalizarUrlImagem(url) {
+    if (!url) return 'assets/prod_poltrona.webp';
+    const trimmed = String(url).trim();
+
+    const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                       trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                       trimmed.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+                       
+    if (driveMatch && driveMatch[1]) {
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    }
+
+    return trimmed;
+}
+
 async function carregarProdutos() {
-    const url = localStorage.getItem('supabase_url');
-    const key = localStorage.getItem('supabase_key');
-    
-    if (url && key) {
-        try {
-            await carregarSupabaseScript();
-            if (window.supabase) {
-                const supabaseClient = window.supabase.createClient(url, key);
-                const { data, error } = await supabaseClient
-                    .from('produtos')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (!error && data) {
-                    // Map values to make sure we have subhead, desc, bg fallback fields
-                    produtosAtuais = data.map(item => ({
+    if (typeof FirebaseService !== 'undefined') {
+        FirebaseService.init();
+
+        if (FirebaseService.isConfigured && FirebaseService.db) {
+            try {
+                const snapshot = await FirebaseService.db.collection('produtos')
+                    .orderBy('created_at', 'desc')
+                    .get();
+
+                const items = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    items.push({ 
+                        id: doc.id, 
+                        ...data,
+                        img: normalizarUrlImagem(data.img),
+                        imagens: Array.isArray(data.imagens) ? data.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(data.img)]
+                    });
+                });
+
+                if (items.length > 0) {
+                    produtosAtuais = items.map(item => ({
                         ...item,
-                        subhead: item.subhead || "Cuidados Especiais",
-                        desc: item.desc || "Desenvolvido com ingredientes selecionados para seu cabelo",
+                        subhead: item.subhead || "Design Autoral",
+                        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
                         bg: item.bg || item.color || "#4190de"
                     }));
                     return;
                 }
+            } catch (e) {
+                console.error("[App] Erro ao buscar produtos do Firestore:", e);
             }
-        } catch (e) {
-            console.error("Erro ao conectar ao Supabase:", e);
         }
     }
     
     // Fallback
     const local = localStorage.getItem('fun_produtos');
-    produtosAtuais = local ? JSON.parse(local) : PRODUTOS_PADRAO;
-    produtosAtuais = produtosAtuais.map(item => ({
+    const raw = local ? JSON.parse(local) : PRODUTOS_PADRAO;
+    produtosAtuais = raw.map(item => ({
         ...item,
-        subhead: item.subhead || "Cuidados Especiais",
-        desc: item.desc || "Desenvolvido com ingredientes selecionados para seu cabelo",
+        img: normalizarUrlImagem(item.img),
+        imagens: Array.isArray(item.imagens) ? item.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(item.img)],
+        subhead: item.subhead || "Design Autoral",
+        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
         bg: item.bg || item.color || "#4190de"
     }));
 }
