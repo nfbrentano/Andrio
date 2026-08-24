@@ -214,13 +214,13 @@ function renderizarProdutos(categoria = 'all') {
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${produto.img}" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${produto.img}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';" width="500" height="669">
                                 </div>
                             </div>
                         </div>

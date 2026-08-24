@@ -243,10 +243,10 @@ function renderizarCatalogo() {
                         <div class="aspect-3-4-inner">
                             <div class="size-full">
                                 <div class="absolute-inset-0 hover-opacity-0">
-                                    <img loading="lazy" alt="${p.nome}" class="object-cover-img" src="${p.img}">
+                                    <img loading="lazy" alt="${p.nome}" class="object-cover-img" src="${p.img}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';">
                                 </div>
                                 <div class="absolute-inset-0 opacity-0 hover-opacity-100">
-                                    <img loading="lazy" alt="${p.nome} ângulo alternativo" class="object-cover-img" src="${fotoHover}">
+                                    <img loading="lazy" alt="${p.nome} ângulo alternativo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';">
                                 </div>
                             </div>
                         </div>
