@@ -1,11 +1,84 @@
 let produtosAtuais = [];
 let sliderInstance = null;
 
+const CATEGORY_DEFAULT_IMAGES = {
+    poltrona: {
+        img: "assets/prod_poltrona.webp",
+        hover: "assets/hero_left_chair.webp"
+    },
+    sofa: {
+        img: "assets/prod_sofa.webp",
+        hover: "assets/middle_model.webp"
+    },
+    cadeira: {
+        img: "assets/prod_cadeira.webp",
+        hover: "assets/people_grid_1.webp"
+    },
+    mesa: {
+        img: "assets/prod_mesa.webp",
+        hover: "assets/hero_product.webp"
+    }
+};
+
+function getDefaultImageForCategory(categoria) {
+    const cat = String(categoria || '').toLowerCase().trim();
+    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].img : 'assets/prod_poltrona.webp';
+}
+
+function getDefaultHoverImageForCategory(categoria) {
+    const cat = String(categoria || '').toLowerCase().trim();
+    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].hover : 'assets/hero_left_chair.webp';
+}
+
 const PRODUTOS_PADRAO = [
-    { id: 1, nome: "Poltrona Clássica Veludo", preco: "R$ 2.890,00", categoria: "poltrona", img: "assets/prod_poltrona.webp", color: "#2b7fff", subhead: "Conforto + Elegância", desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", bg: "#4190de" },
-    { id: 2, nome: "Sofá Moderno Terracota", preco: "R$ 4.590,00", categoria: "sofa", img: "assets/prod_sofa.webp", color: "#ff5722", subhead: "Design + Funcionalidade", desc: "Sofá três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", bg: "#fe5100" },
-    { id: 3, nome: "Cadeira de Jantar Mostarda", preco: "R$ 1.290,00", categoria: "cadeira", img: "assets/prod_cadeira.webp", color: "#ffeb3b", subhead: "Versatilidade + Estilo", desc: "Cadeira estofada em veludo mostarda com pés em metal dourado, design moderno e elegante", bg: "#ffcd01" },
-    { id: 4, nome: "Mesa Lateral Mármore", preco: "R$ 1.890,00", categoria: "mesa", img: "assets/prod_mesa.webp", color: "#9c27b0", subhead: "Sofisticação + Minimalismo", desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", bg: "#7c55c6" }
+    { 
+        id: 1, 
+        nome: "Poltrona Clássica Veludo", 
+        preco: "R$ 2.890,00", 
+        categoria: "poltrona", 
+        img: "assets/prod_poltrona.webp", 
+        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.webp"],
+        color: "#2b7fff", 
+        subhead: "Conforto + Elegância", 
+        desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", 
+        bg: "#4190de" 
+    },
+    { 
+        id: 2, 
+        nome: "Sofá Moderno Terracota", 
+        preco: "R$ 4.590,00", 
+        categoria: "sofa", 
+        img: "assets/prod_sofa.webp", 
+        imagens: ["assets/prod_sofa.webp", "assets/middle_model.webp"],
+        color: "#ff5722", 
+        subhead: "Design + Funcionalidade", 
+        desc: "Sofá três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", 
+        bg: "#fe5100" 
+    },
+    { 
+        id: 3, 
+        nome: "Cadeira de Jantar Mostarda", 
+        preco: "R$ 1.290,00", 
+        categoria: "cadeira", 
+        img: "assets/prod_cadeira.webp", 
+        imagens: ["assets/prod_cadeira.webp", "assets/people_grid_1.webp"],
+        color: "#ffeb3b", 
+        subhead: "Versatilidade + Estilo", 
+        desc: "Cadeira estofada em veludo mostarda com pés em metal dourado, design moderno e elegante", 
+        bg: "#ffcd01" 
+    },
+    { 
+        id: 4, 
+        nome: "Mesa Lateral Mármore", 
+        preco: "R$ 1.890,00", 
+        categoria: "mesa", 
+        img: "assets/prod_mesa.webp", 
+        imagens: ["assets/prod_mesa.webp", "assets/hero_product.webp"],
+        color: "#9c27b0", 
+        subhead: "Sofisticação + Minimalismo", 
+        desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", 
+        bg: "#7c55c6" 
+    }
 ];
 
 function carregarSupabaseScript() {
@@ -20,8 +93,10 @@ function carregarSupabaseScript() {
 }
 
 // Função para normalizar e converter links do Google Drive
-function normalizarUrlImagem(url) {
-    if (!url) return 'assets/prod_poltrona.webp';
+function normalizarUrlImagem(url, categoria) {
+    if (!url || String(url).trim() === '') {
+        return getDefaultImageForCategory(categoria);
+    }
     const trimmed = String(url).trim();
 
     const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
@@ -54,11 +129,19 @@ async function carregarProdutos() {
                 const items = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    const defaultImg = getDefaultImageForCategory(data.categoria);
+                    const defaultHover = getDefaultHoverImageForCategory(data.categoria);
+                    const mainImg = data.img ? normalizarUrlImagem(data.img, data.categoria) : defaultImg;
+                    let imagens = Array.isArray(data.imagens) && data.imagens.length > 0
+                        ? data.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, data.categoria))
+                        : [mainImg, defaultHover];
+                    if (imagens.length === 0) imagens = [mainImg, defaultHover];
+
                     items.push({ 
                         id: doc.id, 
                         ...data,
-                        img: normalizarUrlImagem(data.img),
-                        imagens: Array.isArray(data.imagens) ? data.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(data.img)]
+                        img: mainImg,
+                        imagens: imagens
                     });
                 });
 
@@ -77,17 +160,42 @@ async function carregarProdutos() {
         }
     }
     
-    // Fallback
-    const local = localStorage.getItem('fun_produtos');
-    const raw = local ? JSON.parse(local) : PRODUTOS_PADRAO;
-    produtosAtuais = raw.map(item => ({
-        ...item,
-        img: normalizarUrlImagem(item.img),
-        imagens: Array.isArray(item.imagens) ? item.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(item.img)],
-        subhead: item.subhead || "Design Autoral",
-        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
-        bg: item.bg || item.color || "#4190de"
-    }));
+    // Fallback: LocalStorage ou Mock Padrão
+    let raw = null;
+    try {
+        const local = localStorage.getItem('fun_produtos');
+        if (local) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                raw = parsed;
+            }
+        }
+    } catch (e) {
+        console.error("[App] Erro ao carregar do localStorage:", e);
+    }
+
+    if (!raw || raw.length === 0) {
+        raw = PRODUTOS_PADRAO;
+    }
+
+    produtosAtuais = raw.map(item => {
+        const defaultImg = getDefaultImageForCategory(item.categoria);
+        const defaultHover = getDefaultHoverImageForCategory(item.categoria);
+        const mainImg = item.img ? normalizarUrlImagem(item.img, item.categoria) : defaultImg;
+        let imagens = Array.isArray(item.imagens) && item.imagens.length > 0
+            ? item.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, item.categoria))
+            : [mainImg, defaultHover];
+        if (imagens.length === 0) imagens = [mainImg, defaultHover];
+
+        return {
+            ...item,
+            img: mainImg,
+            imagens: imagens,
+            subhead: item.subhead || "Design Autoral",
+            desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
+            bg: item.bg || item.color || "#4190de"
+        };
+    });
 }
 
 const catalogo = document.getElementById('catalogo');
@@ -202,8 +310,11 @@ function renderizarProdutos(categoria = 'all') {
     }
 
     const htmlCards = produtosFiltrados.map((produto) => {
-        const fotos = Array.isArray(produto.imagens) && produto.imagens.length > 0 ? produto.imagens : [produto.img];
-        const fotoHover = fotos.length > 1 ? fotos[1] : fotos[0];
+        const defaultImg = getDefaultImageForCategory(produto.categoria);
+        const defaultHover = getDefaultHoverImageForCategory(produto.categoria);
+        const fotos = Array.isArray(produto.imagens) && produto.imagens.length > 0 ? produto.imagens : [produto.img || defaultImg];
+        const mainImg = produto.img || defaultImg;
+        const fotoHover = fotos.length > 1 ? fotos[1] : (mainImg !== defaultHover ? defaultHover : mainImg);
         
         return `
         <div class="keen-slider__slide">
@@ -214,13 +325,13 @@ function renderizarProdutos(categoria = 'all') {
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${produto.img}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${mainImg}" onerror="this.onerror=null; this.src='${defaultImg}';" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';" width="500" height="669">
+                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='${defaultHover}';" width="500" height="669">
                                 </div>
                             </div>
                         </div>
@@ -255,7 +366,8 @@ function renderizarProdutos(categoria = 'all') {
                 </div>
             </a>
         </div>
-    `).join('');
+    `;
+    }).join('');
 
     catalogo.innerHTML = htmlCards;
 

@@ -5,6 +5,35 @@
 let catalogoProdutos = [];
 let activeCategory = 'all';
 
+const CATEGORY_DEFAULT_IMAGES = {
+    poltrona: {
+        img: "assets/prod_poltrona.webp",
+        hover: "assets/hero_left_chair.webp"
+    },
+    sofa: {
+        img: "assets/prod_sofa.webp",
+        hover: "assets/middle_model.webp"
+    },
+    cadeira: {
+        img: "assets/prod_cadeira.webp",
+        hover: "assets/people_grid_1.webp"
+    },
+    mesa: {
+        img: "assets/prod_mesa.webp",
+        hover: "assets/hero_product.webp"
+    }
+};
+
+function getDefaultImageForCategory(categoria) {
+    const cat = String(categoria || '').toLowerCase().trim();
+    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].img : 'assets/prod_poltrona.webp';
+}
+
+function getDefaultHoverImageForCategory(categoria) {
+    const cat = String(categoria || '').toLowerCase().trim();
+    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].hover : 'assets/hero_left_chair.webp';
+}
+
 // Fallback inicial
 const PRODUTOS_PADRAO = [
     { 
@@ -79,7 +108,7 @@ const PRODUTOS_PADRAO = [
         preco: "R$ 1.890,00", 
         categoria: "mesa", 
         img: "assets/prod_mesa.webp", 
-        imagens: ["assets/prod_mesa.webp"],
+        imagens: ["assets/prod_mesa.webp", "assets/hero_product.webp"],
         color: "#9c27b0", 
         subhead: "Sofisticação + Minimalismo", 
         desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", 
@@ -118,8 +147,10 @@ function parsePrice(priceStr) {
 }
 
 // Função para normalizar e converter links do Google Drive
-function normalizarUrlImagem(url) {
-    if (!url) return 'assets/prod_poltrona.webp';
+function normalizarUrlImagem(url, categoria) {
+    if (!url || String(url).trim() === '') {
+        return getDefaultImageForCategory(categoria);
+    }
     const trimmed = String(url).trim();
 
     const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
@@ -153,11 +184,19 @@ async function carregarProdutosCatalogo() {
                 const items = [];
                 snapshot.forEach(doc => {
                     const data = doc.data();
+                    const defaultImg = getDefaultImageForCategory(data.categoria);
+                    const defaultHover = getDefaultHoverImageForCategory(data.categoria);
+                    const mainImg = data.img ? normalizarUrlImagem(data.img, data.categoria) : defaultImg;
+                    let imagens = Array.isArray(data.imagens) && data.imagens.length > 0
+                        ? data.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, data.categoria))
+                        : [mainImg, defaultHover];
+                    if (imagens.length === 0) imagens = [mainImg, defaultHover];
+
                     items.push({ 
                         id: doc.id, 
                         ...data,
-                        img: normalizarUrlImagem(data.img),
-                        imagens: Array.isArray(data.imagens) ? data.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(data.img)]
+                        img: mainImg,
+                        imagens: imagens
                     });
                 });
 
@@ -171,14 +210,39 @@ async function carregarProdutosCatalogo() {
         }
     }
 
-    // Fallback Local
-    const local = localStorage.getItem('fun_produtos');
-    const raw = local ? JSON.parse(local) : PRODUTOS_PADRAO;
-    catalogoProdutos = raw.map(p => ({
-        ...p,
-        img: normalizarUrlImagem(p.img),
-        imagens: Array.isArray(p.imagens) ? p.imagens.map(normalizarUrlImagem) : [normalizarUrlImagem(p.img)]
-    }));
+    // Fallback Local ou Padrão Mock
+    let raw = null;
+    try {
+        const local = localStorage.getItem('fun_produtos');
+        if (local) {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                raw = parsed;
+            }
+        }
+    } catch (e) {
+        console.warn('[Catalogo] Erro ao ler localStorage:', e);
+    }
+
+    if (!raw || raw.length === 0) {
+        raw = PRODUTOS_PADRAO;
+    }
+
+    catalogoProdutos = raw.map(p => {
+        const defaultImg = getDefaultImageForCategory(p.categoria);
+        const defaultHover = getDefaultHoverImageForCategory(p.categoria);
+        const mainImg = p.img ? normalizarUrlImagem(p.img, p.categoria) : defaultImg;
+        let imagens = Array.isArray(p.imagens) && p.imagens.length > 0
+            ? p.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, p.categoria))
+            : [mainImg, defaultHover];
+        if (imagens.length === 0) imagens = [mainImg, defaultHover];
+
+        return {
+            ...p,
+            img: mainImg,
+            imagens: imagens
+        };
+    });
 }
 
 // Renderizar o Grid de Produtos
@@ -232,8 +296,11 @@ function renderizarCatalogo() {
 
     // Gera o HTML dos Cards
     catalogoGrid.innerHTML = filtrados.map(p => {
-        const fotos = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : [p.img];
-        const fotoHover = fotos.length > 1 ? fotos[1] : fotos[0];
+        const defaultImg = getDefaultImageForCategory(p.categoria);
+        const defaultHover = getDefaultHoverImageForCategory(p.categoria);
+        const fotos = Array.isArray(p.imagens) && p.imagens.length > 0 ? p.imagens : [p.img || defaultImg];
+        const mainImg = p.img || defaultImg;
+        const fotoHover = fotos.length > 1 ? fotos[1] : (mainImg !== defaultHover ? defaultHover : mainImg);
         const hasRelated = Array.isArray(p.produtos_relacionados) && p.produtos_relacionados.length > 0;
 
         return `
@@ -243,10 +310,10 @@ function renderizarCatalogo() {
                         <div class="aspect-3-4-inner">
                             <div class="size-full">
                                 <div class="absolute-inset-0 hover-opacity-0">
-                                    <img loading="lazy" alt="${p.nome}" class="object-cover-img" src="${p.img}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';">
+                                    <img loading="lazy" alt="${p.nome}" class="object-cover-img" src="${mainImg}" onerror="this.onerror=null; this.src='${defaultImg}';">
                                 </div>
                                 <div class="absolute-inset-0 opacity-0 hover-opacity-100">
-                                    <img loading="lazy" alt="${p.nome} ângulo alternativo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='assets/prod_poltrona.webp';">
+                                    <img loading="lazy" alt="${p.nome} ângulo alternativo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='${defaultHover}';">
                                 </div>
                             </div>
                         </div>

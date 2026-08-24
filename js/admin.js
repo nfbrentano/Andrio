@@ -90,8 +90,19 @@ const PRODUTOS_PADRAO = [
     }
 ];
 
-let localProducts = JSON.parse(localStorage.getItem('fun_produtos')) || PRODUTOS_PADRAO;
-if (!localStorage.getItem('fun_produtos')) {
+let localProducts = [];
+try {
+    const saved = localStorage.getItem('fun_produtos');
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+            localProducts = parsed;
+        }
+    }
+} catch (e) {}
+
+if (localProducts.length === 0) {
+    localProducts = PRODUTOS_PADRAO;
     localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
 }
 
