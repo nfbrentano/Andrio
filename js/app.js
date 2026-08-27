@@ -6,8 +6,8 @@ const CATEGORY_DEFAULT_IMAGES = {
         img: "assets/prod_poltrona.webp",
         hover: "assets/hero_left_chair.webp"
     },
-    sofa: {
-        img: "assets/prod_sofa.webp",
+    luminaria: {
+        img: "assets/prod_luminaria.webp",
         hover: "assets/middle_model.webp"
     },
     cadeira: {
@@ -45,14 +45,14 @@ const PRODUTOS_PADRAO = [
     },
     { 
         id: 2, 
-        nome: "Sofá Moderno Terracota", 
+        nome: "Luminária Moderno Terracota", 
         preco: "R$ 4.590,00", 
-        categoria: "sofa", 
-        img: "assets/prod_sofa.webp", 
-        imagens: ["assets/prod_sofa.webp", "assets/middle_model.webp"],
+        categoria: "luminaria", 
+        img: "assets/prod_luminaria.webp", 
+        imagens: ["assets/prod_luminaria.webp", "assets/middle_model.webp"],
         color: "#ff5722", 
         subhead: "Design + Funcionalidade", 
-        desc: "Sofá três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", 
+        desc: "Luminária três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", 
         bg: "#fe5100" 
     },
     { 
@@ -297,7 +297,7 @@ function inicializarSlider() {
     }
 }
 
-function renderizarProdutos(categoria = 'all') {
+function renderizarProdutos(categoria = 'poltrona') {
     destruirSlider();
     
     const produtosFiltrados = categoria === 'all' 

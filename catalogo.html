@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Catálogo Completo PACO Móveis - Conheça nossa coleção de poltronas, sofás, cadeiras e mesas de design autoral contemporâneo.">
-    <meta name="keywords" content="catálogo móveis, móveis de luxo, design autoral, poltrona, sofá, cadeira, mesa, decoração">
+    <meta name="description" content="Catálogo Completo PACO Móveis - Conheça nossa coleção de poltronas, luminárias, cadeiras e mesas de design autoral contemporâneo.">
+    <meta name="keywords" content="catálogo móveis, móveis de luxo, design autoral, poltrona, luminária, cadeira, mesa, decoração">
     <meta name="author" content="PACO Móveis">
     
     <title>Catálogo Completo | PACO Móveis de Design</title>
@@ -40,11 +40,10 @@
                 <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar menu de categorias">✕</button>
             </div>
             <div id="filtros" class="fun-navbar-filters" role="tablist" aria-label="Filtrar produtos por categoria">
-                <button class="fun-pill-btn active" role="tab" aria-selected="true" data-category="all" data-color="#2b7fff" style="--btn-color: #2b7fff;">Todos</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="poltrona" data-color="#ff5722" style="--btn-color: #ff5722;">Poltronas</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="sofa" data-color="#ffeb3b" style="--btn-color: #ffeb3b;">Sofás</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="cadeira" data-color="#9c27b0" style="--btn-color: #9c27b0;">Cadeiras</button>
+                <button class="fun-pill-btn active" role="tab" aria-selected="true" data-category="poltrona" data-color="#ff5722" style="--btn-color: #ff5722;">Poltronas</button>
                 <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="mesa" data-color="#00c853" style="--btn-color: #00c853;">Mesas</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="cadeira" data-color="#9c27b0" style="--btn-color: #9c27b0;">Cadeiras</button>
+                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="luminaria" data-color="#ffeb3b" style="--btn-color: #ffeb3b;">Luminárias</button>
             </div>
             <div class="fun-mobile-nav-actions">
                 <a href="index.html" class="fun-btn-admin-mobile">← Voltar para a Loja</a>
@@ -118,17 +117,7 @@
         </section>
     </main>
 
-    <!-- Modal de Detalhes do Produto & Galeria & Venda Casada -->
-    <div id="product-detail-modal" class="detail-modal" role="dialog" aria-modal="true" aria-hidden="true">
-        <div class="detail-modal-overlay" id="close-modal-overlay"></div>
-        <div class="detail-modal-card">
-            <button type="button" class="detail-modal-close" id="btn-close-detail" aria-label="Fechar detalhes">&times;</button>
-            
-            <div class="detail-modal-body" id="detail-modal-content">
-                <!-- Conteúdo carregado dinamicamente -->
-            </div>
-        </div>
-    </div>
+
 
     <!-- Footer PACO -->
     <footer class="fun-footer" role="contentinfo">
@@ -141,7 +130,7 @@
                 <h4>Categorias</h4>
                 <ul>
                     <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'poltrona\']')?.click(); return false;">Poltronas</a></li>
-                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'sofa\']')?.click(); return false;">Sofás</a></li>
+                    <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'luminaria\']')?.click(); return false;">Luminárias</a></li>
                     <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'cadeira\']')?.click(); return false;">Cadeiras</a></li>
                     <li><a href="#" onclick="document.querySelector('.fun-pill-btn[data-category=\'mesa\']')?.click(); return false;">Mesas</a></li>
                 </ul>
