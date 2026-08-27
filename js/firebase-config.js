@@ -66,9 +66,9 @@ const FirebaseService = {
                 this.app = firebase.app();
             }
 
-            this.auth = firebase.auth();
-            this.db = firebase.firestore();
-            this.storage = firebase.storage();
+            if (typeof firebase.auth === 'function') this.auth = firebase.auth();
+            if (typeof firebase.firestore === 'function') this.db = firebase.firestore();
+            if (typeof firebase.storage === 'function') this.storage = firebase.storage();
             this.isConfigured = true;
 
             console.log('[Firebase] Conectado com sucesso ao projeto:', config.projectId);

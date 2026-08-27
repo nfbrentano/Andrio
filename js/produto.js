@@ -137,11 +137,11 @@ function normalizarUrlImagem(url, categoria) {
                        trimmed.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
                        
     if (driveMatch && driveMatch[1]) {
-        return \`https://drive.google.com/thumbnail?id=\${driveMatch[1]}&sz=w1600\`;
+        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
     }
 
     if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
-        return \`https://drive.google.com/thumbnail?id=\${trimmed}&sz=w1600\`;
+        return `https://drive.google.com/thumbnail?id=${trimmed}&sz=w1600`;
     }
 
     return trimmed;
@@ -226,21 +226,21 @@ function renderizarProduto() {
     const id = urlParams.get('id');
 
     if (!id) {
-        detailContent.innerHTML = \`
+        detailContent.innerHTML = `
             <div style="text-align: center; padding: 4rem;">
                 <h2>Produto não especificado.</h2>
                 <a href="catalogo.html" class="fun-btn-dark" style="margin-top: 1rem;">Voltar ao Catálogo</a>
-            </div>\`;
+            </div>`;
         return;
     }
 
     const produto = catalogoProdutos.find(p => String(p.id) === String(id));
     if (!produto) {
-        detailContent.innerHTML = \`
+        detailContent.innerHTML = `
             <div style="text-align: center; padding: 4rem;">
                 <h2>Produto não encontrado.</h2>
                 <a href="catalogo.html" class="fun-btn-dark" style="margin-top: 1rem;">Voltar ao Catálogo</a>
-            </div>\`;
+            </div>`;
         return;
     }
 
@@ -266,36 +266,36 @@ function renderizarProduto() {
     const dispText = dispMap[produto.disponibilidade] || '🟢 Pronta Entrega';
     
     // Atualiza title da página dinamicamente
-    document.title = \`\${produto.nome} | PACO Móveis\`;
+    document.title = `${produto.nome} | PACO Móveis`;
 
-    detailContent.innerHTML = \`
+    detailContent.innerHTML = `
         <div class="product-page-layout">
             <!-- Coluna da Galeria de Fotos -->
             <div class="product-page-gallery">
                 <div class="modal-main-image-wrap">
-                    <img id="product-main-img" src="\${fotos[0]}" alt="\${produto.nome}" class="modal-main-image">
+                    <img id="product-main-img" src="${fotos[0]}" alt="${produto.nome}" class="modal-main-image">
                 </div>
-                \${fotos.length > 1 ? \`
+                ${fotos.length > 1 ? `
                     <div class="modal-thumbnails-strip">
-                        \${fotos.map((f, idx) => \`
-                            <button type="button" class="modal-thumb-btn \${idx === 0 ? 'active' : ''}" data-src="\${f}">
-                                <img src="\${f}" alt="Ângulo \${idx + 1}">
+                        ${fotos.map((f, idx) => `
+                            <button type="button" class="modal-thumb-btn ${idx === 0 ? 'active' : ''}" data-src="${f}">
+                                <img src="${f}" alt="Ângulo ${idx + 1}">
                             </button>
-                        \`).join('')}
+                        `).join('')}
                     </div>
-                \` : ''}
+                ` : ''}
             </div>
 
             <!-- Coluna de Especificações e Ações -->
             <div class="product-page-info">
-                <span class="modal-category-tag" style="background-color: \${produto.color || '#2b7fff'};">\${produto.categoria.toUpperCase()}</span>
-                <h1 class="product-page-title">\${produto.nome}</h1>
-                <div class="modal-price-tag">\${produto.preco}</div>
-                <div class="modal-availability">\${dispText}</div>
+                <span class="modal-category-tag" style="background-color: ${produto.color || '#2b7fff'};">${produto.categoria.toUpperCase()}</span>
+                <h1 class="product-page-title">${produto.nome}</h1>
+                <div class="modal-price-tag">${produto.preco}</div>
+                <div class="modal-availability">${dispText}</div>
 
                 <div class="modal-desc-block">
                     <h4>Conceito & Detalhes</h4>
-                    <p>\${produto.desc || 'Peça exclusiva de design autoral em materiais nobres.'}</p>
+                    <p>${produto.desc || 'Peça exclusiva de design autoral em materiais nobres.'}</p>
                 </div>
 
                 <!-- Tabela de Especificações do Móvel -->
@@ -303,33 +303,33 @@ function renderizarProduto() {
                     <h4>Ficha Técnica</h4>
                     <div class="spec-row">
                         <span>Madeira / Estrutura:</span>
-                        <strong>\${produto.tipo_madeira || 'Madeira Nobre Selecionada'}</strong>
+                        <strong>${produto.tipo_madeira || 'Madeira Nobre Selecionada'}</strong>
                     </div>
                     <div class="spec-row">
                         <span>Acabamento:</span>
-                        <strong>\${produto.acabamento || 'Verniz PU Acetinado'}</strong>
+                        <strong>${produto.acabamento || 'Verniz PU Acetinado'}</strong>
                     </div>
                     <div class="spec-row">
                         <span>Estofamento:</span>
-                        <strong>\${produto.material_estofado || 'Tecido Nobre'} \${produto.cor_estofado ? \`(\${produto.cor_estofado})\` : ''}</strong>
+                        <strong>${produto.material_estofado || 'Tecido Nobre'} ${produto.cor_estofado ? `(${produto.cor_estofado})` : ''}</strong>
                     </div>
-                    \${(produto.largura_cm || produto.profundidade_cm || produto.altura_cm) ? \`
+                    ${(produto.largura_cm || produto.profundidade_cm || produto.altura_cm) ? `
                         <div class="spec-row">
                             <span>Dimensões (L × P × A):</span>
-                            <strong>\${produto.largura_cm || '-'} cm × \${produto.profundidade_cm || '-'} cm × \${produto.altura_cm || '-'} cm</strong>
+                            <strong>${produto.largura_cm || '-'} cm × ${produto.profundidade_cm || '-'} cm × ${produto.altura_cm || '-'} cm</strong>
                         </div>
-                    \` : ''}
-                    \${produto.peso_kg ? \`
+                    ` : ''}
+                    ${produto.peso_kg ? `
                         <div class="spec-row">
                             <span>Peso Estimado:</span>
-                            <strong>\${produto.peso_kg} kg</strong>
+                            <strong>${produto.peso_kg} kg</strong>
                         </div>
-                    \` : ''}
+                    ` : ''}
                 </div>
 
                 <!-- CTA WhatsApp -->
                 <div class="modal-cta-wrap">
-                    <a href="https://wa.me/5511999999999?text=Ol%C3%A1,%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20a%20pe%C3%A7a:%20\${encodeURIComponent(produto.nome)}%20(\${encodeURIComponent(produto.preco)})" 
+                    <a href="https://wa.me/5511999999999?text=Ol%C3%A1,%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20a%20pe%C3%A7a:%20${encodeURIComponent(produto.nome)}%20(${encodeURIComponent(produto.preco)})" 
                        target="_blank" 
                        rel="noopener noreferrer" 
                        class="modal-btn-whatsapp">
@@ -338,26 +338,26 @@ function renderizarProduto() {
                 </div>
 
                 <!-- Seção de Venda Casada / Cross-sell -->
-                \${relatedItems.length > 0 ? \`
+                ${relatedItems.length > 0 ? `
                     <div class="modal-bundle-section">
                         <h4>✨ Peças que combinam com este móvel ("Compre Junto"):</h4>
                         <div class="modal-bundle-grid">
-                            \${relatedItems.map(item => \`
-                                <div class="modal-bundle-card" onclick="window.location.href='produto.html?id=\${item.id}'" style="cursor:pointer;" data-id="\${item.id}">
-                                    <img src="\${item.img}" alt="\${item.nome}">
+                            ${relatedItems.map(item => `
+                                <div class="modal-bundle-card" onclick="window.location.href='produto.html?id=${item.id}'" style="cursor:pointer;" data-id="${item.id}">
+                                    <img src="${item.img}" alt="${item.nome}">
                                     <div class="bundle-card-info">
-                                        <strong>\${item.nome}</strong>
-                                        <span>\${item.preco}</span>
+                                        <strong>${item.nome}</strong>
+                                        <span>${item.preco}</span>
                                     </div>
-                                    <button type="button" class="btn-bundle-view" onclick="window.location.href='produto.html?id=\${item.id}'">Ver Peça</button>
+                                    <button type="button" class="btn-bundle-view" onclick="window.location.href='produto.html?id=${item.id}'">Ver Peça</button>
                                 </div>
-                            \`).join('')}
+                            `).join('')}
                         </div>
                     </div>
-                \` : ''}
+                ` : ''}
             </div>
         </div>
-    \`;
+    `;
 
     // Eventos de troca de foto na galeria
     detailContent.querySelectorAll('.modal-thumb-btn').forEach(btn => {
