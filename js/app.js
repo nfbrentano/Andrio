@@ -573,4 +573,78 @@ document.addEventListener('DOMContentLoaded', async () => {
     await carregarProdutos();
     renderizarProdutos();
     inicializarScrollReveal();
+    initPullToRefresh();
 });
+
+// Pull to refresh effect
+function initPullToRefresh() {
+    let startY = 0;
+    let currentY = 0;
+    let isPulling = false;
+    let ptrIndicator = null;
+    
+    document.addEventListener('touchstart', (e) => {
+        if (window.scrollY === 0) {
+            startY = e.touches[0].clientY;
+            currentY = startY;
+            isPulling = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        currentY = e.touches[0].clientY;
+        const pullDistance = currentY - startY;
+
+        if (pullDistance > 0 && window.scrollY === 0) {
+            if (!ptrIndicator) {
+                ptrIndicator = document.createElement('div');
+                ptrIndicator.style.position = 'fixed';
+                ptrIndicator.style.top = '-50px';
+                ptrIndicator.style.left = '0';
+                ptrIndicator.style.right = '0';
+                ptrIndicator.style.textAlign = 'center';
+                ptrIndicator.style.zIndex = '99999';
+                ptrIndicator.style.transition = 'transform 0.1s';
+                ptrIndicator.innerHTML = '<div style="display:inline-flex; align-items:center; justify-content:center; background:#fff; padding:10px; border-radius:50%; box-shadow:0 3px 10px rgba(0,0,0,0.2); color:#2b7fff; transition: transform 0.2s;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M2.13 15.57a9 9 0 1 0 3.87-10.74L2 8"/></svg></div>';
+                document.body.appendChild(ptrIndicator);
+            }
+            
+            const maxPull = 120;
+            const transformY = Math.min(pullDistance, maxPull);
+            ptrIndicator.style.transform = `translateY(${transformY}px)`;
+            ptrIndicator.firstElementChild.style.transform = `rotate(${transformY * 2}deg) ${pullDistance > 80 ? 'scale(1.1)' : 'scale(1)'}`;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', () => {
+        if (!isPulling) return;
+        isPulling = false;
+        const pullDistance = currentY - startY;
+        
+        if (ptrIndicator) {
+            if (pullDistance > 80 && window.scrollY === 0) {
+                // Trigger refresh
+                ptrIndicator.style.transition = 'transform 0.3s ease';
+                ptrIndicator.style.transform = `translateY(70px)`;
+                ptrIndicator.firstElementChild.style.transform = 'rotate(720deg) scale(1.1)';
+                setTimeout(() => {
+                    location.reload();
+                }, 400);
+            } else {
+                // Cancel
+                ptrIndicator.style.transition = 'transform 0.3s ease';
+                ptrIndicator.style.transform = `translateY(0)`;
+                setTimeout(() => {
+                    if (ptrIndicator && ptrIndicator.parentNode) {
+                        ptrIndicator.parentNode.removeChild(ptrIndicator);
+                        ptrIndicator = null;
+                    }
+                }, 300);
+            }
+        }
+        startY = 0;
+        currentY = 0;
+    });
+}
+
