@@ -321,7 +321,7 @@ function renderizarProdutos(categoria = 'poltrona') {
         
         return `
         <div class="keen-slider__slide">
-            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="catalogo.html">
+            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="produto.html?id=${produto.id}">
                 <div class="aspect-3-4">
                     <div class="aspect-3-4-inner">
                         <div class="size-full">

@@ -223,8 +223,15 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: 0.6px;
     white-space: nowrap;
     min-width: 105px;
+    width: 150px;
     text-align: center;
     transition: var(--transition-normal);
+}
+
+@media (min-width: 1025px) {
+    .fun-navbar-filters {
+        gap: 32px;
+    }
 }
 
 /* Yellow pill needs dark text */
