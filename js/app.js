@@ -412,6 +412,11 @@ filterBtns.forEach(btn => {
         activeBtn.setAttribute('aria-selected', 'true');
         
         renderizarProdutos(activeBtn.dataset.category);
+        
+        const catalogoSection = document.getElementById('secao-catalogo');
+        if (catalogoSection) {
+            catalogoSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     });
 });
 

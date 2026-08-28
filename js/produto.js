@@ -248,6 +248,9 @@ function renderizarProduto() {
         ? produto.imagens 
         : [produto.img];
 
+    lightboxFotos = fotos;
+    currentLightboxIndex = 0;
+
     // Busca os produtos de venda casada
     let relatedItems = [];
     if (Array.isArray(produto.produtos_relacionados) && produto.produtos_relacionados.length > 0) {
@@ -272,7 +275,7 @@ function renderizarProduto() {
         <div class="product-page-layout">
             <!-- Coluna da Galeria de Fotos -->
             <div class="product-page-gallery">
-                <div class="modal-main-image-wrap">
+                <div class="product-main-image-wrap" style="cursor: zoom-in;">
                     <img id="product-main-img" src="${fotos[0]}" alt="${produto.nome}" class="modal-main-image">
                 </div>
                 ${fotos.length > 1 ? `
@@ -360,16 +363,84 @@ function renderizarProduto() {
     `;
 
     // Eventos de troca de foto na galeria
-    detailContent.querySelectorAll('.modal-thumb-btn').forEach(btn => {
+    detailContent.querySelectorAll('.modal-thumb-btn').forEach((btn, index) => {
         btn.addEventListener('click', (e) => {
             const newSrc = e.currentTarget.dataset.src;
             const mainImg = document.getElementById('product-main-img');
             if (mainImg) mainImg.src = newSrc;
             
+            currentLightboxIndex = index;
+            
             detailContent.querySelectorAll('.modal-thumb-btn').forEach(b => b.classList.remove('active'));
             e.currentTarget.classList.add('active');
         });
     });
+
+    const mainImageWrap = detailContent.querySelector('.product-main-image-wrap');
+    if (mainImageWrap) {
+        mainImageWrap.addEventListener('click', () => {
+            openLightbox(currentLightboxIndex);
+        });
+    }
+}
+
+// Lightbox Global State
+let lightboxFotos = [];
+let currentLightboxIndex = 0;
+
+function openLightbox(index) {
+    if (lightboxFotos.length === 0) return;
+    currentLightboxIndex = index;
+    const overlay = document.getElementById('lightbox-overlay');
+    const img = document.getElementById('lightbox-image');
+    if (overlay && img) {
+        img.src = lightboxFotos[currentLightboxIndex];
+        overlay.classList.add('active');
+    }
+}
+
+function closeLightbox() {
+    const overlay = document.getElementById('lightbox-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+    }
+}
+
+function nextLightboxPhoto(e) {
+    if (e) e.stopPropagation();
+    currentLightboxIndex = (currentLightboxIndex + 1) % lightboxFotos.length;
+    document.getElementById('lightbox-image').src = lightboxFotos[currentLightboxIndex];
+}
+
+function prevLightboxPhoto(e) {
+    if (e) e.stopPropagation();
+    currentLightboxIndex = (currentLightboxIndex - 1 + lightboxFotos.length) % lightboxFotos.length;
+    document.getElementById('lightbox-image').src = lightboxFotos[currentLightboxIndex];
+}
+
+document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('lightbox-overlay');
+    if (overlay && overlay.classList.contains('active')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextLightboxPhoto();
+        if (e.key === 'ArrowLeft') prevLightboxPhoto();
+    }
+});
+
+function initLightbox() {
+    if (!document.getElementById('lightbox-overlay')) {
+        const lightboxHtml = `
+            <div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox()">
+                <button type="button" class="lightbox-close" onclick="closeLightbox()">×</button>
+                <button type="button" class="lightbox-prev" onclick="prevLightboxPhoto(event)">‹</button>
+                <div class="lightbox-content" onclick="event.stopPropagation()">
+                    <img id="lightbox-image" class="lightbox-image" src="" alt="Galeria">
+                </div>
+                <button type="button" class="lightbox-next" onclick="nextLightboxPhoto(event)">›</button>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', lightboxHtml);
+    }
 }
 
 // Menu Mobile
@@ -397,6 +468,7 @@ function initMenuMobile() {
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
+    initLightbox();
     initMenuMobile();
     await carregarProdutos();
     renderizarProduto();
