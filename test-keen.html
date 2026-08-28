@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/keen-slider@latest/keen-slider.min.js"></script>
+</head>
+<body>
+    <div id="my-keen-slider" class="keen-slider">
+      <div class="keen-slider__slide number-slide1">1</div>
+      <div class="keen-slider__slide number-slide2">2</div>
+      <div class="keen-slider__slide number-slide3">3</div>
+    </div>
+    <button id="prev">Prev</button>
+    <button id="next">Next</button>
+    <script>
+      var slider = new KeenSlider("#my-keen-slider");
+      console.log(slider);
+      console.log(typeof slider.next);
+    </script>
+</body>
+</html>
