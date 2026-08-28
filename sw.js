@@ -18,7 +18,7 @@ const PRECACHE_ASSETS = [
     'js/catalogo.js',
     'js/image-optimizer.js',
     'assets/pacosvg.svg',
-    'assets/hero_left_chair.webp',
+    'assets/hero_left_chair.jpg',
     'assets/hero_right_chair.webp',
     'assets/hero_product.webp',
     'assets/middle_model.webp',

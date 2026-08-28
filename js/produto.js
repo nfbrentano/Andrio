@@ -7,7 +7,7 @@ let catalogoProdutos = [];
 const CATEGORY_DEFAULT_IMAGES = {
     poltrona: {
         img: "assets/prod_poltrona.webp",
-        hover: "assets/hero_left_chair.webp"
+        hover: "assets/hero_left_chair.jpg"
     },
     luminaria: {
         img: "assets/prod_luminaria.webp",
@@ -30,7 +30,7 @@ function getDefaultImageForCategory(categoria) {
 
 function getDefaultHoverImageForCategory(categoria) {
     const cat = String(categoria || '').toLowerCase().trim();
-    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].hover : 'assets/hero_left_chair.webp';
+    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].hover : 'assets/hero_left_chair.jpg';
 }
 
 const PRODUTOS_PADRAO = [
@@ -40,7 +40,7 @@ const PRODUTOS_PADRAO = [
         preco: "R$ 2.890,00", 
         categoria: "poltrona", 
         img: "assets/prod_poltrona.webp",
-        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.webp"],
+        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.jpg"],
         color: "#2b7fff", 
         subhead: "Conforto + Elegância", 
         desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", 

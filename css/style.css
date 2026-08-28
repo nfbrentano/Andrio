@@ -180,6 +180,14 @@ h1, h2, h3, h4, h5, h6 {
     display: block;
 }
 
+.fun-navbar .fun-logo-wrap {
+    height: 86px;
+}
+
+.fun-navbar .fun-logo-img {
+    max-height: 86px;
+}
+
 /* Center Navigation — category pill buttons */
 .fun-nav-center {
     flex: 1;
@@ -203,11 +211,11 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--btn-color, #2b7fff);
     color: #fff;
     border: 2px solid var(--btn-color, #2b7fff);
-    padding: 9px 20px;
+    padding: 11px 24px;
     border-radius: var(--radius-pill);
     font-family: var(--fun-font-title);
     font-weight: 700;
-    font-size: 0.75rem; /* 12px uppercase */
+    font-size: 0.85rem; /* uppercase */
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.6px;
@@ -254,9 +262,9 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     gap: 6px;
-    height: 40px;
-    min-width: 40px;
-    padding: 0 14px;
+    height: 48px;
+    min-width: 48px;
+    padding: 0 18px;
     border-radius: var(--radius-pill);
     border: 1.5px solid rgba(0, 0, 0, 0.12);
     background: rgba(255, 255, 255, 0.85);
@@ -265,7 +273,7 @@ h1, h2, h3, h4, h5, h6 {
     text-decoration: none;
     font-family: var(--fun-font-title);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     cursor: pointer;

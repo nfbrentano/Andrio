@@ -6,7 +6,7 @@ const PRODUTOS_PADRAO = [
         preco: "R$ 2.890,00", 
         categoria: "poltrona", 
         img: "assets/prod_poltrona.webp",
-        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.webp"],
+        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.jpg"],
         color: "#2b7fff", 
         subhead: "Conforto + Elegância", 
         desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", 
