@@ -234,8 +234,8 @@ function updateSliderNavigation(slider, prevBtn, nextBtn) {
 
     // Batch layout writes in animation frame
     requestAnimationFrame(() => {
-        if (prevBtn) prevBtn.style.display = fitsAll ? 'none' : 'flex';
-        if (nextBtn) nextBtn.style.display = fitsAll ? 'none' : 'flex';
+        if (prevBtn) prevBtn.classList.toggle('hide-arrows', fitsAll);
+        if (nextBtn) nextBtn.classList.toggle('hide-arrows', fitsAll);
         if (slider.container) {
             slider.container.style.justifyContent = fitsAll ? 'center' : 'flex-start';
         }
@@ -249,18 +249,6 @@ function inicializarSlider() {
     
     let arrowPrev = document.getElementById("arrow-prev");
     let arrowNext = document.getElementById("arrow-next");
-
-    // Clean up event listeners by cloning
-    if (arrowPrev) {
-        const newPrev = arrowPrev.cloneNode(true);
-        arrowPrev.parentNode.replaceChild(newPrev, arrowPrev);
-        arrowPrev = newPrev;
-    }
-    if (arrowNext) {
-        const newNext = arrowNext.cloneNode(true);
-        arrowNext.parentNode.replaceChild(newNext, arrowNext);
-        arrowNext = newNext;
-    }
 
     if (slidesCount > 0) {
         const shouldLoop = slidesCount > 2;
@@ -292,22 +280,22 @@ function inicializarSlider() {
         window.addEventListener('resize', sliderResizeHandler, { passive: true });
 
         if (arrowPrev && arrowNext) {
-            arrowPrev.addEventListener("click", (e) => {
+            arrowPrev.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (sliderInstance) sliderInstance.prev();
-            });
+            };
             
-            arrowNext.addEventListener("click", (e) => {
+            arrowNext.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (sliderInstance) sliderInstance.next();
-            });
+            };
         }
     } else {
         if (arrowPrev && arrowNext) {
-            arrowPrev.style.display = 'none';
-            arrowNext.style.display = 'none';
+            arrowPrev.classList.add('hide-arrows');
+            arrowNext.classList.add('hide-arrows');
         }
     }
 }

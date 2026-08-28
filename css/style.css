@@ -27,7 +27,7 @@
     --radius-md: 8px;
     --radius-lg: 12px;
     --radius-xl: 20px;
-    --radius-pill: 50px;
+    --radius-pill: 0px;
     --radius-circle: 50%;
 
     /* Transitions */
@@ -539,6 +539,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Arrow Navigation Buttons */
+.hide-arrows {
+    display: none !important;
+}
 .arrow-btn {
     position: absolute;
     top: 50%;
@@ -736,7 +739,7 @@ h1, h2, h3, h4, h5, h6 {
 .outer-dot {
     width: 43px;
     height: 43px;
-    border-radius: var(--radius-circle);
+    border-radius: 0;
 }
 
 .inner-dot-overlay {
