@@ -247,8 +247,20 @@ function inicializarSlider() {
     const slides = catalogo.querySelectorAll('.keen-slider__slide');
     const slidesCount = slides.length;
     
-    const arrowPrev = document.getElementById("arrow-prev");
-    const arrowNext = document.getElementById("arrow-next");
+    let arrowPrev = document.getElementById("arrow-prev");
+    let arrowNext = document.getElementById("arrow-next");
+
+    // Clean up event listeners by cloning
+    if (arrowPrev) {
+        const newPrev = arrowPrev.cloneNode(true);
+        arrowPrev.parentNode.replaceChild(newPrev, arrowPrev);
+        arrowPrev = newPrev;
+    }
+    if (arrowNext) {
+        const newNext = arrowNext.cloneNode(true);
+        arrowNext.parentNode.replaceChild(newNext, arrowNext);
+        arrowNext = newNext;
+    }
 
     if (slidesCount > 0) {
         const shouldLoop = slidesCount > 2;
@@ -280,14 +292,17 @@ function inicializarSlider() {
         window.addEventListener('resize', sliderResizeHandler, { passive: true });
 
         if (arrowPrev && arrowNext) {
-            arrowPrev.onclick = (e) => {
+            arrowPrev.addEventListener("click", (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 if (sliderInstance) sliderInstance.prev();
-            };
-            arrowNext.onclick = (e) => {
+            });
+            
+            arrowNext.addEventListener("click", (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 if (sliderInstance) sliderInstance.next();
-            };
+            });
         }
     } else {
         if (arrowPrev && arrowNext) {
