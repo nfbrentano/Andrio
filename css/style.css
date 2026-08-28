@@ -887,13 +887,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .brand-col p {
     margin-top: 18px;
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.975rem; /* 15.6px */
     line-height: 1.5;
     color: var(--fun-text-sec);
 }
 
 .footer-col h4 {
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.975rem; /* 15.6px */
     font-weight: 800;
     margin-bottom: 18px;
     text-transform: uppercase;
@@ -911,7 +911,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-col ul li a {
-    font-size: 0.8125rem; /* 13px */
+    font-size: 0.975rem; /* 15.6px */
     color: var(--fun-text-sec);
     text-decoration: none;
     transition: color var(--transition-fast);
