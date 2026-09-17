@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paco-cache-v10';
+const CACHE_NAME = 'paco-cache-v11';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
@@ -29,7 +29,6 @@ const PRECACHE_ASSETS = [
     'assets/people_grid_4.webp',
     'assets/lineup_products.webp',
     'assets/prod_poltrona.webp',
-    'assets/prod_luminaria.webp',
     'assets/prod_cadeira.webp',
     'assets/prod_mesa.webp'
 ];

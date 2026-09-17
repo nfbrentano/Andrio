@@ -522,6 +522,35 @@ textarea {
     color: #fff;
 }
 
+.admin-btn.danger {
+    background: rgba(248, 81, 73, 0.12);
+    color: #ff7b72;
+    border: 1px solid rgba(248, 81, 73, 0.35);
+}
+
+.admin-btn.danger:hover:not(:disabled) {
+    background: var(--admin-danger);
+    color: #fff;
+    border-color: var(--admin-danger);
+    box-shadow: 0 0 12px rgba(248, 81, 73, 0.4);
+}
+
+.admin-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.admin-btn.small {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+}
+
 /* Tabela de Produtos */
 .list-header {
     display: flex;
@@ -852,4 +881,59 @@ textarea {
     opacity: 1;
     transform: translateY(0);
 }
+
+/* Modal Excluir Todos / Perigo */
+.modal-content.modal-danger {
+    max-width: 520px;
+    border: 1px solid rgba(248, 81, 73, 0.4);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 24px rgba(248, 81, 73, 0.15);
+}
+
+.modal-danger-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.modal-danger-icon {
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.delete-all-alert-box {
+    background: rgba(248, 81, 73, 0.08);
+    border: 1px solid rgba(248, 81, 73, 0.25);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-top: 14px;
+}
+
+.delete-all-alert-box p {
+    font-size: 0.9rem;
+    color: #c9d1d9;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.confirm-input {
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: #0d1117;
+    border: 1px solid var(--admin-card-border);
+    border-radius: 6px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.confirm-input:focus {
+    outline: none;
+    border-color: var(--admin-danger);
+    box-shadow: 0 0 0 3px rgba(248, 81, 73, 0.25);
+}
+
 

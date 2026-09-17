@@ -93,18 +93,19 @@ const PRODUTOS_PADRAO = [
 let localProducts = [];
 try {
     const saved = localStorage.getItem('fun_produtos');
-    if (saved) {
+    if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
             localProducts = parsed;
         }
+    } else {
+        localProducts = PRODUTOS_PADRAO;
+        localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
     }
-} catch (e) {}
-
-if (localProducts.length === 0) {
+} catch (e) {
     localProducts = PRODUTOS_PADRAO;
-    localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
 }
+
 
 let currentGalleryImages = [];
 let currentRelatedProducts = [];
@@ -189,6 +190,16 @@ const driveQuickOpenLink = document.getElementById('drive-quick-open-link');
 const bulkDriveUrls = document.getElementById('bulk-drive-urls');
 const btnImportBulkDrive = document.getElementById('btn-import-bulk-drive');
 const productDriveFolderInput = document.getElementById('product-drive-folder');
+
+// Modal Excluir Todos
+const btnDeleteAll = document.getElementById('btn-delete-all');
+const deleteAllModal = document.getElementById('delete-all-modal');
+const closeDeleteAllModal = document.getElementById('close-delete-all-modal');
+const btnCancelDeleteAll = document.getElementById('btn-cancel-delete-all');
+const btnConfirmDeleteAll = document.getElementById('btn-confirm-delete-all');
+const confirmDeleteText = document.getElementById('confirm-delete-text');
+const deleteAllCountDisplay = document.getElementById('delete-all-count-display');
+const deleteAllStorageType = document.getElementById('delete-all-storage-type');
 
 let currentDriveConfig = null;
 
@@ -763,7 +774,128 @@ async function deleteProduct(id) {
         showToast("Móvel removido localmente!");
     }
 
+    if (productIdInput.value === String(id)) {
+        resetForm();
+    }
     await renderTable();
+    await renderCrossSellSelector();
+}
+
+// Modal & Ação de Exclusão em Massa (Excluir Todos os Móveis)
+function openDeleteAllModal(count, storageType) {
+    if (deleteAllCountDisplay) deleteAllCountDisplay.textContent = `${count} móvel(is)`;
+    if (deleteAllStorageType) deleteAllStorageType.textContent = storageType;
+    if (confirmDeleteText) confirmDeleteText.value = '';
+    if (btnConfirmDeleteAll) {
+        btnConfirmDeleteAll.disabled = true;
+        btnConfirmDeleteAll.textContent = "Sim, Excluir Todos Definitivamente";
+    }
+    if (deleteAllModal) {
+        deleteAllModal.classList.add('open');
+        deleteAllModal.setAttribute('aria-hidden', 'false');
+    }
+    if (confirmDeleteText) {
+        setTimeout(() => confirmDeleteText.focus(), 150);
+    }
+}
+
+function closeMassDeleteModal() {
+    if (deleteAllModal) {
+        deleteAllModal.classList.remove('open');
+        deleteAllModal.setAttribute('aria-hidden', 'true');
+    }
+    if (confirmDeleteText) confirmDeleteText.value = '';
+    if (btnConfirmDeleteAll) btnConfirmDeleteAll.disabled = true;
+}
+
+if (btnDeleteAll) {
+    btnDeleteAll.addEventListener('click', async () => {
+        const products = await fetchProducts();
+        if (!products || products.length === 0) {
+            showToast("Não há nenhum móvel cadastrado para excluir.");
+            return;
+        }
+        const storageType = (FirebaseService.isConfigured && FirebaseService.db) ? 'Nuvem Firestore' : 'Armazenamento Local';
+        openDeleteAllModal(products.length, storageType);
+    });
+}
+
+if (closeDeleteAllModal) {
+    closeDeleteAllModal.addEventListener('click', closeMassDeleteModal);
+}
+
+if (btnCancelDeleteAll) {
+    btnCancelDeleteAll.addEventListener('click', closeMassDeleteModal);
+}
+
+if (deleteAllModal) {
+    deleteAllModal.addEventListener('click', (e) => {
+        if (e.target === deleteAllModal) closeMassDeleteModal();
+    });
+}
+
+if (confirmDeleteText) {
+    confirmDeleteText.addEventListener('input', () => {
+        const val = confirmDeleteText.value.trim().toUpperCase();
+        if (btnConfirmDeleteAll) {
+            btnConfirmDeleteAll.disabled = (val !== 'EXCLUIR');
+        }
+    });
+
+    confirmDeleteText.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && confirmDeleteText.value.trim().toUpperCase() === 'EXCLUIR') {
+            e.preventDefault();
+            if (btnConfirmDeleteAll && !btnConfirmDeleteAll.disabled) {
+                btnConfirmDeleteAll.click();
+            }
+        }
+    });
+}
+
+if (btnConfirmDeleteAll) {
+    btnConfirmDeleteAll.addEventListener('click', async () => {
+        if (confirmDeleteText.value.trim().toUpperCase() !== 'EXCLUIR') return;
+
+        btnConfirmDeleteAll.disabled = true;
+        btnConfirmDeleteAll.textContent = "Excluindo móveis...";
+
+        try {
+            if (FirebaseService.isConfigured && FirebaseService.db) {
+                const snapshot = await FirebaseService.db.collection('produtos').get();
+                const docs = snapshot.docs;
+
+                // Batches do Firestore suportam até 500 operações por lote
+                const batchSize = 400;
+                for (let i = 0; i < docs.length; i += batchSize) {
+                    const batch = FirebaseService.db.batch();
+                    const chunk = docs.slice(i, i + batchSize);
+                    chunk.forEach(doc => batch.delete(doc.ref));
+                    await batch.commit();
+                }
+
+                localProducts = [];
+                localStorage.setItem('fun_produtos', JSON.stringify([]));
+                showToast("Todos os móveis foram excluídos do Firestore!");
+            } else {
+                localProducts = [];
+                localStorage.setItem('fun_produtos', JSON.stringify([]));
+                showToast("Todos os móveis locais foram excluídos!");
+            }
+
+            resetForm();
+            closeMassDeleteModal();
+            await renderTable();
+            await renderCrossSellSelector();
+        } catch (error) {
+            console.error("Erro ao excluir todos os móveis:", error);
+            showToast("Erro ao excluir móveis: " + error.message);
+        } finally {
+            if (btnConfirmDeleteAll) {
+                btnConfirmDeleteAll.textContent = "Sim, Excluir Todos Definitivamente";
+                btnConfirmDeleteAll.disabled = true;
+            }
+        }
+    });
 }
 
 // Configurações do Firebase

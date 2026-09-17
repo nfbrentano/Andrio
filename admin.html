@@ -300,8 +300,13 @@
             <!-- Listagem de Produtos Existentes -->
             <section class="admin-card list-section">
                 <div class="list-header">
-                    <h2>Móveis Cadastrados</h2>
-                    <span id="product-count" class="badge">0 produtos</span>
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <h2>Móveis Cadastrados</h2>
+                        <span id="product-count" class="badge">0 produtos</span>
+                    </div>
+                    <button type="button" id="btn-delete-all" class="admin-btn danger small" title="Excluir todos os móveis cadastrados">
+                        🗑️ Excluir Todos
+                    </button>
                 </div>
                 <div class="list-filters">
                     <input type="text" id="search-input" placeholder="Buscar por nome, madeira, tecido ou categoria...">
@@ -426,6 +431,31 @@ service firebase.storage {
     }
   }
 }</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão em Massa -->
+    <div id="delete-all-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-delete-all-title" aria-hidden="true">
+        <div class="modal-content modal-danger">
+            <button type="button" class="close-btn" id="close-delete-all-modal" aria-label="Fechar janela de confirmação">&times;</button>
+            <div class="modal-danger-header">
+                <span class="modal-danger-icon">⚠️</span>
+                <div>
+                    <h2 id="modal-delete-all-title" style="margin: 0; color: var(--admin-danger);">Excluir Todos os Móveis</h2>
+                    <p class="modal-description" style="margin: 4px 0 0 0;">Esta ação apagará todos os móveis cadastrados e não poderá ser desfeita.</p>
+                </div>
+            </div>
+
+            <div class="delete-all-alert-box">
+                <p><strong>Atenção:</strong> Você está prestes a remover permanentemente <strong id="delete-all-count-display">todos os móveis</strong> do banco de dados (<span id="delete-all-storage-type" style="color: #79c0ff; font-weight: 600;">Firestore / Local</span>).</p>
+                <p style="margin-top: 10px; font-size: 0.85rem; color: #8b949e;">Para confirmar e evitar exclusões acidentais, digite <strong>EXCLUIR</strong> no campo abaixo:</p>
+                <input type="text" id="confirm-delete-text" placeholder="Digite EXCLUIR" autocomplete="off" class="confirm-input">
+            </div>
+
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button type="button" class="admin-btn danger" id="btn-confirm-delete-all" disabled>Sim, Excluir Todos Definitivamente</button>
+                <button type="button" class="admin-btn secondary" id="btn-cancel-delete-all">Cancelar</button>
             </div>
         </div>
     </div>

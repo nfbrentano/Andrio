@@ -176,10 +176,8 @@ async function carregarProdutos() {
                     });
                 });
 
-                if (items.length > 0) {
-                    catalogoProdutos = items;
-                    return;
-                }
+                catalogoProdutos = items;
+                return;
             } catch (err) {
                 console.warn('[Produto] Erro ao carregar do Firestore:', err);
             }
@@ -189,9 +187,9 @@ async function carregarProdutos() {
     let raw = null;
     try {
         const local = localStorage.getItem('fun_produtos');
-        if (local) {
+        if (local !== null) {
             const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (Array.isArray(parsed)) {
                 raw = parsed;
             }
         }
@@ -199,7 +197,7 @@ async function carregarProdutos() {
         console.warn('[Produto] Erro ao ler localStorage:', e);
     }
 
-    if (!raw || raw.length === 0) {
+    if (raw === null) {
         raw = PRODUTOS_PADRAO;
     }
 

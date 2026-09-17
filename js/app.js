@@ -145,15 +145,13 @@ async function carregarProdutos() {
                     });
                 });
 
-                if (items.length > 0) {
-                    produtosAtuais = items.map(item => ({
-                        ...item,
-                        subhead: item.subhead || "Design Autoral",
-                        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
-                        bg: item.bg || item.color || "#4190de"
-                    }));
-                    return;
-                }
+                produtosAtuais = items.map(item => ({
+                    ...item,
+                    subhead: item.subhead || "Design Autoral",
+                    desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
+                    bg: item.bg || item.color || "#4190de"
+                }));
+                return;
             } catch (e) {
                 console.error("[App] Erro ao buscar produtos do Firestore:", e);
             }
@@ -164,9 +162,9 @@ async function carregarProdutos() {
     let raw = null;
     try {
         const local = localStorage.getItem('fun_produtos');
-        if (local) {
+        if (local !== null) {
             const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
+            if (Array.isArray(parsed)) {
                 raw = parsed;
             }
         }
@@ -174,7 +172,7 @@ async function carregarProdutos() {
         console.error("[App] Erro ao carregar do localStorage:", e);
     }
 
-    if (!raw || raw.length === 0) {
+    if (raw === null) {
         raw = PRODUTOS_PADRAO;
     }
 
