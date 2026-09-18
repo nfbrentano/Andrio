@@ -219,6 +219,10 @@ h1, h2, h3, h4, h5, h6 {
     gap: 8px;
 }
 
+.produto-page .fun-navbar-filters {
+    display: none !important;
+}
+
 .fun-pill-btn {
     background-color: var(--btn-color, #2b7fff);
     color: #000;
@@ -238,6 +242,10 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 150px;
     text-align: center;
     transition: var(--transition-normal);
+}
+
+.catalogo-page .fun-pill-btn {
+    color: #fff;
 }
 
 @media (min-width: 1025px) {
