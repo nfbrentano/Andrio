@@ -3,8 +3,8 @@
     --fun-bg-card: #f9f8f4;
     --fun-text-main: #1a1a1a;
     --fun-text-sec: #555555;
-    --fun-font: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --fun-font-title: "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --fun-font: 'Inter', "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --fun-font-title: 'Inter', "Helvetica Neue LT Std", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
     
     /* Branding Colors */
     --brand-blue: #2b7fff;
@@ -139,6 +139,15 @@ h1, h2, h3, h4, h5, h6 {
     padding: 16px 16px;
     background: transparent;
     pointer-events: none;
+    transition: background 0.3s ease, backdrop-filter 0.3s ease, padding 0.3s ease;
+}
+
+.fun-navbar.scrolled {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 12px 16px;
 }
 
 .fun-navbar > * {
@@ -1454,6 +1463,7 @@ body.catalogo-page {
 
 .catalogo-card:hover {
     transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
 }
 
 .catalogo-card-media {

@@ -662,3 +662,49 @@ function initPullToRefresh() {
     });
 }
 
+// Interatividade da Navbar
+document.addEventListener('DOMContentLoaded', () => {
+    const navbar = document.querySelector('.fun-navbar');
+    
+    // Glassmorphism on scroll
+    if (navbar) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    }
+
+    // Intersection Observer for highlighting current section
+    const sections = document.querySelectorAll('section[id], main[id], header[id]');
+    const navLinks = document.querySelectorAll('.fun-pill-btn');
+    
+    if (sections.length > 0 && navLinks.length > 0) {
+        const observerOptions = {
+            root: null,
+            rootMargin: '-50% 0px -50% 0px', // Trigger when section is in the middle of the viewport
+            threshold: 0
+        };
+
+        const observerCallback = (entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const activeId = entry.target.id;
+                    navLinks.forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && href.includes(`#${activeId}`)) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        };
+
+        const observer = new IntersectionObserver(observerCallback, observerOptions);
+        sections.forEach(section => observer.observe(section));
+    }
+});
