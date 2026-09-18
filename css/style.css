@@ -1877,3 +1877,8 @@ body.catalogo-page {
 .lightbox-next {
     right: 20px;
 }
+
+.fun-logo-img, .footer-brand-logo, .fun-footer-logo-large {
+    mix-blend-mode: multiply;
+}
+
