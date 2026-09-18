@@ -220,23 +220,26 @@ function destruirSlider() {
 function updateSliderNavigation(slider, prevBtn, nextBtn) {
     if (!slider || !slider.container) return;
     
-    // Batch layout reads
-    const containerWidth = slider.container.clientWidth;
-    let totalSlidesWidth = 0;
-    const slides = slider.container.children;
-    for (let i = 0; i < slides.length; i++) {
-        totalSlidesWidth += slides[i].offsetWidth;
-    }
-
-    const fitsAll = totalSlidesWidth <= containerWidth + 10;
-
-    // Batch layout writes in animation frame
+    // Batch layout reads in next frame to avoid forced reflow from KeenSlider DOM changes
     requestAnimationFrame(() => {
-        if (prevBtn) prevBtn.classList.toggle('hide-arrows', fitsAll);
-        if (nextBtn) nextBtn.classList.toggle('hide-arrows', fitsAll);
-        if (slider.container) {
-            slider.container.style.justifyContent = fitsAll ? 'center' : 'flex-start';
+        if (!slider.container) return;
+        const containerWidth = slider.container.clientWidth;
+        let totalSlidesWidth = 0;
+        const slides = slider.container.children;
+        for (let i = 0; i < slides.length; i++) {
+            totalSlidesWidth += slides[i].offsetWidth;
         }
+
+        const fitsAll = totalSlidesWidth <= containerWidth + 10;
+
+        // Batch layout writes in another animation frame
+        requestAnimationFrame(() => {
+            if (prevBtn) prevBtn.classList.toggle('hide-arrows', fitsAll);
+            if (nextBtn) nextBtn.classList.toggle('hide-arrows', fitsAll);
+            if (slider.container) {
+                slider.container.style.justifyContent = fitsAll ? 'center' : 'flex-start';
+            }
+        });
     });
 }
 
@@ -395,9 +398,17 @@ function applyButtonActiveColor(btn) {
     btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
 }
 
-filterBtns.forEach(btn => {
+// Read all colors first to prevent layout thrashing (forced reflow)
+const buttonColorData = Array.from(filterBtns).map(btn => ({
+    btn: btn,
+    color: getButtonColor(btn)
+}));
+
+// Then apply the styles
+buttonColorData.forEach(data => {
+    const btn = data.btn;
+    const color = data.color;
     // Initialize all buttons with their solid colors
-    const color = getButtonColor(btn);
     btn.style.backgroundColor = color;
     btn.style.borderColor = color;
     btn.style.color = (color.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
