@@ -192,11 +192,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .fun-navbar .fun-logo-wrap {
-    height: 172px;
+    height: 146px;
+    margin-top: -10px;
 }
 
 .fun-navbar .fun-logo-img {
-    max-height: 172px;
+    max-height: 146px;
 }
 
 /* Center Navigation — category pill buttons */
