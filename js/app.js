@@ -393,9 +393,11 @@ function getButtonColor(btn) {
 
 function applyButtonActiveColor(btn) {
     const targetColor = getButtonColor(btn);
-    btn.style.backgroundColor = targetColor;
-    btn.style.borderColor = targetColor;
-    btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+    requestAnimationFrame(() => {
+        btn.style.backgroundColor = targetColor;
+        btn.style.borderColor = targetColor;
+        btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+    });
 }
 
 // Read all colors first to prevent layout thrashing (forced reflow)
@@ -460,11 +462,14 @@ function inicializarMenuMobile() {
     if (!hamburgerBtn || !navMenu) return;
 
     function syncMenuAria() {
-        if (window.innerWidth <= 1024) {
-            navMenu.setAttribute('aria-hidden', navMenu.classList.contains('is-open') ? 'false' : 'true');
-        } else {
-            navMenu.setAttribute('aria-hidden', 'false');
-        }
+        const isMobile = window.innerWidth <= 1024;
+        requestAnimationFrame(() => {
+            if (isMobile) {
+                navMenu.setAttribute('aria-hidden', navMenu.classList.contains('is-open') ? 'false' : 'true');
+            } else {
+                navMenu.setAttribute('aria-hidden', 'false');
+            }
+        });
     }
     syncMenuAria();
 
