@@ -1296,9 +1296,15 @@ body.catalogo-page {
 
 .catalogo-hero {
     background: #ebe8e0;
-    padding: 70px 0 45px 0;
+    padding: 180px 0 45px 0;
     text-align: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+@media (max-width: 1024px) {
+    .catalogo-hero {
+        padding-top: 130px;
+    }
 }
 
 .catalogo-hero-tag {
@@ -1337,7 +1343,7 @@ body.catalogo-page {
     border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     padding: 16px 0;
     position: sticky;
-    top: 75px;
+    top: 204px;
     z-index: 50;
 }
 
