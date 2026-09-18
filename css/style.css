@@ -1041,6 +1041,10 @@ h1, h2, h3, h4, h5, h6 {
         flex: 0;
     }
 
+    .fun-navbar-right {
+        margin-left: auto;
+    }
+
     /* Mobile Overlay */
     .fun-mobile-overlay {
         display: block;
