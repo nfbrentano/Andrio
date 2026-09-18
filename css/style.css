@@ -129,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Navbar — Shopfunner-inspired transparent floating header */
 .fun-navbar {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -214,36 +214,35 @@ h1, h2, h3, h4, h5, h6 {
     background-color: var(--btn-color, #2b7fff);
     color: #000;
     border: 2px solid var(--btn-color, #2b7fff);
-    padding: 11px 24px;
+    padding: 11px clamp(8px, 1.5vw, 24px);
     border-radius: var(--radius-pill);
     font-family: var(--fun-font-title);
     font-weight: 700;
-    font-size: 1rem; /* uppercase */
+    font-size: clamp(0.75rem, 1vw, 1rem); /* uppercase */
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 0.6px;
     white-space: nowrap;
-    min-width: 105px;
-    width: 150px;
+    min-width: 0;
+    width: auto;
+    flex: 1 1 auto;
+    max-width: 150px;
     text-align: center;
     transition: var(--transition-normal);
 }
 
 @media (min-width: 1025px) {
     .fun-navbar-filters {
-        gap: 32px;
+        gap: 12px;
     }
 }
 
 /* Yellow pill needs dark text */
 .fun-pill-btn[data-color="#ffeb3b"] {
-    color: #000;
+    color: #fff;
 }
 
 .fun-pill-btn:hover {
-    background-color: #111 !important;
-    border-color: #111 !important;
-    color: #fff !important;
     transform: translateY(-1px);
 }
 
@@ -358,6 +357,9 @@ h1, h2, h3, h4, h5, h6 {
     position: relative;
     overflow: hidden;
     background-color: #e5e5ea;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
 }
 
 .hero-img-left {
@@ -378,6 +380,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-col img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -390,10 +394,11 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .hero-text-overlay {
-    position: absolute;
+    position: sticky;
     bottom: 40px;
-    left: 40px;
-    right: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
+    margin-bottom: 40px;
     color: white;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
     max-width: 520px;
@@ -482,7 +487,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Keen Slider & Slide Custom Styling */
 .fun-section-fullwidth {
-    padding: var(--spacing-section) var(--spacing-xxl);
+    padding: var(--spacing-section) 0;
     width: 100%;
 }
 
@@ -492,6 +497,8 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     margin-bottom: var(--spacing-xl);
     padding-bottom: 12px;
+    padding-left: var(--spacing-xxl);
+    padding-right: var(--spacing-xxl);
     border-bottom: 1px solid rgba(0,0,0,0.12);
 }
 
@@ -525,27 +532,11 @@ h1, h2, h3, h4, h5, h6 {
     box-sizing: border-box;
     padding-left: var(--spacing-md);
     padding-right: var(--spacing-md);
-    min-width: 322px;
-    max-width: 322px;
-    width: 322px;
+    
     flex-shrink: 0;
 }
 
-@media (min-width: 1440px) {
-    .keen-slider__slide {
-        min-width: 380px;
-        max-width: 380px;
-        width: 380px;
-    }
-}
 
-@media (min-width: 1800px) {
-    .keen-slider__slide {
-        min-width: 440px;
-        max-width: 440px;
-        width: 440px;
-    }
-}
 
 /* Arrow Navigation Buttons */
 .hide-arrows {
@@ -879,26 +870,28 @@ h1, h2, h3, h4, h5, h6 {
 .lineup-banner-img {
     width: 100%;
     height: auto;
-    aspect-ratio: 1361 / 972;
+    aspect-ratio: 16 / 7; /* Adjusted to reduce height */
+    object-fit: cover;
+    object-position: center;
     display: block;
 }
 
 /* Footer styling */
 .fun-footer {
     background-color: #f4f2ea;
-    padding: 80px 0 20px 0;
+    padding: 40px 0 10px 0;
     border-top: 1.5px solid rgba(0,0,0,0.06);
 }
 
 .footer-columns {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 40px;
-    padding-bottom: var(--spacing-section);
+    gap: 20px;
+    padding-bottom: 20px;
 }
 
 .brand-col p {
-    margin-top: 18px;
+    margin-top: 8px;
     font-size: 0.975rem; /* 15.6px */
     line-height: 1.5;
     color: var(--fun-text-sec);
@@ -907,7 +900,7 @@ h1, h2, h3, h4, h5, h6 {
 .footer-col h4 {
     font-size: 0.975rem; /* 15.6px */
     font-weight: 800;
-    margin-bottom: 18px;
+    margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.8px;
 }
@@ -919,7 +912,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-col ul li {
-    margin-bottom: 10px;
+    margin-bottom: 4px;
 }
 
 .footer-col ul li a {
@@ -938,7 +931,7 @@ h1, h2, h3, h4, h5, h6 {
     width: auto;
     max-width: 140px;
     object-fit: contain;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: block;
 }
 
@@ -1015,6 +1008,10 @@ h1, h2, h3, h4, h5, h6 {
     /* Show hamburger & hide desktop nav at this breakpoint */
     .fun-hamburger-btn {
         display: flex;
+    }
+
+    .desktop-only {
+        display: none !important;
     }
 
     .fun-cart-btn span {
@@ -1177,8 +1174,9 @@ h1, h2, h3, h4, h5, h6 {
 
     .hero-text-overlay {
         bottom: 24px;
-        left: 20px;
-        right: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 24px;
     }
 
     .hero-text-overlay h1,
@@ -1197,13 +1195,16 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .fun-section-fullwidth {
-        padding: 40px 16px;
+        padding: 40px 0;
+    }
+
+    .fun-section-header-full {
+        padding-left: 16px;
+        padding-right: 16px;
     }
 
     .keen-slider__slide {
-        min-width: 280px;
-        max-width: 280px;
-        width: 280px;
+        
         padding-left: 10px;
         padding-right: 10px;
     }
@@ -1242,9 +1243,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .keen-slider__slide {
-        min-width: 260px;
-        max-width: 260px;
-        width: 260px;
+        
     }
 
     .people-grid {

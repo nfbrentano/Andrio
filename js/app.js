@@ -255,7 +255,7 @@ function inicializarSlider() {
             loop: shouldLoop,
             mode: "free-snap",
             slides: {
-                perView: "auto",
+                perView: 4,
                 spacing: 0,
             },
             created: (s) => {
