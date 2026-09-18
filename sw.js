@@ -17,7 +17,7 @@ const PRECACHE_ASSETS = [
     'js/auth.js',
     'js/catalogo.js',
     'js/image-optimizer.js',
-    'assets/pacosvg.svg',
+    'assets/LOGO.png',
     'assets/hero_left_chair.webp',
     'assets/hero_right_chair.webp',
     'assets/hero_product.webp',
