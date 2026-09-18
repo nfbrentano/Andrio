@@ -396,7 +396,7 @@ function applyButtonActiveColor(btn) {
     requestAnimationFrame(() => {
         btn.style.backgroundColor = targetColor;
         btn.style.borderColor = targetColor;
-        btn.style.color = (targetColor.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+        btn.style.color = 'white';
     });
 }
 
@@ -413,7 +413,7 @@ buttonColorData.forEach(data => {
     // Initialize all buttons with their solid colors
     btn.style.backgroundColor = color;
     btn.style.borderColor = color;
-    btn.style.color = (color.toLowerCase() === '#ffeb3b') ? 'black' : 'white';
+    btn.style.color = 'white';
 
     btn.addEventListener('click', (e) => {
         filterBtns.forEach(b => {
