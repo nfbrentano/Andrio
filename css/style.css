@@ -143,10 +143,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .fun-navbar.scrolled {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     padding: 12px 16px;
 }
 
@@ -194,10 +190,21 @@ h1, h2, h3, h4, h5, h6 {
 .fun-navbar .fun-logo-wrap {
     height: 146px;
     margin-top: -10px;
+    transition: height 0.3s ease, margin-top 0.3s ease;
 }
 
 .fun-navbar .fun-logo-img {
     max-height: 146px;
+    transition: max-height 0.3s ease;
+}
+
+.fun-navbar.scrolled .fun-logo-wrap {
+    height: 70px;
+    margin-top: 0;
+}
+
+.fun-navbar.scrolled .fun-logo-img {
+    max-height: 70px;
 }
 
 /* Center Navigation — category pill buttons */
