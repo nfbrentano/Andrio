@@ -1,102 +1,12 @@
-// Configuração inicial / móveis de demonstração com atributos completos
-const PRODUTOS_PADRAO = [
-    { 
-        id: "demo_1", 
-        nome: "Poltrona Clássica Veludo", 
-        preco: "R$ 2.890,00", 
-        categoria: "poltrona", 
-        img: "assets/prod_poltrona.webp",
-        imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.webp"],
-        color: "#2b7fff", 
-        subhead: "Conforto + Elegância", 
-        desc: "Poltrona capitonê em veludo com pés torneados em madeira maciça e detalhes dourados", 
-        bg: "#4190de",
-        tipo_madeira: "Imbuia Maciça",
-        acabamento: "Verniz PU Acetinado Fosco",
-        material_estofado: "Veludo Italiano Nobre",
-        cor_estofado: "Azul Petróleo",
-        largura_cm: 85,
-        profundidade_cm: 90,
-        altura_cm: 78,
-        peso_kg: 22,
-        disponibilidade: "pronta_entrega",
-        produtos_relacionados: ["demo_4"]
-    },
-    { 
-        id: "demo_2", 
-        nome: "Luminária Moderno Terracota", 
-        preco: "R$ 4.590,00", 
-        categoria: "luminaria", 
-        img: "assets/prod_luminaria.webp", 
-        imagens: ["assets/prod_luminaria.webp", "assets/middle_model.webp"],
-        color: "#ff5722", 
-        subhead: "Design + Funcionalidade", 
-        desc: "Luminária três lugares com tecido premium e base em madeira nogueira, linhas contemporâneas", 
-        bg: "#fe5100",
-        tipo_madeira: "Nogueira Nobre",
-        acabamento: "Óleo Mineral Natural",
-        material_estofado: "Linho Puro Rústico",
-        cor_estofado: "Terracota Queimado",
-        largura_cm: 220,
-        profundidade_cm: 95,
-        altura_cm: 82,
-        peso_kg: 58,
-        disponibilidade: "pronta_entrega",
-        produtos_relacionados: ["demo_1", "demo_4"]
-    },
-    { 
-        id: "demo_3", 
-        nome: "Cadeira de Jantar Mostarda", 
-        preco: "R$ 1.290,00", 
-        categoria: "cadeira", 
-        img: "assets/prod_cadeira.webp", 
-        imagens: ["assets/prod_cadeira.webp", "assets/people_grid_1.webp"],
-        color: "#ffeb3b", 
-        subhead: "Versatilidade + Estilo", 
-        desc: "Cadeira estofada em veludo mostarda com pés em metal dourado, design moderno e elegante", 
-        bg: "#ffcd01",
-        tipo_madeira: "Estrutura Metálica Dourada",
-        acabamento: "Metal Dourado Escovado",
-        material_estofado: "Veludo Italiano Nobre",
-        cor_estofado: "Mostarda Intenso",
-        largura_cm: 54,
-        profundidade_cm: 58,
-        altura_cm: 86,
-        peso_kg: 7.5,
-        disponibilidade: "pronta_entrega",
-        produtos_relacionados: ["demo_4"]
-    },
-    { 
-        id: "demo_4", 
-        nome: "Mesa Lateral Mármore", 
-        preco: "R$ 1.890,00", 
-        categoria: "mesa", 
-        img: "assets/prod_mesa.webp", 
-        imagens: ["assets/prod_mesa.webp"],
-        color: "#9c27b0", 
-        subhead: "Sofisticação + Minimalismo", 
-        desc: "Mesa lateral com tampo em mármore branco e estrutura em metal dourado escovado", 
-        bg: "#7c55c6",
-        tipo_madeira: "Estrutura Metálica Dourada",
-        acabamento: "Metal Dourado Escovado",
-        material_estofado: "Sem Estofado (Madeira Aparente)",
-        cor_estofado: "Branco Carrara",
-        largura_cm: 50,
-        profundidade_cm: 50,
-        altura_cm: 55,
-        peso_kg: 14,
-        disponibilidade: "pronta_entrega",
-        produtos_relacionados: ["demo_1", "demo_2"]
-    }
-];
-
 let localProducts = [];
 try {
     const saved = localStorage.getItem('fun_produtos');
     if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
             localProducts = parsed;
+        } else {
+            localProducts = PRODUTOS_PADRAO;
         }
     } else {
         localProducts = PRODUTOS_PADRAO;
@@ -282,19 +192,6 @@ function extractDriveFileId(input) {
     return null;
 }
 
-// Função para normalizar e converter links do Google Drive e URLs externas
-function normalizarUrlImagem(url) {
-    if (!url) return 'assets/prod_poltrona.webp';
-    const trimmed = String(url).trim();
-
-    // Converte links de arquivos/fotos do Google Drive para URL direta de alta definição
-    const fileId = extractDriveFileId(trimmed);
-    if (fileId) {
-        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1600`;
-    }
-
-    return trimmed;
-}
 
 // Gerenciamento e Persistência da Pasta do Google Drive
 async function loadDriveConfig() {

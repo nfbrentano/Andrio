@@ -206,7 +206,7 @@ body.login-body {
     color: #fff;
 }
 
-.supabase-setup-box {
+.firebase-setup-box {
     margin-top: 16px;
     padding: 16px;
     background: rgba(0, 0, 0, 0.4);
@@ -215,11 +215,11 @@ body.login-body {
     display: none;
 }
 
-.supabase-setup-box.open {
+.firebase-setup-box.open {
     display: block;
 }
 
-.supabase-setup-box h3 {
+.firebase-setup-box h3 {
     margin: 0 0 10px 0;
     font-size: 0.85rem;
     color: var(--login-primary);

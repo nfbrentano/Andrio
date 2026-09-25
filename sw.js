@@ -1,21 +1,25 @@
-const CACHE_NAME = 'paco-cache-v11';
+const CACHE_NAME = 'paco-cache-v12';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
     './',
     'index.html',
     'catalogo.html',
+    'produto.html',
     'admin.html',
     'login.html',
     'css/style.css',
     'css/antigravity.min.css',
     'css/admin.css',
     'css/login.css',
+    'js/shared/catalogo-data.js',
+    'js/shared/ui.js',
     'js/app.js',
     'js/admin.js',
     'js/firebase-config.js',
     'js/auth.js',
     'js/catalogo.js',
+    'js/produto.js',
     'js/image-optimizer.js',
     'assets/LOGO.png',
     'assets/hero_left_chair.webp',
@@ -69,8 +73,12 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Não intercepta chamadas à API REST/Realtime do Supabase
-    if (url.hostname.includes('supabase.co')) {
+    // Não intercepta chamadas às APIs externas (Firebase, Google)
+    if (url.hostname.includes('firestore.googleapis.com') ||
+        url.hostname.includes('identitytoolkit.googleapis.com') ||
+        url.hostname.includes('firebasestorage.googleapis.com') ||
+        url.hostname.includes('google.com') ||
+        url.hostname.includes('googleusercontent.com')) {
         return;
     }
 
