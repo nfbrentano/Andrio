@@ -1,54 +1,78 @@
 # [FIX] Menu mobile inacessível: logo ultrapassa a largura da tela e empurra o botão hambúrguer
 
+<!--
+Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
+-->
+
+> **Status:** Rascunho
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+
 ## Detalhes da Atividade
 
-- **O que precisa ser feito:** Corrigir o dimensionamento do logo na navbar em telas pequenas. Em viewport de 375px o `.fun-logo-img` renderiza com ~496px de largura (altura 146px, `width: auto`), empurrando o botão `#fun-hamburger` para x≈512px, fora da tela, em `index.html`, `catalogo.html` e `produto.html`.
-- **Por que é necessário:** No celular o usuário não consegue abrir o menu de categorias nem acessar "Ver Catálogo Completo". O logo aparece cortado. Regressão introduzida pelo commit `7301270` (animação de escala do logo com `max-height: 146px` em `.fun-navbar .fun-logo-img`, `css/style.css:196`).
-- **Qual valor será agregado:** Navegação mobile funcional (maioria do tráfego de e-commerce) e identidade visual preservada.
-- **Para quem é destinado:** Visitantes da loja em dispositivos móveis.
+- **O que precisa ser feito:** Corrigir o tamanho do logo na navbar em telas pequenas para que o botão hambúrguer fique visível.
+- **Problema e evidência:** Em 375px, `.fun-logo-img` renderiza com ~496px de largura (altura 146px, `width: auto`). Isso empurra `#fun-hamburger` para x≈512px, fora da tela, em `index.html`, `catalogo.html` e `produto.html` (medido no navegador em 2026-09-24). A causa é a regra `.fun-navbar .fun-logo-img { max-height: 146px }` em `css/style.css:196`, introduzida no commit `7301270`.
+- **Impacto de não fazer:** No celular o visitante não consegue abrir o menu de categorias nem chegar ao catálogo, e o logo aparece cortado.
+- **Para quem é destinado:** Visitantes da loja em celulares.
+- **História de usuário:** Como visitante no celular, quero ver o logo inteiro e abrir o menu, para navegar pelas categorias.
+- **Como saberemos que deu certo:** `#fun-hamburger.getBoundingClientRect().right ≤ innerWidth` de 320px a 1024px nas 3 páginas públicas.
 
 ## Requisitos da Atividade
 
 ### Requisitos funcionais
 
-- RF01: O logo deve caber na navbar junto com o botão hambúrguer em larguras de 320px a 1024px.
-- RF02: O botão hambúrguer deve estar sempre visível e clicável em viewport ≤ 1024px.
-- RF03: A animação de redução do logo no scroll (`.scrolled`) deve continuar funcionando.
+| ID | Descrição | Prioridade | CAs |
+|----|-----------|------------|-----|
+| RF01 | O logo cabe na navbar junto com o hambúrguer de 320px a 1024px. | P0 | CA01 |
+| RF02 | O hambúrguer fica sempre visível e clicável em viewport ≤ 1024px. | P0 | CA01, CA02 |
+| RF03 | A redução do logo no scroll (`.scrolled`) continua funcionando. | P1 | CA03 |
 
 ### Requisitos não-funcionais
 
-- RNF01: Sem rolagem horizontal da página (`scrollWidth <= innerWidth`).
-- RNF02: Sem CLS perceptível ao carregar o logo (manter `width`/`height` no `<img>`).
+| ID | Descrição | Prioridade | CAs |
+|----|-----------|------------|-----|
+| RNF01 | Sem rolagem horizontal (`scrollWidth <= innerWidth`) de 320px a 1440px. | P0 | CA04 |
+| RNF02 | Manter `width`/`height` no `<img>`; CLS < 0,1 no Lighthouse mobile. | P1 | CA01 |
 
 ### Dependências técnicas
 
-- `css/style.css` (regras `.fun-logo-img`, `.fun-navbar .fun-logo-img`, `.fun-logo-wrap`).
+- `css/style.css` (`.fun-logo-img`, `.fun-navbar .fun-logo-img`, `.fun-logo-wrap`, `.fun-navbar.scrolled`).
 
 ### Recursos necessários
 
-- Dispositivos/emuladores 320px, 375px, 414px, 768px e 1024px.
+- Emulação de 320px, 375px, 414px, 768px e 1024px e um iPhone/Android real.
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado que estou em um celular de 375px, quando abro `index.html`, `catalogo.html` ou `produto.html`, então o logo aparece inteiro e o botão hambúrguer fica visível dentro da tela.
-- [ ] **CA02:** Dado que estou em um celular de 320px, quando toco no hambúrguer, então o menu de categorias abre.
-- [ ] **CA03:** Dado que rolo a página, quando a navbar recebe `.scrolled`, então o logo reduz sem cortar e sem sobrepor o hambúrguer.
-- [ ] **CA04:** Dado qualquer viewport entre 320px e 1440px, quando a página carrega, então não há rolagem horizontal.
+- [ ] **CA01:** Dado um celular de 375px, quando abro `index.html`, `catalogo.html` ou `produto.html`, então o logo aparece inteiro e o hambúrguer fica dentro da tela.
+- [ ] **CA02:** Dado um celular de 320px, quando toco no hambúrguer, então o menu de categorias abre.
+- [ ] **CA03:** Dado que rolo a página, quando a navbar recebe `.scrolled`, então o logo diminui sem cortar e sem cobrir o hambúrguer.
+- [ ] **CA04:** Dado qualquer largura entre 320px e 1440px, quando a página carrega, então não há rolagem horizontal.
+- [ ] **CA05:** Dado um desktop de 1440px, quando a página carrega, então o layout não muda em relação ao atual (caso negativo).
 
 ## O que a atividade não inclui
 
-- Redesenho do logo ou da navbar.
-- Melhorias de acessibilidade do menu (tratadas em `2026-09-24_acessibilidade-navegacao-e-cards.md`).
+- Redesenho do logo ou da navbar: motivo: fora do escopo de correção.
+- Acessibilidade de cards e lightbox: motivo: outra iniciativa (`2026-09-24_acessibilidade-navegacao-e-cards.md`).
+
+### Considerado para o futuro (P2)
+
+- Versão reduzida do logo (símbolo) para telas < 360px.
+
+## Dúvidas em aberto
+
+| # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
+|---|--------|-----------------------------|-------------|----------|
+| D01 | Qual altura máxima do logo no mobile o design aprova? | design | Não | |
 
 ## Sugestões de casos de teste
 
-| # | Cenário | Passos | Resultado esperado |
-|---|---------|--------|--------------------|
-| CT01 | Hambúrguer visível | Emular 375×812, abrir `index.html`, medir `#fun-hamburger.getBoundingClientRect().right` | Valor ≤ 375 |
-| CT02 | Logo inteiro | Emular 375px, medir largura de `.fun-logo-img` | Largura ≤ largura disponível menos o hambúrguer |
-| CT03 | Menu abre | Emular 320px, tocar no hambúrguer | Menu `#fun-nav-menu` recebe `.is-open` |
-| CT04 | Scroll | Rolar 100px | Logo reduz para `max-height: 70px`, sem sobreposição |
-| CT05 | Desktop | Viewport 1440px | Layout igual ao atual |
+| # | Cenário | Tipo (unit/integração/e2e/manual) | Cobre | Passos | Resultado esperado |
+|---|---------|-----------------------------------|-------|--------|--------------------|
+| CT01 | Hambúrguer visível | e2e | CA01 | 375×812, medir `#fun-hamburger.getBoundingClientRect().right` nas 3 páginas | ≤ 375 |
+| CT02 | Menu abre | e2e | CA02 | 320px, tocar no hambúrguer | `#fun-nav-menu` com `.is-open` |
+| CT03 | Scroll | manual | CA03 | Rolar 100px | Logo menor, sem sobreposição |
+| CT04 | Sem scroll horizontal | e2e | CA04 | Medir `scrollWidth` em 320/375/768/1024/1440 | `≤ innerWidth` |
+| CT05 | Desktop inalterado | manual | CA05 | Comparar screenshot em 1440px | Igual ao atual |
 
 ## URL Complementar
 
@@ -56,4 +80,5 @@
 - Protótipo / mockup: N/A — manter o layout desktop atual.
 - Discussões relacionadas: commit `7301270` (refactor: animate logo scaling on navbar scroll).
 - Referências de design: N/A.
-- Requisitos originais: Validação da aplicação em 2026-09-24 (logo 496px e hambúrguer em x=512px em viewport de 375px).
+- Requisitos originais: Validação da aplicação em 2026-09-24.
+- Issue / PR relacionado: N/A.

@@ -33,9 +33,12 @@ function renderizarProduto() {
         return;
     }
 
-    const fotos = Array.isArray(produto.imagens) && produto.imagens.length > 0 
+    const defaultImg = getDefaultImageForCategory(produto.categoria);
+    const fotosRaw = Array.isArray(produto.imagens) && produto.imagens.length > 0 
         ? produto.imagens 
-        : [produto.img];
+        : [produto.img || defaultImg];
+
+    const fotos = fotosRaw.map(f => safeUrl(f, defaultImg));
 
     lightboxFotos = fotos;
     currentLightboxIndex = 0;
@@ -60,34 +63,51 @@ function renderizarProduto() {
     // Atualiza title da página dinamicamente
     document.title = `${produto.nome} | PACO Móveis`;
 
+    const safeNome = escapeHtml(produto.nome);
+    const safePreco = escapeHtml(produto.preco);
+    const safeCategoria = escapeHtml(produto.categoria || '');
+    const safeDesc = escapeHtml(produto.desc || 'Peça exclusiva de design autoral em materiais nobres.');
+    const safeColor = sanitizeHexColor(produto.color, '#2b7fff');
+    const safeTipoMadeira = escapeHtml(produto.tipo_madeira || 'Madeira Nobre Selecionada');
+    const safeAcabamento = escapeHtml(produto.acabamento || 'Verniz PU Acetinado');
+    const safeMaterialEstofado = escapeHtml(produto.material_estofado || 'Tecido Nobre');
+    const safeCorEstofado = produto.cor_estofado ? escapeHtml(produto.cor_estofado) : '';
+    const safeDispText = escapeHtml(dispText);
+
+    const safeMainImg = escapeHtml(fotos[0]);
+    const safeDefaultImg = escapeHtml(defaultImg);
+
     detailContent.innerHTML = `
         <div class="product-page-layout">
             <!-- Coluna da Galeria de Fotos -->
             <div class="product-page-gallery">
-                <div class="product-main-image-wrap" style="cursor: zoom-in;">
-                    <img id="product-main-img" src="${fotos[0]}" alt="${produto.nome}" class="modal-main-image">
-                </div>
+                <button type="button" class="product-main-image-wrap" aria-label="Ampliar foto de ${safeNome} em tela cheia">
+                    <img id="product-main-img" src="${safeMainImg}" alt="${safeNome}" class="modal-main-image" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                </button>
                 ${fotos.length > 1 ? `
                     <div class="modal-thumbnails-strip">
-                        ${fotos.map((f, idx) => `
-                            <button type="button" class="modal-thumb-btn ${idx === 0 ? 'active' : ''}" data-src="${f}">
-                                <img src="${f}" alt="Ângulo ${idx + 1}">
+                        ${fotos.map((f, idx) => {
+                            const safeF = escapeHtml(f);
+                            return `
+                            <button type="button" class="modal-thumb-btn ${idx === 0 ? 'active' : ''}" data-src="${safeF}" aria-label="Ver imagem ${idx + 1} de ${fotos.length}">
+                                <img src="${safeF}" alt="${safeNome} miniatura ${idx + 1}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
                             </button>
-                        `).join('')}
+                            `;
+                        }).join('')}
                     </div>
                 ` : ''}
             </div>
 
             <!-- Coluna de Especificações e Ações -->
             <div class="product-page-info">
-                <span class="modal-category-tag" style="background-color: ${produto.color || '#2b7fff'};">${produto.categoria.toUpperCase()}</span>
-                <h1 class="product-page-title">${produto.nome}</h1>
-                <div class="modal-price-tag">${produto.preco}</div>
-                <div class="modal-availability">${dispText}</div>
+                <span class="modal-category-tag" style="background-color: ${safeColor};">${safeCategoria.toUpperCase()}</span>
+                <h1 class="product-page-title">${safeNome}</h1>
+                <div class="modal-price-tag">${safePreco}</div>
+                <div class="modal-availability">${safeDispText}</div>
 
                 <div class="modal-desc-block">
                     <h4>Conceito & Detalhes</h4>
-                    <p>${produto.desc || 'Peça exclusiva de design autoral em materiais nobres.'}</p>
+                    <p>${safeDesc}</p>
                 </div>
 
                 <!-- Tabela de Especificações do Móvel -->
@@ -95,26 +115,26 @@ function renderizarProduto() {
                     <h4>Ficha Técnica</h4>
                     <div class="spec-row">
                         <span>Madeira / Estrutura:</span>
-                        <strong>${produto.tipo_madeira || 'Madeira Nobre Selecionada'}</strong>
+                        <strong>${safeTipoMadeira}</strong>
                     </div>
                     <div class="spec-row">
                         <span>Acabamento:</span>
-                        <strong>${produto.acabamento || 'Verniz PU Acetinado'}</strong>
+                        <strong>${safeAcabamento}</strong>
                     </div>
                     <div class="spec-row">
                         <span>Estofamento:</span>
-                        <strong>${produto.material_estofado || 'Tecido Nobre'} ${produto.cor_estofado ? `(${produto.cor_estofado})` : ''}</strong>
+                        <strong>${safeMaterialEstofado} ${safeCorEstofado ? `(${safeCorEstofado})` : ''}</strong>
                     </div>
                     ${(produto.largura_cm || produto.profundidade_cm || produto.altura_cm) ? `
                         <div class="spec-row">
                             <span>Dimensões (L × P × A):</span>
-                            <strong>${produto.largura_cm || '-'} cm × ${produto.profundidade_cm || '-'} cm × ${produto.altura_cm || '-'} cm</strong>
+                            <strong>${escapeHtml(String(produto.largura_cm || '-'))} cm × ${escapeHtml(String(produto.profundidade_cm || '-'))} cm × ${escapeHtml(String(produto.altura_cm || '-'))} cm</strong>
                         </div>
                     ` : ''}
                     ${produto.peso_kg ? `
                         <div class="spec-row">
                             <span>Peso Estimado:</span>
-                            <strong>${produto.peso_kg} kg</strong>
+                            <strong>${escapeHtml(String(produto.peso_kg))} kg</strong>
                         </div>
                     ` : ''}
                 </div>
@@ -134,16 +154,23 @@ function renderizarProduto() {
                     <div class="modal-bundle-section">
                         <h4>✨ Peças que combinam com este móvel ("Compre Junto"):</h4>
                         <div class="modal-bundle-grid">
-                            ${relatedItems.map(item => `
-                                <div class="modal-bundle-card" onclick="window.location.href='produto.html?id=${item.id}'" style="cursor:pointer;" data-id="${item.id}">
-                                    <img src="${item.img}" alt="${item.nome}">
+                            ${relatedItems.map(item => {
+                                const relDefaultImg = getDefaultImageForCategory(item.categoria);
+                                const safeRelImg = escapeHtml(safeUrl(item.img, relDefaultImg));
+                                const safeRelNome = escapeHtml(item.nome);
+                                const safeRelPreco = escapeHtml(item.preco);
+                                const safeRelId = encodeURIComponent(String(item.id));
+                                return `
+                                <a class="modal-bundle-card" href="produto.html?id=${safeRelId}" data-id="${safeRelId}" aria-label="${safeRelNome} - ${safeRelPreco}">
+                                    <img src="${safeRelImg}" alt="${safeRelNome}" data-fallback="${escapeHtml(relDefaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
                                     <div class="bundle-card-info">
-                                        <strong>${item.nome}</strong>
-                                        <span>${item.preco}</span>
+                                        <strong>${safeRelNome}</strong>
+                                        <span>${safeRelPreco}</span>
                                     </div>
-                                    <button type="button" class="btn-bundle-view" onclick="window.location.href='produto.html?id=${item.id}'">Ver Peça</button>
-                                </div>
-                            `).join('')}
+                                    <span class="btn-bundle-view" aria-hidden="true">Ver Peça</span>
+                                </a>
+                                `;
+                            }).join('')}
                         </div>
                     </div>
                 ` : ''}
@@ -156,7 +183,7 @@ function renderizarProduto() {
         btn.addEventListener('click', (e) => {
             const newSrc = e.currentTarget.dataset.src;
             const mainImg = document.getElementById('product-main-img');
-            if (mainImg) mainImg.src = newSrc;
+            if (mainImg) mainImg.src = safeUrl(newSrc, defaultImg);
             
             currentLightboxIndex = index;
             
@@ -176,56 +203,103 @@ function renderizarProduto() {
 // Lightbox Global State
 let lightboxFotos = [];
 let currentLightboxIndex = 0;
+let lastFocusedElement = null;
+
+function updateLightboxPhoto() {
+    const img = document.getElementById('lightbox-image');
+    if (img && lightboxFotos[currentLightboxIndex]) {
+        img.src = safeUrl(lightboxFotos[currentLightboxIndex], 'assets/prod_poltrona.webp');
+        const prodTitle = document.querySelector('.product-page-title')?.textContent || 'Produto';
+        img.alt = `Foto ${currentLightboxIndex + 1} de ${lightboxFotos.length} - ${prodTitle}`;
+    }
+}
 
 function openLightbox(index) {
     if (lightboxFotos.length === 0) return;
+    lastFocusedElement = document.activeElement;
     currentLightboxIndex = index;
     const overlay = document.getElementById('lightbox-overlay');
-    const img = document.getElementById('lightbox-image');
-    if (overlay && img) {
-        img.src = lightboxFotos[currentLightboxIndex];
+    if (overlay) {
+        updateLightboxPhoto();
         overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        const closeBtn = overlay.querySelector('.lightbox-close');
+        if (closeBtn) closeBtn.focus();
     }
 }
 
 function closeLightbox() {
     const overlay = document.getElementById('lightbox-overlay');
-    if (overlay) {
+    if (overlay && overlay.classList.contains('active')) {
         overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+            lastFocusedElement.focus();
+        }
     }
 }
 
 function nextLightboxPhoto(e) {
     if (e) e.stopPropagation();
     currentLightboxIndex = (currentLightboxIndex + 1) % lightboxFotos.length;
-    document.getElementById('lightbox-image').src = lightboxFotos[currentLightboxIndex];
+    updateLightboxPhoto();
 }
 
 function prevLightboxPhoto(e) {
     if (e) e.stopPropagation();
     currentLightboxIndex = (currentLightboxIndex - 1 + lightboxFotos.length) % lightboxFotos.length;
-    document.getElementById('lightbox-image').src = lightboxFotos[currentLightboxIndex];
+    updateLightboxPhoto();
 }
 
 document.addEventListener('keydown', (e) => {
     const overlay = document.getElementById('lightbox-overlay');
-    if (overlay && overlay.classList.contains('active')) {
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowRight') nextLightboxPhoto();
-        if (e.key === 'ArrowLeft') prevLightboxPhoto();
+    if (!overlay || !overlay.classList.contains('active')) return;
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        closeLightbox();
+        return;
+    }
+    if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        nextLightboxPhoto();
+        return;
+    }
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevLightboxPhoto();
+        return;
+    }
+    if (e.key === 'Tab') {
+        const focusable = overlay.querySelectorAll('button:not([disabled])');
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey) {
+            if (document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            }
+        } else {
+            if (document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
     }
 });
 
 function initLightbox() {
     if (!document.getElementById('lightbox-overlay')) {
         const lightboxHtml = `
-            <div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox()">
-                <button type="button" class="lightbox-close" onclick="closeLightbox()">×</button>
-                <button type="button" class="lightbox-prev" onclick="prevLightboxPhoto(event)">‹</button>
+            <div id="lightbox-overlay" class="lightbox-overlay" role="dialog" aria-modal="true" aria-label="Galeria de fotos em tela cheia" aria-hidden="true" onclick="closeLightbox()">
+                <button type="button" class="lightbox-close" aria-label="Fechar galeria em tela cheia" onclick="closeLightbox()">×</button>
+                <button type="button" class="lightbox-prev" aria-label="Foto anterior" onclick="prevLightboxPhoto(event)">‹</button>
                 <div class="lightbox-content" onclick="event.stopPropagation()">
                     <img id="lightbox-image" class="lightbox-image" src="" alt="Galeria">
                 </div>
-                <button type="button" class="lightbox-next" onclick="nextLightboxPhoto(event)">›</button>
+                <button type="button" class="lightbox-next" aria-label="Próxima foto" onclick="nextLightboxPhoto(event)">›</button>
             </div>
         `;
         document.body.insertAdjacentHTML('beforeend', lightboxHtml);
@@ -235,6 +309,15 @@ function initLightbox() {
 // Inicialização
 document.addEventListener('DOMContentLoaded', async () => {
     initLightbox();
+
+    // Filtros de categoria na página de produto redirecionam para o catálogo
+    document.querySelectorAll('.fun-navbar-filters .fun-pill-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const cat = e.currentTarget.dataset.category || 'all';
+            window.location.href = `catalogo.html?categoria=${cat}`;
+        });
+    });
+
     await carregarProdutosDetalhe();
     renderizarProduto();
 });

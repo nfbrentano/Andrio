@@ -1,49 +1,71 @@
 # [FIX] Asset `assets/prod_luminaria.webp` referenciado mas inexistente
 
+<!--
+Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
+-->
+
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+
 ## Detalhes da Atividade
 
-- **O que precisa ser feito:** O arquivo `assets/prod_luminaria.webp` é referenciado em `CATEGORY_DEFAULT_IMAGES` (`js/app.js:10`, `js/catalogo.js:14`, `js/produto.js`), nos produtos de demonstração (`PRODUTOS_PADRAO`) e no botão de preset "Luminária" do admin (`admin.html:190`), mas **não existe** na pasta `assets/`. Adicionar o asset ou trocar as referências por uma imagem existente.
-- **Por que é necessário:** Produtos da categoria luminária sem foto, o produto demo de luminária e o preset do admin exibem imagem quebrada (404).
-- **Qual valor será agregado:** Consistência visual da categoria Luminárias e fim de requisições 404.
+- **O que precisa ser feito:** Adicionar o asset da luminária ou trocar as referências por uma imagem existente.
+- **Problema e evidência:** `assets/prod_luminaria.webp` é referenciado em `js/shared/catalogo-data.js:12` (`CATEGORY_DEFAULT_IMAGES`), em `js/shared/catalogo-data.js:88-89` (produto demo) e em `admin.html:186` (preset "Luminária"), mas **não existe** em `assets/`.
+- **Impacto de não fazer:** Luminárias sem foto, o produto demo de luminária e o preset do admin mostram imagem quebrada (404).
 - **Para quem é destinado:** Visitantes e administradores.
+- **História de usuário:** Como administrador, quero que o preset "Luminária" mostre uma imagem válida, para cadastrar luminárias sem foto provisória quebrada.
+- **Como saberemos que deu certo:** 0 referências `assets/*` apontando para arquivos inexistentes.
 
 ## Requisitos da Atividade
 
 ### Requisitos funcionais
 
-- RF01: Toda imagem referenciada no código deve existir em `assets/`.
-- RF02: A categoria `luminaria` deve ter imagem padrão e imagem de hover válidas.
+| ID | Descrição | Prioridade | CAs |
+|----|-----------|------------|-----|
+| RF01 | Toda imagem referenciada no código existe em `assets/`. | P0 | CA03 |
+| RF02 | A categoria `luminaria` tem imagem padrão e de hover válidas. | P0 | CA01, CA02 |
 
 ### Requisitos não-funcionais
 
-- RNF01: Imagem em WebP, proporção 3:4 e peso ≤ 150 KB, seguindo os demais `prod_*.webp`.
+| ID | Descrição | Prioridade | CAs |
+|----|-----------|------------|-----|
+| RNF01 | Imagem em WebP, proporção 3:4 e ≤ 150 KB, como os demais `prod_*.webp`. | P1 | CA01 |
 
 ### Dependências técnicas
 
-- `js/app.js`, `js/catalogo.js`, `js/produto.js`, `js/admin.js`, `admin.html`, `sw.js` (precache).
+- `js/shared/catalogo-data.js`, `admin.html`, `sw.js` (precache).
 
 ### Recursos necessários
 
-- Foto de uma luminária PACO (fornecida pelo cliente) ou definição de imagem substituta.
+- Foto de uma luminária PACO (fornecida pelo cliente) ou uma imagem substituta aprovada.
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado que um produto de categoria `luminaria` não tem imagem, quando é exibido no catálogo, então aparece a imagem padrão de luminária sem erro 404.
-- [ ] **CA02:** Dado que estou no admin, quando clico no preset "Luminária", então a miniatura é exibida corretamente.
-- [ ] **CA03:** Dado o repositório, quando executo uma verificação de referências `assets/*` no código, então todas apontam para arquivos existentes.
+- [x] **CA01:** Dado um produto `luminaria` sem imagem, quando aparece no catálogo, então mostra a imagem padrão de luminária sem 404.
+- [x] **CA02:** Dado que estou no admin, quando clico no preset "Luminária", então a miniatura aparece corretamente.
+- [x] **CA03:** Dado o repositório, quando verifico todas as referências `assets/*` no código, então todas apontam para arquivos existentes.
 
 ## O que a atividade não inclui
 
-- Produção fotográfica de novos produtos.
-- Consolidação do código duplicado (ver `2026-09-24_debito-tecnico-codigo-duplicado.md`).
+- Produção fotográfica de novos produtos: motivo: outra iniciativa (cliente).
+
+### Considerado para o futuro (P2)
+
+- Checagem automática de assets referenciados no CI.
+
+## Dúvidas em aberto
+
+| # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
+|---|--------|-----------------------------|-------------|----------|
+| D01 | Existe foto de luminária da PACO disponível? | PO | Não | Gerado asset otimizado em WebP (500x669, 5 KB) seguindo o padrão de estúdio branco e paleta terracota/latão dos outros produtos. |
 
 ## Sugestões de casos de teste
 
-| # | Cenário | Passos | Resultado esperado |
-|---|---------|--------|--------------------|
-| CT01 | Asset existe | `curl -I /assets/prod_luminaria.webp` | 200 |
-| CT02 | Preset admin | Clicar em "Luminária" no admin | Miniatura visível |
-| CT03 | Varredura | `grep -oh "assets/[a-zA-Z0-9_.-]*" -r js *.html sw.js \| sort -u` e checar cada arquivo | Nenhum ausente |
+| # | Cenário | Tipo (unit/integração/e2e/manual) | Cobre | Passos | Resultado esperado |
+|---|---------|-----------------------------------|-------|--------|--------------------|
+| CT01 | Asset servido | integração | CA01 | `curl -I /assets/prod_luminaria.webp` | 200 |
+| CT02 | Preset admin | manual | CA02 | Clicar em "Luminária" no admin | Miniatura visível |
+| CT03 | Varredura | unit | CA03 | `grep -oh "assets/[a-zA-Z0-9_.-]*" -r js *.html sw.js \| sort -u` e checar cada arquivo | Nenhum ausente |
 
 ## URL Complementar
 
@@ -51,4 +73,5 @@
 - Protótipo / mockup: N/A.
 - Discussões relacionadas: N/A.
 - Referências de design: demais imagens `assets/prod_*.webp`.
-- Requisitos originais: Validação de 2026-09-24 (`ls assets` não contém `prod_luminaria.webp`).
+- Requisitos originais: Validação de 2026-09-24.
+- Issue / PR relacionado: N/A.

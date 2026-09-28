@@ -322,11 +322,12 @@ function renderGalleryPreview() {
 
     currentGalleryImages.forEach((imgUrl, index) => {
         const normalized = normalizarUrlImagem(imgUrl);
+        const safeImg = escapeHtml(safeUrl(normalized, 'assets/prod_poltrona.webp'));
         const isCover = index === 0;
         const card = document.createElement('div');
         card.className = `gallery-thumb-card ${isCover ? 'is-cover' : ''}`;
         card.innerHTML = `
-            <img src="${normalized}" alt="Foto ${index + 1}" onerror="this.src='assets/prod_poltrona.webp'">
+            <img src="${safeImg}" alt="Foto ${index + 1}" data-fallback="assets/prod_poltrona.webp" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
             ${isCover ? '<span class="badge-cover">Capa</span>' : ''}
             <div class="thumb-actions">
                 ${!isCover ? `<button type="button" class="btn-thumb-cover" data-index="${index}">Tornar Capa</button>` : '<span></span>'}
@@ -407,14 +408,21 @@ async function renderCrossSellSelector(currentEditingId = null) {
     crossSellSelector.innerHTML = '';
     otherProducts.forEach(p => {
         const isSelected = currentRelatedProducts.includes(String(p.id));
+        const defaultImg = getDefaultImageForCategory(p.categoria);
+        const safeImg = escapeHtml(safeUrl(p.img, defaultImg));
+        const safeNome = escapeHtml(p.nome);
+        const safePreco = escapeHtml(p.preco);
+        const safeCategoria = escapeHtml(p.categoria);
+        const safeId = escapeHtml(String(p.id));
+
         const item = document.createElement('div');
         item.className = `cross-sell-item ${isSelected ? 'selected' : ''}`;
         item.dataset.id = p.id;
         item.innerHTML = `
-            <img src="${p.img}" alt="${p.nome}">
+            <img src="${safeImg}" alt="${safeNome}" data-fallback="${escapeHtml(defaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
             <div class="cross-sell-info">
-                <strong>${p.nome}</strong>
-                <span>${p.preco} • ${p.categoria}</span>
+                <strong>${safeNome}</strong>
+                <span>${safePreco} • ${safeCategoria}</span>
             </div>
             <span class="cross-sell-check">${isSelected ? '✓' : '+'}</span>
         `;
@@ -467,29 +475,38 @@ async function renderTable() {
     filtered.forEach(p => {
         const galleryCount = (p.imagens && p.imagens.length) || 1;
         const relatedCount = (p.produtos_relacionados && p.produtos_relacionados.length) || 0;
+        const defaultImg = getDefaultImageForCategory(p.categoria);
+        const safeImg = escapeHtml(safeUrl(p.img, defaultImg));
+        const safeNome = escapeHtml(p.nome);
+        const safeColor = sanitizeHexColor(p.color, '#2b7fff');
+        const safeTipoMadeira = escapeHtml(p.tipo_madeira || 'Madeira maciça');
+        const safeMaterialEstofado = escapeHtml(p.material_estofado || 'Tecido');
+        const safeCategoria = escapeHtml(p.categoria);
+        const safePreco = escapeHtml(p.preco);
+        const safeId = escapeHtml(String(p.id));
         
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>
-                <img src="${p.img}" alt="${p.nome}" class="table-img-preview" onerror="this.src='assets/prod_poltrona.webp'">
+                <img src="${safeImg}" alt="${safeNome}" class="table-img-preview" data-fallback="${escapeHtml(defaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
             </td>
             <td>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
                     <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="background-color: ${p.color || '#2b7fff'}; display: inline-block; width: 10px; height: 10px; border-radius: 50%;"></span>
-                        <strong>${p.nome}</strong>
+                        <span style="background-color: ${safeColor}; display: inline-block; width: 10px; height: 10px; border-radius: 50%;"></span>
+                        <strong>${safeNome}</strong>
                     </div>
-                    <small style="color: #8b949e;">${p.tipo_madeira || 'Madeira maciça'} • ${p.material_estofado || 'Tecido'}</small>
+                    <small style="color: #8b949e;">${safeTipoMadeira} • ${safeMaterialEstofado}</small>
                 </div>
             </td>
-            <td style="text-transform: capitalize;">${p.categoria}</td>
-            <td style="font-weight: 600;">${p.preco}</td>
+            <td style="text-transform: capitalize;">${safeCategoria}</td>
+            <td style="font-weight: 600;">${safePreco}</td>
             <td><span class="badge">📸 ${galleryCount}</span></td>
             <td><span class="badge">🔗 ${relatedCount} vinculado(s)</span></td>
             <td>
                 <div class="action-btns">
-                    <button class="action-btn edit" data-id="${p.id}" title="Editar Móvel">✏️</button>
-                    <button class="action-btn delete" data-id="${p.id}" title="Excluir Móvel">🗑️</button>
+                    <button class="action-btn edit" data-id="${safeId}" title="Editar Móvel">✏️</button>
+                    <button class="action-btn delete" data-id="${safeId}" title="Excluir Móvel">🗑️</button>
                 </div>
             </td>
         `;
@@ -527,8 +544,8 @@ async function prepareEdit(id) {
     productAvailabilityInput.value = item.disponibilidade || 'pronta_entrega';
     productDescInput.value = item.desc || '';
     productImageInput.value = item.img;
-    productColorInput.value = item.color || '#2b7fff';
-    productColorPicker.value = item.color || '#2b7fff';
+    productColorInput.value = sanitizeHexColor(item.color, '#2b7fff');
+    productColorPicker.value = sanitizeHexColor(item.color, '#2b7fff');
 
     productWoodInput.value = item.tipo_madeira || 'Nogueira Nobre';
     productFinishInput.value = item.acabamento || 'Verniz PU Acetinado Fosco';
@@ -952,8 +969,8 @@ if (driveFolderUrlInput) {
         const folderId = extractDriveFolderId(val);
         if (folderId) {
             driveIdFeedback.style.display = 'flex';
-            detectedDriveId.textContent = folderId;
-            testDriveLink.href = val.startsWith('http') ? val : `https://drive.google.com/drive/folders/${folderId}`;
+            const targetUrl = val.startsWith('http') ? val : `https://drive.google.com/drive/folders/${folderId}`;
+            testDriveLink.href = safeUrl(targetUrl, '#');
         } else {
             driveIdFeedback.style.display = 'none';
         }

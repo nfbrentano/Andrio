@@ -130,23 +130,37 @@ function renderizarProdutos(categoria = 'poltrona') {
         const fotos = Array.isArray(produto.imagens) && produto.imagens.length > 0 ? produto.imagens : [produto.img || defaultImg];
         const mainImg = produto.img || defaultImg;
         const fotoHover = fotos.length > 1 ? fotos[1] : (mainImg !== defaultHover ? defaultHover : mainImg);
+
+        const safeMainImg = escapeHtml(safeUrl(mainImg, defaultImg));
+        const safeHoverImg = escapeHtml(safeUrl(fotoHover, defaultHover));
+        const safeDefaultImg = escapeHtml(defaultImg);
+        const safeDefaultHover = escapeHtml(defaultHover);
+
+        const safeNome = escapeHtml(produto.nome);
+        const safePreco = escapeHtml(produto.preco);
+        const safeSubhead = escapeHtml(produto.subhead || 'Design Autoral');
+        const safeDesc = escapeHtml(produto.desc || '');
+        const safeId = encodeURIComponent(String(produto.id));
+
+        const safeBg = sanitizeHexColor(produto.bg, '#ffcd01');
+        const safeColor = sanitizeHexColor(produto.color, '#4190de');
         
         return `
         <div class="keen-slider__slide">
-            <a class="group relative block" aria-label="${produto.nome} - Preço: ${produto.preco}. ${produto.subhead}" href="produto.html?id=${produto.id}">
+            <a class="group relative block" aria-label="${safeNome} - Preço: ${safePreco}. ${safeSubhead}" href="produto.html?id=${safeId}">
                 <div class="aspect-3-4">
                     <div class="aspect-3-4-inner">
                         <div class="size-full">
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome}" class="object-cover-img" src="${mainImg}" onerror="this.onerror=null; this.src='${defaultImg}';" width="500" height="669">
+                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${produto.nome} em outro ângulo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='${defaultHover}';" width="500" height="669">
+                                    <img loading="lazy" alt="${safeNome} em outro ângulo" class="object-cover-img" src="${safeHoverImg}" data-fallback="${safeDefaultHover}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/hero_left_chair.webp';" width="500" height="669">
                                 </div>
                             </div>
                         </div>
@@ -155,9 +169,9 @@ function renderizarProdutos(categoria = 'poltrona') {
                 
                 <!-- Hover description block -->
                 <div class="hover-info-panel" aria-hidden="true">
-                    <div class="hover-info-content" style="background-color: ${produto.bg || '#ffcd01'}">
-                        <p class="type-headings">${produto.subhead || 'Design Autoral'}</p>
-                        <p class="type-body">${produto.desc || ''}</p>
+                    <div class="hover-info-content" style="background-color: ${safeBg}">
+                        <p class="type-headings">${safeSubhead}</p>
+                        <p class="type-body">${safeDesc}</p>
                     </div>
                 </div>
                 
@@ -166,17 +180,17 @@ function renderizarProdutos(categoria = 'poltrona') {
                     <div class="details-row">
                         <div class="details-left">
                             <div class="dots-container" aria-hidden="true">
-                                <div style="background-color: ${produto.color || '#4190de'}" class="outer-dot"></div>
+                                <div style="background-color: ${safeColor}" class="outer-dot"></div>
                                 <div class="inner-dot-overlay">
                                     <div class="inner-dot"></div>
                                 </div>
                             </div>
                             <div>
-                                <h3 class="type-title">${produto.nome}</h3>
-                                <p class="type-body">${produto.subhead}</p>
+                                <h3 class="type-title">${safeNome}</h3>
+                                <p class="type-body">${safeSubhead}</p>
                             </div>
                         </div>
-                        <p class="type-title" aria-label="Preço: ${produto.preco}">${produto.preco}</p>
+                        <p class="type-title" aria-label="Preço: ${safePreco}">${safePreco}</p>
                     </div>
                 </div>
             </a>
@@ -194,12 +208,12 @@ function renderizarProdutos(categoria = 'poltrona') {
 
 function getButtonColor(btn) {
     if (!btn) return '#2b7fff';
-    if (btn.dataset.color) return btn.dataset.color;
+    if (btn.dataset.color) return sanitizeHexColor(btn.dataset.color, '#2b7fff');
     const styleAttr = btn.getAttribute('style') || '';
     const match = styleAttr.match(/--btn-color:\s*(#[a-fA-F0-9]{3,8})/);
-    if (match && match[1]) return match[1];
+    if (match && match[1]) return sanitizeHexColor(match[1], '#2b7fff');
     const computed = window.getComputedStyle(btn).getPropertyValue('--btn-color').trim();
-    return computed || '#2b7fff';
+    return sanitizeHexColor(computed, '#2b7fff');
 }
 
 function applyButtonActiveColor(btn) {
@@ -229,12 +243,12 @@ buttonColorData.forEach(data => {
     btn.addEventListener('click', (e) => {
         filterBtns.forEach(b => {
             b.classList.remove('active');
-            b.setAttribute('aria-selected', 'false');
+            b.setAttribute('aria-pressed', 'false');
         });
         
         const activeBtn = e.currentTarget;
         activeBtn.classList.add('active');
-        activeBtn.setAttribute('aria-selected', 'true');
+        activeBtn.setAttribute('aria-pressed', 'true');
         
         renderizarProdutos(activeBtn.dataset.category);
         
@@ -365,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Intersection Observer for highlighting current section
     const sections = document.querySelectorAll('section[id], main[id], header[id]');
-    const navLinks = document.querySelectorAll('.fun-pill-btn');
+    const navLinks = document.querySelectorAll('.fun-nav-center a[href*="#"]');
     
     if (sections.length > 0 && navLinks.length > 0) {
         const observerOptions = {

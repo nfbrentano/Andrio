@@ -98,11 +98,11 @@
                 <span class="fun-mobile-menu-title">Categorias</span>
                 <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar menu de categorias">✕</button>
             </div>
-            <div id="filtros" class="fun-navbar-filters" role="tablist" aria-label="Filtrar produtos por categoria">
-                <button class="fun-pill-btn active" role="tab" aria-selected="true" data-category="poltrona" data-color="#2400ff" style="--btn-color: #2400ff;">Poltronas</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="mesa" data-color="#ff0000" style="--btn-color: #ff0000;">Mesas</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="cadeira" data-color="#ffcd01" style="--btn-color: #ffcd01;">Cadeiras</button>
-                <button class="fun-pill-btn" role="tab" aria-selected="false" data-category="luminaria" data-color="#000000" style="--btn-color: #000000;">Luminárias</button>
+            <div id="filtros" class="fun-navbar-filters" role="group" aria-label="Filtrar produtos por categoria">
+                <button class="fun-pill-btn active" aria-pressed="true" data-category="poltrona" data-color="#2400ff" style="--btn-color: #2400ff;">Poltronas</button>
+                <button class="fun-pill-btn" aria-pressed="false" data-category="mesa" data-color="#ff0000" style="--btn-color: #ff0000;">Mesas</button>
+                <button class="fun-pill-btn" aria-pressed="false" data-category="cadeira" data-color="#ffcd01" style="--btn-color: #ffcd01;">Cadeiras</button>
+                <button class="fun-pill-btn" aria-pressed="false" data-category="luminaria" data-color="#000000" style="--btn-color: #000000;">Luminárias</button>
             </div>
             <div class="fun-mobile-nav-actions">
                 <a href="catalogo.html" class="fun-btn-admin-mobile" style="background: #2b7fff; margin-bottom: 8px;">Ver Catálogo Completo →</a>
@@ -229,6 +229,7 @@
     <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js" defer></script>
     <script src="js/firebase-config.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.js" integrity="sha384-9eF9f0UaIDWPhfrk52yj49UhvXk0aNj+hFlIIhcYBvgkp6T8uK+e5rTrV2GtCBQs" crossorigin="anonymous" defer></script>
+    <script src="js/shared/security.js" defer></script>
     <script src="js/shared/catalogo-data.js" defer></script>
     <script src="js/shared/ui.js" defer></script>
     <script src="js/app.js" defer></script>

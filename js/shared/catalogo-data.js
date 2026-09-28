@@ -34,11 +34,13 @@ function getDefaultHoverImageForCategory(categoria) {
 
 // Função para normalizar e converter links do Google Drive e URLs em geral
 function normalizarUrlImagem(url, categoria) {
+    const fallback = categoria ? getDefaultImageForCategory(categoria) : '';
     if (!url || String(url).trim() === '') {
-        return categoria ? getDefaultImageForCategory(categoria) : '';
+        return fallback;
     }
     const trimmed = String(url).trim();
 
+    let resolved = trimmed;
     const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
                        trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
                        trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
@@ -46,14 +48,16 @@ function normalizarUrlImagem(url, categoria) {
                        trimmed.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
                        
     if (driveMatch && driveMatch[1]) {
-        return `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+        resolved = `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
+    } else if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
+        resolved = `https://drive.google.com/thumbnail?id=${trimmed}&sz=w1600`;
     }
 
-    if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
-        return `https://drive.google.com/thumbnail?id=${trimmed}&sz=w1600`;
+    if (typeof safeUrl === 'function') {
+        return safeUrl(resolved, fallback);
     }
 
-    return trimmed;
+    return resolved;
 }
 
 // Móveis de demonstração com atributos completos (fonte única da verdade)
@@ -178,12 +182,17 @@ async function carregarProdutos() {
                     });
                 });
 
-                return items.map(item => ({
-                    ...item,
-                    subhead: item.subhead || "Design Autoral",
-                    desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
-                    bg: item.bg || item.color || "#4190de"
-                }));
+                return items.map(item => {
+                    const safeColor = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.color, '#2b7fff') : (item.color || '#2b7fff');
+                    const safeBg = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.bg, safeColor) : (item.bg || item.color || "#4190de");
+                    return {
+                        ...item,
+                        color: safeColor,
+                        bg: safeBg,
+                        subhead: item.subhead || "Design Autoral",
+                        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres."
+                    };
+                });
             } catch (e) {
                 console.error("[CatalogoData] Erro ao buscar produtos do Firestore:", e);
             }
@@ -236,15 +245,19 @@ async function carregarProdutos() {
             : [mainImg, defaultHover];
         if (imagens.length === 0) imagens = [mainImg, defaultHover];
 
+        const safeColor = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.color, '#2b7fff') : (item.color || '#2b7fff');
+        const safeBg = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.bg, safeColor) : (item.bg || item.color || "#4190de");
+
         return {
             ...item,
             id: itemId,
             produtos_relacionados: relacionados,
             img: mainImg,
             imagens: imagens,
+            color: safeColor,
+            bg: safeBg,
             subhead: item.subhead || "Design Autoral",
-            desc: item.desc || "Peça exclusiva de design autoral em materiais nobres.",
-            bg: item.bg || item.color || "#4190de"
+            desc: item.desc || "Peça exclusiva de design autoral em materiais nobres."
         };
     });
 }

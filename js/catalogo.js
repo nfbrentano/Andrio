@@ -41,7 +41,7 @@ function atualizarBotoesFiltro() {
     btns.forEach(btn => {
         const isSelected = (btn.dataset.category || '').toLowerCase() === activeCategory;
         btn.classList.toggle('active', isSelected);
-        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
 }
 
@@ -58,7 +58,9 @@ function limparFiltrosEBusca() {
 
     renderizarCatalogo();
 }
-window.limparFiltrosEBusca = limparFiltrosEBus// Elementos do DOM
+window.limparFiltrosEBusca = limparFiltrosEBusca;
+
+// Elementos do DOM
 const catalogoGrid = document.getElementById('catalogo-grid');
 const catalogoSearch = document.getElementById('catalogo-search');
 const catalogoSort = document.getElementById('catalogo-sort');
@@ -143,17 +145,33 @@ function renderizarCatalogo() {
         const fotoHover = fotos.length > 1 ? fotos[1] : (mainImg !== defaultHover ? defaultHover : mainImg);
         const hasRelated = Array.isArray(p.produtos_relacionados) && p.produtos_relacionados.length > 0;
 
+        const safeMainImg = escapeHtml(safeUrl(mainImg, defaultImg));
+        const safeHoverImg = escapeHtml(safeUrl(fotoHover, defaultHover));
+        const safeDefaultImg = escapeHtml(defaultImg);
+        const safeDefaultHover = escapeHtml(defaultHover);
+
+        const safeNome = escapeHtml(p.nome);
+        const safePreco = escapeHtml(p.preco);
+        const safeSubhead = escapeHtml(p.subhead || p.categoria || 'Design Autoral');
+        const safeDesc = escapeHtml(p.desc || '');
+        const safeId = encodeURIComponent(String(p.id));
+
+        const safeBg = sanitizeHexColor(p.bg, sanitizeHexColor(p.color, '#2b7fff'));
+        const safeColor = sanitizeHexColor(p.color, '#2b7fff');
+
+        const woodTypeFirstWord = p.tipo_madeira ? escapeHtml(p.tipo_madeira.split(' ')[0]) : '';
+
         return `
-            <div class="catalogo-card" data-id="${p.id}">
+            <a href="produto.html?id=${safeId}" class="catalogo-card" data-id="${safeId}" aria-label="${safeNome} - Preço: ${safePreco}. ${safeSubhead}">
                 <div class="catalogo-card-media">
                     <div class="aspect-3-4">
                         <div class="aspect-3-4-inner">
                             <div class="size-full">
                                 <div class="absolute-inset-0 hover-opacity-0">
-                                    <img loading="lazy" alt="${p.nome}" class="object-cover-img" src="${mainImg}" onerror="this.onerror=null; this.src='${defaultImg}';">
+                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
                                 </div>
                                 <div class="absolute-inset-0 opacity-0 hover-opacity-100">
-                                    <img loading="lazy" alt="${p.nome} ângulo alternativo" class="object-cover-img" src="${fotoHover}" onerror="this.onerror=null; this.src='${defaultHover}';">
+                                    <img loading="lazy" alt="${safeNome} ângulo alternativo" class="object-cover-img" src="${safeHoverImg}" data-fallback="${safeDefaultHover}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/hero_left_chair.webp';">
                                 </div>
                             </div>
                         </div>
@@ -161,15 +179,15 @@ function renderizarCatalogo() {
 
                     <!-- Painel descritivo no hover -->
                     <div class="hover-info-panel" aria-hidden="true">
-                        <div class="hover-info-content" style="background-color: ${p.bg || p.color || '#2b7fff'}">
-                            <p class="type-headings">${p.subhead || 'Design Autoral'}</p>
-                            <p class="type-body">${p.desc || ''}</p>
+                        <div class="hover-info-content" style="background-color: ${safeBg}">
+                            <p class="type-headings">${safeSubhead}</p>
+                            <p class="type-body">${safeDesc}</p>
                         </div>
                     </div>
 
                     <!-- Badges sobre a foto -->
                     <div class="catalogo-card-badges">
-                        ${p.tipo_madeira ? `<span class="card-wood-badge">🪵 ${p.tipo_madeira.split(' ')[0]}</span>` : ''}
+                        ${woodTypeFirstWord ? `<span class="card-wood-badge">🪵 ${woodTypeFirstWord}</span>` : ''}
                         ${hasRelated ? `<span class="card-bundle-badge">🔗 Compre Junto</span>` : ''}
                     </div>
                 </div>
@@ -179,33 +197,24 @@ function renderizarCatalogo() {
                     <div class="details-row">
                         <div class="details-left">
                             <div class="dots-container" aria-hidden="true">
-                                <div style="background-color: ${p.color || '#2b7fff'}" class="outer-dot"></div>
+                                <div style="background-color: ${safeColor}" class="outer-dot"></div>
                                 <div class="inner-dot-overlay">
                                     <div class="inner-dot"></div>
                                 </div>
                             </div>
                             <div>
-                                <h3 class="type-title">${p.nome}</h3>
-                                <p class="type-body">${p.subhead || p.categoria}</p>
+                                <h3 class="type-title">${safeNome}</h3>
+                                <p class="type-body">${safeSubhead}</p>
                             </div>
                         </div>
-                        <p class="type-title" aria-label="Preço: ${p.preco}">${p.preco}</p>
+                        <p class="type-title" aria-label="Preço: ${safePreco}">${safePreco}</p>
                     </div>
                 </div>
 
-                <button class="btn-quick-view" data-id="${p.id}">Ver Detalhes & Galeria →</button>
-            </div>
+                <span class="btn-quick-view" aria-hidden="true">Ver Detalhes & Galeria →</span>
+            </a>
         `;
     }).join('');
-
-    // Adiciona evento de clique para abrir detalhes do produto
-    catalogoGrid.querySelectorAll('.catalogo-card, .btn-quick-view').forEach(elem => {
-        elem.addEventListener('click', (e) => {
-            // Evita abrir 2x se clicou no botão interno
-            const id = e.currentTarget.dataset.id;
-            window.location.href = `produto.html?id=${id}`;
-        });
-    });
 }
 // (Função abrirDetalhesProduto e fecharModalDetalhes removidas, pois a página de produto agora cuida disso)
 
