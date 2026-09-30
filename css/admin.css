@@ -18,6 +18,14 @@ body.admin-body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
     padding-bottom: 60px;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+body.admin-body.authenticated {
+    visibility: visible;
+    opacity: 1;
 }
 
 .admin-header-title h1 {
@@ -687,6 +695,12 @@ textarea {
     font-size: 0.88rem;
     color: #7ee787;
     animation: fadeIn 0.3s ease-in-out;
+}
+
+.drive-folder-banner.contato-banner {
+    background: linear-gradient(90deg, #0e291e 0%, #16382a 100%);
+    border-bottom: 1px solid #238636;
+    color: #56d364;
 }
 
 .drive-banner-left {

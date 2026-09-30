@@ -25,8 +25,8 @@ const Auth = {
     async signIn(email, password) {
         if (!FirebaseService.isConfigured || !FirebaseService.auth) {
             FirebaseService.init();
-            if (!FirebaseService.isConfigured) {
-                throw new Error('Firebase não configurado. Por favor, cole as credenciais do seu projeto Firebase.');
+            if (!FirebaseService.isConfigured || !FirebaseService.auth) {
+                throw new Error('Serviço de autenticação do Firebase indisponível.');
             }
         }
 
@@ -60,21 +60,24 @@ const Auth = {
         window.location.href = 'login.html';
     },
 
-    // Protege a rota administrativa (admin.html)
+    // Protege a rota administrativa (admin.html) - RF04, CA04
     async requireAuth() {
-        FirebaseService.init();
+        const isConnected = FirebaseService.init();
 
-        if (FirebaseService.isConfigured) {
-            const user = await this.getCurrentUser();
-            if (!user) {
-                window.location.href = 'login.html?redirect=admin.html';
-                return false;
-            }
-            return user;
-        } else {
-            console.warn('[Auth] Modo Demonstração Local ativo (sem Firebase configurado).');
-            return { email: 'admin@local.demo', isDemo: true };
+        if (typeof firebase === 'undefined' || !isConnected || !FirebaseService.isConfigured || !FirebaseService.auth) {
+            console.warn('[Auth] Firebase indisponível ou SDK bloqueado. Redirecionando para login.');
+            window.location.replace('login.html?redirect=admin.html');
+            return false;
         }
+
+        const user = await this.getCurrentUser();
+        if (!user) {
+            console.info('[Auth] Acesso não autenticado. Redirecionando para login.');
+            window.location.replace('login.html?redirect=admin.html');
+            return false;
+        }
+
+        return user;
     }
 };
 

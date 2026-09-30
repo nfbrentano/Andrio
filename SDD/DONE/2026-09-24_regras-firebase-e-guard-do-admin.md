@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity (validação e implementação) · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -44,7 +44,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 ### Dependências técnicas
 
 - `firestore.rules`, `storage.rules`, `firebase.json`, `js/auth.js`, `js/admin.js`, `login.html`, `admin.html`.
-- Firebase CLI/Admin SDK para definir custom claims.
+- Firebase CLI/Admin SDK para definir custom claims (`scripts/set-admin-claim.js`).
 
 ### Recursos necessários
 
@@ -53,17 +53,17 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um usuário autenticado sem claim de admin, quando tenta gravar em `produtos`, então a operação é negada.
-- [ ] **CA02:** Dado um admin, quando cadastra, edita ou exclui um móvel, então a operação é permitida.
-- [ ] **CA03:** Dado um upload de 10 MB ou de tipo `application/pdf`, quando enviado ao Storage, então é negado.
-- [ ] **CA04:** Dado que o SDK do Firebase não carrega, quando acesso `admin.html`, então sou redirecionado ao login e o painel não aparece.
-- [ ] **CA05:** Dado um visitante anônimo, quando acessa a home, então os produtos são lidos normalmente.
-- [ ] **CA06:** Dado a tela de login em produção, quando a abro, então não há opção de colar outra configuração do Firebase.
-- [ ] **CA07:** Dado um admin, quando grava `categoria: "sofa"`, então a escrita é negada.
+- [x] **CA01:** Dado um usuário autenticado sem claim de admin, quando tenta gravar em `produtos`, então a operação é negada.
+- [x] **CA02:** Dado um admin, quando cadastra, edita ou exclui um móvel, então a operação é permitida.
+- [x] **CA03:** Dado um upload de 10 MB ou de tipo `application/pdf`, quando enviado ao Storage, então é negado.
+- [x] **CA04:** Dado que o SDK do Firebase não carrega, quando acesso `admin.html`, então sou redirecionado ao login e o painel não aparece.
+- [x] **CA05:** Dado um visitante anônimo, quando acessa a home, então os produtos são lidos normalmente.
+- [x] **CA06:** Dado a tela de login em produção, quando a abro, então não há opção de colar outra configuração do Firebase.
+- [x] **CA07:** Dado um admin, quando grava `categoria: "sofa"`, então a escrita é negada.
 
 ## O que a atividade não inclui
 
-- Tela de gestão de usuários/admins: motivo: baixo impacto, poucos admins, gestão via CLI.
+- Tela de gestão de usuários/admins: motivo: baixo impacto, poucos admins, gestão via CLI / script `scripts/set-admin-claim.js`.
 - Correção do open redirect: motivo: outra iniciativa (`2026-09-24_open-redirect-no-login.md`).
 
 ### Considerado para o futuro (P2)
@@ -75,8 +75,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Quais contas devem ter a claim `admin`? | PO | Sim | |
-| D02 | O modo demo/local ainda é necessário em algum ambiente (dev)? | dev | Não | |
+| D01 | Quais contas devem ter a claim `admin`? | PO | Sim | Criado script utilitário `scripts/set-admin-claim.js` utilizando Firebase Admin SDK para que o PO/owner defina a claim `{ admin: true }` para qualquer email desejado. |
+| D02 | O modo demo/local ainda é necessário em algum ambiente (dev)? | dev | Não | Não. O modo demo foi descontinuado no painel administrativo e no guard para evitar qualquer vazamento ou renderização não autorizada do painel. |
 
 ## Sugestões de casos de teste
 

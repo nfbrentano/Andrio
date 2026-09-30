@@ -154,13 +154,13 @@ function renderizarProdutos(categoria = 'poltrona') {
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';" width="500" height="669">
+                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${safeNome} em outro ângulo" class="object-cover-img" src="${safeHoverImg}" data-fallback="${safeDefaultHover}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/hero_left_chair.webp';" width="500" height="669">
+                                    <img loading="lazy" alt="${safeNome} em outro ângulo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
                                 </div>
                             </div>
                         </div>

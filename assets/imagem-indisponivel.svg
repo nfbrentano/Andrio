@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="100%" height="100%" role="img" aria-label="Imagem indisponível">
+    <rect width="600" height="600" fill="#f0ede5"/>
+    <g transform="translate(180, 160)" stroke="#9a958b" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+        <!-- Moldura elegante -->
+        <rect x="0" y="0" width="240" height="190" rx="14" fill="#e5e1d6"/>
+        <!-- Silhueta de móvel/poltrona estilizada -->
+        <path d="M45 130 C45 80, 75 50, 120 50 C165 50, 195 80, 195 130 Z" fill="#d8d3c5" stroke="#9a958b" stroke-width="5"/>
+        <path d="M30 110 C30 95, 45 95, 45 110 L45 140 C45 150, 30 150, 30 140 Z" fill="#c9c3b4" stroke="#9a958b" stroke-width="4"/>
+        <path d="M195 110 C195 95, 210 95, 210 110 L210 140 C210 150, 195 150, 195 140 Z" fill="#c9c3b4" stroke="#9a958b" stroke-width="4"/>
+        <line x1="55" y1="150" x2="50" y2="175" stroke="#8a857a" stroke-width="6"/>
+        <line x1="185" y1="150" x2="190" y2="175" stroke="#8a857a" stroke-width="6"/>
+        <!-- Ícone sutil de imagem não encontrada -->
+        <circle cx="195" cy="30" r="22" fill="#e05338" stroke="#ffffff" stroke-width="3"/>
+        <line x1="186" y1="21" x2="204" y2="39" stroke="#ffffff" stroke-width="4"/>
+        <line x1="204" y1="21" x2="186" y2="39" stroke="#ffffff" stroke-width="4"/>
+    </g>
+    <text x="300" y="415" font-family="'Bookman Old Style', 'Georgia', serif" font-size="22" font-weight="600" fill="#444440" text-anchor="middle" letter-spacing="0.5">Imagem Indisponível</text>
+    <text x="300" y="445" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" fill="#7a756c" text-anchor="middle">Foto em atualização no catálogo</text>
+</svg>

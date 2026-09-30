@@ -1,13 +1,93 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: produtos/{produtoId}
+    //   - nome: string (1..120 chars) - obrigatório
+    //   - categoria: string ('poltrona' | 'mesa' | 'cadeira' | 'luminaria') - obrigatório
+    //   - preco: string (<= 50 chars) - opcional
+    //   - subhead: string (<= 150 chars) - opcional
+    //   - desc: string (<= 2000 chars) - opcional
+    //   - disponibilidade: string (<= 50 chars) - opcional
+    //   - img: string (<= 1000 chars) - opcional
+    //   - imagens: list (<= 20 itens) - opcional
+    //   - color: string (<= 50 chars) - opcional
+    //   - bg: string (<= 50 chars) - opcional
+    //   - tipo_madeira: string (<= 100 chars) ou null - opcional
+    //   - acabamento: string (<= 100 chars) ou null - opcional
+    //   - material_estofado: string (<= 100 chars) ou null - opcional
+    //   - cor_estofado: string (<= 100 chars) ou null - opcional
+    //   - largura_cm, profundidade_cm, altura_cm, peso_kg: number ou null - opcional
+    //   - pasta_drive_url: string (<= 500 chars) ou null - opcional
+    //   - produtos_relacionados: list (<= 10 itens) - opcional
+    //   - created_at: string (<= 50 chars) ou timestamp - opcional
+    //   - updated_at: string (<= 50 chars) ou timestamp - opcional
+    //
+    // Collection: configuracoes/{configId}
+    //   - google_drive / contato / metadados do sistema
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && request.auth.token.admin == true;
+    }
+
+    function isValidCategory(cat) {
+      return cat in ['poltrona', 'mesa', 'cadeira', 'luminaria'];
+    }
+
+    function isValidProduct(data) {
+      return data.keys().hasAll(['nome', 'categoria'])
+        && data.nome is string
+        && data.nome.size() > 0
+        && data.nome.size() <= 120
+        && data.categoria is string
+        && isValidCategory(data.categoria)
+        && (!('imagens' in data) || (data.imagens is list && data.imagens.size() <= 20))
+        && (!('preco' in data) || (data.preco is string && data.preco.size() <= 50))
+        && (!('subhead' in data) || (data.subhead is string && data.subhead.size() <= 150))
+        && (!('desc' in data) || (data.desc is string && data.desc.size() <= 2000))
+        && (!('img' in data) || (data.img is string && data.img.size() <= 1000))
+        && (!('disponibilidade' in data) || (data.disponibilidade is string && data.disponibilidade.size() <= 50))
+        && (!('color' in data) || (data.color is string && data.color.size() <= 50))
+        && (!('bg' in data) || (data.bg is string && data.bg.size() <= 50))
+        && (!('tipo_madeira' in data) || data.tipo_madeira == null || (data.tipo_madeira is string && data.tipo_madeira.size() <= 100))
+        && (!('acabamento' in data) || data.acabamento == null || (data.acabamento is string && data.acabamento.size() <= 100))
+        && (!('material_estofado' in data) || data.material_estofado == null || (data.material_estofado is string && data.material_estofado.size() <= 100))
+        && (!('cor_estofado' in data) || data.cor_estofado == null || (data.cor_estofado is string && data.cor_estofado.size() <= 100))
+        && (!('largura_cm' in data) || data.largura_cm == null || data.largura_cm is number)
+        && (!('profundidade_cm' in data) || data.profundidade_cm == null || data.profundidade_cm is number)
+        && (!('altura_cm' in data) || data.altura_cm == null || data.altura_cm is number)
+        && (!('peso_kg' in data) || data.peso_kg == null || data.peso_kg is number)
+        && (!('pasta_drive_url' in data) || data.pasta_drive_url == null || (data.pasta_drive_url is string && data.pasta_drive_url.size() <= 500))
+        && (!('produtos_relacionados' in data) || (data.produtos_relacionados is list && data.produtos_relacionados.size() <= 10))
+        && (!('created_at' in data) || (data.created_at is string && data.created_at.size() <= 50) || data.created_at is timestamp)
+        && (!('updated_at' in data) || (data.updated_at is string && data.updated_at.size() <= 50) || data.updated_at is timestamp);
+    }
+
+    function isValidContato(data) {
+      return (!('whatsapp' in data) || (data.whatsapp is string && data.whatsapp.size() <= 30))
+        && (!('instagram_url' in data) || (data.instagram_url is string && data.instagram_url.size() <= 200))
+        && (!('email' in data) || (data.email is string && data.email.size() <= 120))
+        && (!('updated_at' in data) || (data.updated_at is string && data.updated_at.size() <= 50) || data.updated_at is timestamp);
+    }
+
     match /produtos/{produtoId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if isAdmin() && isValidProduct(request.resource.data);
+      allow update: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
     }
+
     match /configuracoes/{configId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin() && (configId != 'contato' || isValidContato(request.resource.data));
     }
   }
 }

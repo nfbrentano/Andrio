@@ -9,7 +9,7 @@ async function carregarProdutosDetalhe() {
     catalogoProdutos = await carregarProdutos();
 }
 
-function renderizarProduto() {
+async function renderizarProduto() {
     const detailContent = document.getElementById('produto-detail-content');
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
@@ -34,11 +34,20 @@ function renderizarProduto() {
     }
 
     const defaultImg = getDefaultImageForCategory(produto.categoria);
-    const fotosRaw = Array.isArray(produto.imagens) && produto.imagens.length > 0 
-        ? produto.imagens 
+    let fotosRaw = Array.isArray(produto.imagens) && produto.imagens.length > 0 
+        ? produto.imagens.filter(f => f && String(f).trim().length > 0) 
         : [produto.img || defaultImg];
 
-    const fotos = fotosRaw.map(f => safeUrl(f, defaultImg));
+    if (fotosRaw.length === 0) {
+        fotosRaw = [produto.img || defaultImg];
+    }
+
+    const fotos = fotosRaw.map(f => {
+        const normalized = typeof normalizarUrlImagem === 'function' 
+            ? normalizarUrlImagem(f, produto.categoria) 
+            : f;
+        return safeUrl(normalized, defaultImg);
+    });
 
     lightboxFotos = fotos;
     currentLightboxIndex = 0;
@@ -77,20 +86,59 @@ function renderizarProduto() {
     const safeMainImg = escapeHtml(fotos[0]);
     const safeDefaultImg = escapeHtml(defaultImg);
 
+    // Carrega contatos oficiais para o CTA do WhatsApp (RF01, RNF02, CA01, CA05)
+    let waCtaHtml = '';
+    let contatoConfig = null;
+    if (typeof carregarConfiguracaoContato === 'function') {
+        try {
+            contatoConfig = await carregarConfiguracaoContato();
+        } catch (_) {}
+    }
+
+    if (contatoConfig && contatoConfig.whatsapp && typeof validarWhatsApp === 'function' && validarWhatsApp(contatoConfig.whatsapp)) {
+        const waLink = gerarLinkWhatsAppProduto(contatoConfig.whatsapp, produto, window.location.href);
+        waCtaHtml = `
+                <!-- CTA WhatsApp Oficial -->
+                <div class="modal-cta-wrap" id="produto-cta-whatsapp">
+                    <a href="${escapeHtml(waLink)}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="modal-btn-whatsapp"
+                       id="btn-whatsapp-produto">
+                        <span>💬 Solicitar Orçamento via WhatsApp</span>
+                    </a>
+                </div>
+        `;
+    }
+
     detailContent.innerHTML = `
         <div class="product-page-layout">
             <!-- Coluna da Galeria de Fotos -->
             <div class="product-page-gallery">
                 <button type="button" class="product-main-image-wrap" aria-label="Ampliar foto de ${safeNome} em tela cheia">
-                    <img id="product-main-img" src="${safeMainImg}" alt="${safeNome}" class="modal-main-image" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                    <img id="product-main-img" 
+                         src="${safeMainImg}" 
+                         alt="${safeNome}" 
+                         class="modal-main-image" 
+                         width="700" 
+                         height="700" 
+                         fetchpriority="high"
+                         data-fallback="assets/imagem-indisponivel.svg" 
+                         onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg'; this.dataset.failed='true';">
                 </button>
                 ${fotos.length > 1 ? `
                     <div class="modal-thumbnails-strip">
                         ${fotos.map((f, idx) => {
                             const safeF = escapeHtml(f);
                             return `
-                            <button type="button" class="modal-thumb-btn ${idx === 0 ? 'active' : ''}" data-src="${safeF}" aria-label="Ver imagem ${idx + 1} de ${fotos.length}">
-                                <img src="${safeF}" alt="${safeNome} miniatura ${idx + 1}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                            <button type="button" class="modal-thumb-btn ${idx === 0 ? 'active' : ''}" data-src="${safeF}" data-index="${idx}" aria-label="Ver imagem ${idx + 1} de ${fotos.length}">
+                                <img src="${safeF}" 
+                                     alt="${safeNome} miniatura ${idx + 1}" 
+                                     width="68" 
+                                     height="68" 
+                                     loading="lazy" 
+                                     data-fallback="assets/imagem-indisponivel.svg" 
+                                     onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg'; this.dataset.failed='true';">
                             </button>
                             `;
                         }).join('')}
@@ -139,15 +187,7 @@ function renderizarProduto() {
                     ` : ''}
                 </div>
 
-                <!-- CTA WhatsApp -->
-                <div class="modal-cta-wrap">
-                    <a href="https://wa.me/5511999999999?text=Ol%C3%A1,%20gostaria%20de%20solicitar%20um%20or%C3%A7amento%20para%20a%20pe%C3%A7a:%20${encodeURIComponent(produto.nome)}%20(${encodeURIComponent(produto.preco)})" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
-                       class="modal-btn-whatsapp">
-                        <span>💬 Solicitar Orçamento via WhatsApp</span>
-                    </a>
-                </div>
+                ${waCtaHtml}
 
                 <!-- Seção de Venda Casada / Cross-sell -->
                 ${relatedItems.length > 0 ? `
@@ -156,13 +196,22 @@ function renderizarProduto() {
                         <div class="modal-bundle-grid">
                             ${relatedItems.map(item => {
                                 const relDefaultImg = getDefaultImageForCategory(item.categoria);
-                                const safeRelImg = escapeHtml(safeUrl(item.img, relDefaultImg));
+                                const relNormalized = typeof normalizarUrlImagem === 'function'
+                                    ? normalizarUrlImagem(item.img, item.categoria)
+                                    : item.img;
+                                const safeRelImg = escapeHtml(safeUrl(relNormalized, relDefaultImg));
                                 const safeRelNome = escapeHtml(item.nome);
                                 const safeRelPreco = escapeHtml(item.preco);
                                 const safeRelId = encodeURIComponent(String(item.id));
                                 return `
                                 <a class="modal-bundle-card" href="produto.html?id=${safeRelId}" data-id="${safeRelId}" aria-label="${safeRelNome} - ${safeRelPreco}">
-                                    <img src="${safeRelImg}" alt="${safeRelNome}" data-fallback="${escapeHtml(relDefaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                                    <img src="${safeRelImg}" 
+                                         alt="${safeRelNome}" 
+                                         width="180" 
+                                         height="180" 
+                                         loading="lazy" 
+                                         data-fallback="assets/imagem-indisponivel.svg" 
+                                         onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg'; this.dataset.failed='true';">
                                     <div class="bundle-card-info">
                                         <strong>${safeRelNome}</strong>
                                         <span>${safeRelPreco}</span>
@@ -183,7 +232,22 @@ function renderizarProduto() {
         btn.addEventListener('click', (e) => {
             const newSrc = e.currentTarget.dataset.src;
             const mainImg = document.getElementById('product-main-img');
-            if (mainImg) mainImg.src = safeUrl(newSrc, defaultImg);
+            if (mainImg) {
+                // Re-arma o fallback handler para a nova imagem, evitando loops
+                mainImg.onerror = function() {
+                    this.onerror = null;
+                    this.src = 'assets/imagem-indisponivel.svg';
+                    this.dataset.failed = 'true';
+                };
+                const thumbImg = e.currentTarget.querySelector('img');
+                if (thumbImg && (thumbImg.dataset.failed === 'true' || thumbImg.src.includes('imagem-indisponivel.svg'))) {
+                    mainImg.src = 'assets/imagem-indisponivel.svg';
+                    mainImg.dataset.failed = 'true';
+                } else {
+                    delete mainImg.dataset.failed;
+                    mainImg.src = safeUrl(newSrc, defaultImg);
+                }
+            }
             
             currentLightboxIndex = index;
             
@@ -207,8 +271,37 @@ let lastFocusedElement = null;
 
 function updateLightboxPhoto() {
     const img = document.getElementById('lightbox-image');
-    if (img && lightboxFotos[currentLightboxIndex]) {
-        img.src = safeUrl(lightboxFotos[currentLightboxIndex], 'assets/prod_poltrona.webp');
+    const overlay = document.getElementById('lightbox-overlay');
+    const prevBtn = overlay?.querySelector('.lightbox-prev');
+    const nextBtn = overlay?.querySelector('.lightbox-next');
+
+    if (prevBtn && nextBtn) {
+        if (!lightboxFotos || lightboxFotos.length <= 1) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+        }
+    }
+
+    if (img && lightboxFotos && lightboxFotos[currentLightboxIndex]) {
+        img.onerror = function() {
+            this.onerror = null;
+            this.src = 'assets/imagem-indisponivel.svg';
+        };
+        const currentPhoto = lightboxFotos[currentLightboxIndex];
+        const activeThumb = document.querySelectorAll('.modal-thumb-btn')[currentLightboxIndex];
+        const thumbImg = activeThumb?.querySelector('img');
+        const mainImg = document.getElementById('product-main-img');
+
+        // Se a miniatura correspondente ou a imagem principal atual já falhou, usa fallback de imediato
+        if ((thumbImg && (thumbImg.dataset.failed === 'true' || thumbImg.src.includes('imagem-indisponivel.svg'))) ||
+            (currentLightboxIndex === 0 && mainImg && mainImg.dataset.failed === 'true')) {
+            img.src = 'assets/imagem-indisponivel.svg';
+        } else {
+            img.src = safeUrl(currentPhoto, 'assets/imagem-indisponivel.svg');
+        }
         const prodTitle = document.querySelector('.product-page-title')?.textContent || 'Produto';
         img.alt = `Foto ${currentLightboxIndex + 1} de ${lightboxFotos.length} - ${prodTitle}`;
     }
@@ -297,7 +390,7 @@ function initLightbox() {
                 <button type="button" class="lightbox-close" aria-label="Fechar galeria em tela cheia" onclick="closeLightbox()">×</button>
                 <button type="button" class="lightbox-prev" aria-label="Foto anterior" onclick="prevLightboxPhoto(event)">‹</button>
                 <div class="lightbox-content" onclick="event.stopPropagation()">
-                    <img id="lightbox-image" class="lightbox-image" src="" alt="Galeria">
+                    <img id="lightbox-image" class="lightbox-image" src="" alt="Galeria" width="800" height="800" data-fallback="assets/imagem-indisponivel.svg">
                 </div>
                 <button type="button" class="lightbox-next" aria-label="Próxima foto" onclick="nextLightboxPhoto(event)">›</button>
             </div>
@@ -319,6 +412,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     await carregarProdutosDetalhe();
-    renderizarProduto();
+    await renderizarProduto();
 });
 

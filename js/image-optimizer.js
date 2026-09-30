@@ -9,14 +9,15 @@ const ImageOptimizer = {
     WEBP_QUALITY: 0.82,
 
     /**
-     * Comprime e converte um arquivo de imagem para WebP Blob
-     * @param {File} file - Arquivo de imagem selecionado pelo usuário
-     * @returns {Promise<{blob: Blob, name: string, originalSize: number, compressedSize: number}>}
+     * Comprime e converte um arquivo ou Blob de imagem para WebP Blob
+     * @param {File|Blob} fileOrBlob - Arquivo de imagem ou Blob
+     * @param {string} suggestedName - Nome sugerido caso seja um Blob sem nome
+     * @returns {Promise<{blob: Blob, name: string, originalSize: number, compressedSize: number, width: number, height: number}>}
      */
-    async compressToWebP(file) {
+    async compressToWebP(fileOrBlob, suggestedName = 'foto') {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(fileOrBlob);
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
@@ -52,17 +53,18 @@ const ImageOptimizer = {
                                 return;
                             }
 
-                            const cleanName = file.name
+                            const rawName = (fileOrBlob && fileOrBlob.name) ? fileOrBlob.name : suggestedName;
+                            const cleanName = String(rawName)
                                 .toLowerCase()
                                 .replace(/\.[^/.]+$/, '')
                                 .replace(/[^a-z0-9]/g, '_')
-                                .substring(0, 30);
+                                .substring(0, 30) || 'foto';
                             const webpName = `paco_${cleanName}_${Date.now()}.webp`;
 
                             resolve({
                                 blob: blob,
                                 name: webpName,
-                                originalSize: file.size,
+                                originalSize: (fileOrBlob && fileOrBlob.size) ? fileOrBlob.size : blob.size,
                                 compressedSize: blob.size,
                                 width,
                                 height
@@ -75,6 +77,55 @@ const ImageOptimizer = {
                 img.onerror = () => reject(new Error('Erro ao carregar imagem para compressão'));
             };
             reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
+        });
+    },
+
+    /**
+     * Baixa uma imagem via URL (suportando endpoints do Google Drive com CORS)
+     * @param {string} url - URL direta ou do Google Drive
+     * @returns {Promise<Blob>}
+     */
+    async fetchImageBlob(url) {
+        let fetchUrl = String(url || '').trim();
+        const driveId = typeof extractDriveFileId === 'function' ? extractDriveFileId(fetchUrl) : null;
+        if (driveId) {
+            // Utiliza o endpoint direto lh3 que possui cabeçalho Access-Control-Allow-Origin: *
+            fetchUrl = `https://lh3.googleusercontent.com/d/${driveId}=w1600`;
+        }
+
+        const response = await fetch(fetchUrl, { mode: 'cors' });
+        if (!response.ok) {
+            throw new Error(`Falha ao baixar imagem (${response.status} ${response.statusText})`);
+        }
+        return await response.blob();
+    },
+
+    /**
+     * Baixa imagem de uma URL, converte para WebP e envia ao Firebase Storage
+     * @param {string} url - URL da imagem
+     * @param {string} baseName - Nome base do arquivo
+     * @returns {Promise<string>} URL pública no Storage ou DataURL
+     */
+    async optimizeAndUploadUrl(url, baseName = 'foto') {
+        const driveId = typeof extractDriveFileId === 'function' ? extractDriveFileId(url) : null;
+        const nameToUse = driveId ? `drive_${driveId.substring(0, 10)}` : baseName;
+        const blob = await this.fetchImageBlob(url);
+        const compressed = await this.compressToWebP(blob, nameToUse);
+
+        if (FirebaseService.isConfigured && FirebaseService.storage) {
+            try {
+                const downloadUrl = await this.uploadToFirebase(compressed.blob, compressed.name);
+                return downloadUrl;
+            } catch (storageErr) {
+                console.warn('[ImageOptimizer] Falha no upload para o Storage. Usando dataURL local:', storageErr);
+            }
+        }
+
+        // Modo offline / fallback
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(compressed.blob);
         });
     },
 

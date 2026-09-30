@@ -18,6 +18,7 @@
     <!-- Defer CSS -->
     <link rel="preload" href="css/admin.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="css/admin.css"></noscript>
+    <noscript><meta http-equiv="refresh" content="0; url=login.html"></noscript>
     
     <!-- Firebase SDK Compat -->
     <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js" defer></script>
@@ -43,8 +44,9 @@
         </div>
         <div class="fun-navbar-actions">
             <span id="user-display" class="admin-user-tag" style="display: none;">👤 <span id="user-email">admin</span></span>
+            <button class="fun-pill-btn" id="btn-contato-config" style="--btn-color: #25D366; color: white;">📞 Contatos da Loja</button>
             <button class="fun-pill-btn" id="btn-drive-config" style="--btn-color: #0f9d58; color: white;">📁 Pasta Google Drive</button>
-            <button class="fun-pill-btn" id="btn-config" style="--btn-color: #2b7fff; color: white;">Configurações Firebase</button>
+            <button class="fun-pill-btn" id="btn-migrate-drive" style="--btn-color: #ff5722; color: white;" title="Escanear e migrar imagens do Google Drive">⚡ Migrar Fotos Drive</button>
             <a href="catalogo.html" class="fun-login-link" target="_blank">Ver Catálogo</a>
             <a href="index.html" class="fun-login-link">Ver Loja</a>
             <button id="btn-logout" class="admin-btn-logout" title="Encerrar Sessão">Sair</button>
@@ -53,8 +55,21 @@
 
     <!-- Banner de Status da Conexão Firebase -->
     <div id="connection-banner" class="status-banner info" role="status" aria-live="polite">
-        <span class="icon" aria-hidden="true">⚠️</span>
-        <span class="message">Usando banco de dados local (Modo de Demonstração). Configure o Firebase para salvar na nuvem.</span>
+        <span class="icon" aria-hidden="true">🔥</span>
+        <span class="message">Verificando conexão com o Firebase...</span>
+    </div>
+
+    <!-- Banner de Status dos Contatos Oficiais -->
+    <div id="contato-status-banner" class="drive-folder-banner contato-banner" style="display: none;" role="status">
+        <div class="drive-banner-left">
+            <span class="drive-icon">📞</span>
+            <span class="drive-label">Contatos da Loja:</span>
+            <strong id="contato-banner-summary">Carregando contatos...</strong>
+        </div>
+        <div class="drive-banner-actions">
+            <a id="btn-preview-whatsapp" href="#" target="_blank" class="drive-action-link" rel="noopener noreferrer" style="display: none;">Testar WhatsApp ↗</a>
+            <button type="button" id="btn-edit-contato-banner" class="drive-action-btn">Alterar Contatos</button>
+        </div>
     </div>
 
     <!-- Banner de Status da Pasta do Google Drive -->
@@ -386,59 +401,50 @@
         </div>
     </div>
 
-    <!-- Modal de Configuração do Firebase -->
-    <div id="config-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-config-title" aria-hidden="true">
+
+    <!-- Modal de Configuração de Contatos Oficiais da Loja (RF02, RF04) -->
+    <div id="contato-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-contato-title" aria-hidden="true">
         <div class="modal-content">
-            <button type="button" class="close-btn" id="close-modal" aria-label="Fechar janela de configurações">&times;</button>
-            <h2 id="modal-config-title">Configurações do Firebase</h2>
-            <p class="modal-description">Insira a configuração do seu projeto Firebase (Firestore + Storage + Auth) para ativar a nuvem.</p>
-            
-            <form id="firebase-config-form">
-                <div class="form-group">
-                    <label for="admin-firebase-json">Objeto de Configuração Firebase (JSON)</label>
-                    <textarea id="admin-firebase-json" rows="8" placeholder='{
-  "apiKey": "AIzaSy...",
-  "authDomain": "paco-moveis.firebaseapp.com",
-  "projectId": "paco-moveis",
-  "storageBucket": "paco-moveis.appspot.com",
-  "messagingSenderId": "...",
-  "appId": "..."
-}' required style="font-size: 0.8rem; font-family: monospace;"></textarea>
+            <button type="button" class="close-btn" id="close-contato-modal" aria-label="Fechar janela de contatos">&times;</button>
+            <div class="modal-header-drive">
+                <span style="font-size: 2.2rem;">📞</span>
+                <div>
+                    <h2 id="modal-contato-title" style="margin: 0;">Contatos Oficiais da Loja</h2>
+                    <p class="modal-description" style="margin: 4px 0 0 0;">Configure o WhatsApp para orçamentos, o perfil do Instagram e o e-mail de atendimento da PACO Móveis.</p>
                 </div>
+            </div>
+            
+            <form id="contato-config-form" style="margin-top: 18px;">
+                <div class="form-group">
+                    <label for="contato-whatsapp">WhatsApp Comercial (E.164 com DDI e DDD) *</label>
+                    <input type="text" id="contato-whatsapp" placeholder="Ex: +5511999998888 ou 5511999998888" autocomplete="tel">
+                    <small style="color: #8b949e; display: block; margin-top: 4px;">Padrão internacional E.164: Código do país + DDD + número (ex: +55 11 91234-5678). Requer pelo menos 10 dígitos.</small>
+                    <div id="whatsapp-id-feedback" class="drive-id-feedback" style="display: none; border-color: rgba(37, 211, 102, 0.4);">
+                        <span class="drive-badge-id" style="color: #25D366;">wa.me: <code id="detected-whatsapp-digits">...</code></span>
+                        <a id="test-whatsapp-modal-link" href="#" target="_blank" class="drive-test-btn" rel="noopener noreferrer">Testar Conversa ↗</a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contato-instagram">Perfil do Instagram (URL ou @usuario)</label>
+                    <input type="text" id="contato-instagram" placeholder="Ex: https://instagram.com/pacomoveis ou @pacomoveis">
+                    <div id="instagram-id-feedback" class="drive-id-feedback" style="display: none; border-color: rgba(43, 127, 255, 0.4);">
+                        <a id="test-instagram-modal-link" href="#" target="_blank" class="drive-test-btn" rel="noopener noreferrer">Abrir Instagram ↗</a>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="contato-email">E-mail de Atendimento</label>
+                    <input type="email" id="contato-email" placeholder="Ex: contato@pacomoveis.com.br" autocomplete="email">
+                </div>
+
+                <div id="contato-error-box" class="form-error-feedback" style="display: none; color: #ff7b72; background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px;" role="alert"></div>
+
                 <div class="modal-actions">
-                    <button type="submit" class="admin-btn primary">Conectar Firebase</button>
-                    <button type="button" class="admin-btn secondary" id="btn-disconnect">Desconectar / Usar Local</button>
+                    <button type="submit" class="admin-btn primary" id="btn-save-contato">💾 Salvar Contatos</button>
+                    <button type="button" class="admin-btn secondary" id="btn-clear-contato">Limpar Contatos</button>
                 </div>
             </form>
-
-            <div class="sql-instructions">
-                <h3>Regras de Segurança Recomendadas (Firebase Console)</h3>
-                <p><strong>1. Regras do Cloud Firestore</strong> (Aba <em>Firestore Database</em> ➔ <em>Rules</em>):</p>
-                <pre><code>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /produtos/{produtoId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /configuracoes/{configId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}</code></pre>
-
-                <p style="margin-top: 12px;"><strong>2. Regras do Firebase Storage</strong> (Aba <em>Storage</em> ➔ <em>Rules</em>):</p>
-                <pre><code>rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    match /produtos/{allPaths=**} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}</code></pre>
-            </div>
         </div>
     </div>
 
@@ -465,12 +471,43 @@ service firebase.storage {
                 <button type="button" class="admin-btn secondary" id="btn-cancel-delete-all">Cancelar</button>
             </div>
         </div>
+    <!-- Modal de Migração de Imagens do Google Drive (RF01, CA01) -->
+    <div id="drive-migration-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-migrate-drive-title" aria-hidden="true">
+        <div class="modal-content">
+            <button type="button" class="close-btn" id="close-migrate-drive-modal" aria-label="Fechar janela de migração">&times;</button>
+            <div class="modal-header-drive">
+                <span style="font-size: 2.2rem;">⚡</span>
+                <div>
+                    <h2 id="modal-migrate-drive-title" style="margin: 0;">Migração de Fotos do Google Drive</h2>
+                    <p class="modal-description" style="margin: 4px 0 0 0;">Converte fotos hospedadas no Google Drive para WebP otimizado (Firebase Storage / Local) para evitar erros HTTP 429.</p>
+                </div>
+            </div>
+
+            <div style="margin: 20px 0; padding: 14px; background: rgba(255, 87, 34, 0.08); border: 1px solid rgba(255, 87, 34, 0.3); border-radius: 8px;">
+                <p style="margin: 0; font-size: 0.9rem; color: #ffab91;">
+                    <strong>Por que migrar?</strong> O Google Drive bloqueia acessos públicos frequentes com o erro <strong>HTTP 429 (Too Many Requests)</strong>. A migração baixa as imagens originais, otimiza para WebP e armazena na infraestrutura oficial.
+                </p>
+            </div>
+
+            <div id="migration-status-box" style="margin-bottom: 20px;">
+                <p id="migration-summary-text" style="color: #c9d1d9; font-size: 0.95rem;">Clique no botão abaixo para verificar os móveis cadastrados e iniciar a migração.</p>
+                <div id="migration-progress-bar" style="display: none; width: 100%; height: 8px; background: #30363d; border-radius: 4px; overflow: hidden; margin-top: 10px;">
+                    <div id="migration-progress-inner" style="width: 0%; height: 100%; background: #ff5722; transition: width 0.3s ease;"></div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="admin-btn primary" id="btn-start-drive-migration">🚀 Iniciar Verificação e Migração</button>
+                <button type="button" class="admin-btn secondary" id="btn-close-migration-modal">Fechar</button>
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notification -->
     <div id="toast" class="toast">Mensagem de feedback</div>
 
     <script src="js/shared/security.js" defer></script>
+    <script src="js/shared/contatos.js" defer></script>
     <script src="js/shared/catalogo-data.js" defer></script>
     <script src="js/admin.js" defer></script>
 </body>

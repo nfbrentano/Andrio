@@ -1,0 +1,18 @@
+# Sistema operacional
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Ambientes virtuais e dependências
+venv/
+.venv/
+node_modules/
+
+# Firebase local e caches
+.firebase/
+
+# Build e deploy local
+_site/
+
+# IDE e logs
+*.log

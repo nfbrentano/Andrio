@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -44,10 +44,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um deploy concluído, quando acesso `/test-keen.html`, `/SDD/modelo_feature.md`, `/firestore.rules`, `/.claude/launch.json` ou `/CLAUDE.md`, então recebo 404.
-- [ ] **CA02:** Dado um deploy concluído, quando navego pelas páginas públicas, então tudo funciona como antes.
-- [ ] **CA03:** Dado o repositório, quando executo `git ls-files | grep DS_Store`, então não há resultado.
-- [ ] **CA04:** Dado o repositório, quando procuro assets que nenhum arquivo referencia, então não encontro nenhum.
+- [x] **CA01:** Dado um deploy concluído, quando acesso `/test-keen.html`, `/SDD/modelo_feature.md`, `/firestore.rules`, `/.claude/launch.json` ou `/CLAUDE.md`, então recebo 404.
+- [x] **CA02:** Dado um deploy concluído, quando navego pelas páginas públicas, então tudo funciona como antes.
+- [x] **CA03:** Dado o repositório, quando executo `git ls-files | grep DS_Store`, então não há resultado.
+- [x] **CA04:** Dado o repositório, quando procuro assets que nenhum arquivo referencia, então não encontro nenhum.
 
 ## O que a atividade não inclui
 
@@ -62,8 +62,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | A hospedagem oficial é GitHub Pages ou Firebase Hosting? | dev/PO | Não | |
-| D02 | `.claude/launch.json` deve continuar versionado para o time? | dev | Não | |
+| D01 | A hospedagem oficial é GitHub Pages ou Firebase Hosting? | dev/PO | Não | GitHub Pages é a hospedagem oficial do frontend (automatizada via `.github/workflows/deploy.yml`). O Firebase é usado exclusivamente como BaaS (Auth, Firestore, Storage); seu cache local foi removido e adicionado ao `.gitignore`. |
+| D02 | `.claude/launch.json` deve continuar versionado para o time? | dev | Não | Sim, pode continuar versionado para testes locais da equipe, pois a publicação via `_site/` garante que ele não é publicado no GitHub Pages. |
 
 ## Sugestões de casos de teste
 

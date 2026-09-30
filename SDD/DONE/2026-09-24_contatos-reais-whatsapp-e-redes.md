@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity (validação e implementação) · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -45,11 +45,11 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado o WhatsApp configurado, quando clico em "Solicitar Orçamento" num produto, então abre `wa.me/<número real>` com nome, preço e link do produto na mensagem.
-- [ ] **CA02:** Dado o Instagram configurado, quando clico no ícone do rodapé, então abre o perfil da PACO numa nova aba.
-- [ ] **CA03:** Dado o Instagram não configurado, quando a página carrega, então o ícone não aparece.
-- [ ] **CA04:** Dado um número inválido no admin, quando salvo, então vejo um erro de validação e nada é gravado.
-- [ ] **CA05:** Dado que o Firestore não responde, quando abro um produto, então o CTA não aponta para `5511999999999` (caso negativo).
+- [x] **CA01:** Dado o WhatsApp configurado, quando clico em "Solicitar Orçamento" num produto, então abre `wa.me/<número real>` com nome, preço e link do produto na mensagem.
+- [x] **CA02:** Dado o Instagram configurado, quando clico no ícone do rodapé, então abre o perfil da PACO numa nova aba.
+- [x] **CA03:** Dado o Instagram não configurado, quando a página carrega, então o ícone não aparece.
+- [x] **CA04:** Dado um número inválido no admin, quando salvo, então vejo um erro de validação e nada é gravado.
+- [x] **CA05:** Dado que o Firestore não responde, quando abro um produto, então o CTA não aponta para `5511999999999` (caso negativo).
 
 ## O que a atividade não inclui
 
@@ -63,8 +63,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Qual o número de WhatsApp comercial? | PO | Sim | |
-| D02 | Qual o @ do Instagram oficial? | PO | Não | |
+| D01 | Qual o número de WhatsApp comercial? | PO | Sim | Gerenciável e editável dinamicamente através do Painel Administrativo (`configuracoes/contato`). O painel e o módulo de contatos validam o formato internacional E.164. Caso não configurado ou o Firestore esteja indisponível sem cache, o CTA é ocultado, nunca apontando para número fictício (CA05). |
+| D02 | Qual o @ do Instagram oficial? | PO | Não | Gerenciável e editável pelo Painel Administrativo (`configuracoes/contato`). Suporta URL completa ou `@usuario`. Quando ausente ou não configurado, os ícones de redes sociais são ocultados automaticamente no rodapé (CA03). |
 
 ## Sugestões de casos de teste
 

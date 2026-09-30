@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -44,10 +44,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um produto cuja foto principal falha, quando abro `produto.html?id=X`, então vejo o placeholder e não o ícone de imagem quebrada.
-- [ ] **CA02:** Dado uma galeria de 2 fotos com uma falhando, quando a página carrega, então a miniatura com falha mostra o placeholder ou fica oculta.
-- [ ] **CA03:** Dado que clico na imagem principal, quando o lightbox abre, então mostra uma imagem válida ou o placeholder.
-- [ ] **CA04:** Dado que o próprio placeholder também falha, quando a página carrega, então não há requisições em loop (caso negativo).
+- [x] **CA01:** Dado um produto cuja foto principal falha, quando abro `produto.html?id=X`, então vejo o placeholder e não o ícone de imagem quebrada.
+- [x] **CA02:** Dado uma galeria de 2 fotos com uma falhando, quando a página carrega, então a miniatura com falha mostra o placeholder ou fica oculta.
+- [x] **CA03:** Dado que clico na imagem principal, quando o lightbox abre, então mostra uma imagem válida ou o placeholder.
+- [x] **CA04:** Dado que o próprio placeholder também falha, quando a página carrega, então não há requisições em loop (caso negativo).
 
 ## O que a atividade não inclui
 
@@ -61,7 +61,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | A miniatura com falha deve ser ocultada ou mostrar o placeholder? | design | Não | |
+| D01 | A miniatura com falha deve ser ocultada ou mostrar o placeholder? | design | Não | Mostrar o placeholder neutro (`assets/imagem-indisponivel.svg`) preservando o slot da galeria para que o visitante saiba que há imagens adicionais e possa navegar. |
 
 ## Sugestões de casos de teste
 

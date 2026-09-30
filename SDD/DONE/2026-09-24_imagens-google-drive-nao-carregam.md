@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -46,11 +46,11 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um produto com imagem no Drive, quando a migração roda, então `img` e `imagens[]` passam a ter URLs do Firebase Storage.
-- [ ] **CA02:** Dado que abro a home e o catálogo, quando as imagens carregam, então cada produto mostra a própria foto e não há 429 no console.
-- [ ] **CA03:** Dado que colo um link de foto do Drive no admin, quando clico em adicionar, então a imagem vai para o Storage e a miniatura usa essa URL.
-- [ ] **CA04:** Dado que uma imagem falha ao carregar, quando o `onerror` dispara, então aparece o placeholder "imagem indisponível" e não a foto de outro produto.
-- [ ] **CA05:** Dado um produto com imagem do Drive, quando salvo no admin, então vejo um aviso de que a imagem não foi migrada.
+- [x] **CA01:** Dado um produto com imagem no Drive, quando a migração roda, então `img` e `imagens[]` passam a ter URLs do Firebase Storage.
+- [x] **CA02:** Dado que abro a home e o catálogo, quando as imagens carregam, então cada produto mostra a própria foto e não há 429 no console.
+- [x] **CA03:** Dado que colo um link de foto do Drive no admin, quando clico em adicionar, então a imagem vai para o Storage e a miniatura usa essa URL.
+- [x] **CA04:** Dado que uma imagem falha ao carregar, quando o `onerror` dispara, então aparece o placeholder "imagem indisponível" e não a foto de outro produto.
+- [x] **CA05:** Dado um produto com imagem do Drive, quando salvo no admin, então vejo um aviso de que a imagem não foi migrada.
 
 ## O que a atividade não inclui
 
@@ -65,8 +65,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Os arquivos do Drive estão públicos ("qualquer pessoa com o link")? | PO | Sim | |
-| D02 | Manter o importador de links do Drive no admin ou só upload de arquivo? | PO | Não | |
+| D01 | Os arquivos do Drive estão públicos ("qualquer pessoa com o link")? | PO | Sim | Sim, todos os 5 arquivos de imagem foram testados e baixados com sucesso via endpoint direto público sem autenticação. |
+| D02 | Manter o importador de links do Drive no admin ou só upload de arquivo? | PO | Não | Manter o importador: quando o admin insere uma URL do Drive, o sistema baixa automaticamente com CORS aberto, otimiza para WebP e envia para o Storage. |
 
 ## Sugestões de casos de teste
 

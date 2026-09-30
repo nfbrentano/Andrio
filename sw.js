@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paco-cache-v14';
+const CACHE_NAME = 'paco-cache-v16';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
@@ -13,6 +13,7 @@ const PRECACHE_ASSETS = [
     'css/admin.css',
     'css/login.css',
     'js/shared/security.js',
+    'js/shared/contatos.js',
     'js/shared/catalogo-data.js',
     'js/shared/ui.js',
     'js/app.js',
@@ -22,7 +23,13 @@ const PRECACHE_ASSETS = [
     'js/catalogo.js',
     'js/produto.js',
     'js/image-optimizer.js',
-    'assets/LOGO.png',
+    'assets/logo.webp',
+    'assets/imagem-indisponivel.svg',
+    'assets/produtos/poltrona_azul_1.webp',
+    'assets/produtos/poltrona_azul_2.webp',
+    'assets/produtos/novo_movel_1.webp',
+    'assets/produtos/kit_poltronas.webp',
+    'assets/produtos/poltrona_guerra.webp',
     'assets/hero_left_chair.webp',
     'assets/hero_right_chair.webp',
     'assets/hero_product.webp',

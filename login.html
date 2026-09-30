@@ -59,26 +59,6 @@
                 </button>
             </form>
 
-            <div class="login-config-toggle">
-                <button type="button" id="btn-toggle-config">⚙️ Configurar conexão Firebase</button>
-            </div>
-
-            <div id="firebase-config-box" class="firebase-setup-box">
-                <h3>Credenciais do Projeto Firebase</h3>
-                <p style="font-size: 0.75rem; color: #8b949e; margin-bottom: 8px;">Cole o objeto <code>firebaseConfig</code> copiado das Configurações do Projeto no Firebase Console:</p>
-                <div class="form-group">
-                    <textarea id="cfg-firebase-json" rows="6" placeholder='{
-  "apiKey": "AIzaSy...",
-  "authDomain": "paco-moveis.firebaseapp.com",
-  "projectId": "paco-moveis",
-  "storageBucket": "paco-moveis.appspot.com",
-  "messagingSenderId": "...",
-  "appId": "..."
-}' style="font-size: 0.75rem; font-family: monospace;"></textarea>
-                </div>
-                <button type="button" id="btn-save-config" class="login-btn-primary" style="margin-top: 10px; padding: 8px; font-size: 0.85rem;">Salvar Configuração Firebase</button>
-            </div>
-
             <div class="login-footer">
                 <a href="index.html">← Voltar para a Loja PACO</a>
             </div>
@@ -94,39 +74,6 @@
             const btnSubmit = document.getElementById('btn-login-submit');
             const btnText = document.getElementById('btn-text');
             const btnSpinner = document.getElementById('btn-spinner');
-
-            const btnToggleConfig = document.getElementById('btn-toggle-config');
-            const configBox = document.getElementById('firebase-config-box');
-            const cfgJson = document.getElementById('cfg-firebase-json');
-            const btnSaveConfig = document.getElementById('btn-save-config');
-
-            // Carrega configuração salva se existir
-            const savedConfig = FirebaseService.getConfig();
-            if (savedConfig) {
-                cfgJson.value = JSON.stringify(savedConfig, null, 2);
-            }
-
-            btnToggleConfig.addEventListener('click', () => {
-                configBox.classList.toggle('open');
-            });
-
-            btnSaveConfig.addEventListener('click', () => {
-                const text = cfgJson.value.trim();
-                try {
-                    // Extrai objeto JSON mesmo se o usuário colou "const firebaseConfig = { ... };"
-                    let jsonText = text;
-                    const match = text.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        jsonText = match[0];
-                    }
-                    const parsed = JSON.parse(jsonText);
-                    FirebaseService.saveConfig(parsed);
-                    showAlert('Configuração do Firebase salva com sucesso!', 'info');
-                    configBox.classList.remove('open');
-                } catch (err) {
-                    showAlert('Formato JSON inválido. Verifique o código colado.', 'error');
-                }
-            });
 
             function showAlert(msg, type = 'error') {
                 alertBox.textContent = msg;
@@ -153,8 +100,7 @@
                 btnSpinner.style.display = 'inline';
 
                 if (!FirebaseService.isConfigured) {
-                    showAlert('Por favor, configure as credenciais do Firebase antes de entrar.', 'error');
-                    configBox.classList.add('open');
+                    showAlert('Serviço de autenticação temporariamente indisponível.', 'error');
                     btnSubmit.disabled = false;
                     btnText.style.display = 'inline';
                     btnSpinner.style.display = 'none';

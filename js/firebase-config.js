@@ -14,6 +14,15 @@ const DEFAULT_FIREBASE_CONFIG = {
   measurementId: "G-92CT0SN53F"
 };
 
+// Remove qualquer configuração legada salva no localStorage para impedir substituição via cliente (RF07, CA06)
+try {
+    if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('firebase_config');
+    }
+} catch (e) {
+    // Silencia eventuais restrições de storage do navegador
+}
+
 const FirebaseService = {
     app: null,
     auth: null,
@@ -21,30 +30,9 @@ const FirebaseService = {
     storage: null,
     isConfigured: false,
 
-    // Retorna a configuração salva no localStorage ou a configuração padrão do projeto
+    // Retorna a configuração estrita e oficial do projeto (RF07)
     getConfig() {
-        const saved = localStorage.getItem('firebase_config');
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch (e) {
-                console.error('[Firebase] Erro ao parsear firebase_config do localStorage:', e);
-            }
-        }
         return DEFAULT_FIREBASE_CONFIG;
-    },
-
-    saveConfig(configObj) {
-        if (!configObj || !configObj.projectId || !configObj.apiKey) {
-            throw new Error('Configuração do Firebase inválida. apiKey e projectId são obrigatórios.');
-        }
-        localStorage.setItem('firebase_config', JSON.stringify(configObj));
-        this.init();
-    },
-
-    clearConfig() {
-        localStorage.removeItem('firebase_config');
-        this.init();
     },
 
     init() {

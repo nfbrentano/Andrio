@@ -175,10 +175,10 @@ function renderizarCatalogo() {
                         <div class="aspect-3-4-inner">
                             <div class="size-full">
                                 <div class="absolute-inset-0 hover-opacity-0">
-                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="${safeDefaultImg}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
                                 </div>
                                 <div class="absolute-inset-0 opacity-0 hover-opacity-100">
-                                    <img loading="lazy" alt="${safeNome} ângulo alternativo" class="object-cover-img" src="${safeHoverImg}" data-fallback="${safeDefaultHover}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/hero_left_chair.webp';">
+                                    <img loading="lazy" alt="${safeNome} ângulo alternativo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
                                 </div>
                             </div>
                         </div>

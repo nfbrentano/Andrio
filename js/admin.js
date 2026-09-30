@@ -67,14 +67,6 @@ const manualUrlBox = document.getElementById('manual-url-box');
 // Venda Casada
 const crossSellSelector = document.getElementById('cross-sell-selector');
 
-// Modal de Configuração Firebase
-const configModal = document.getElementById('config-modal');
-const btnConfig = document.getElementById('btn-config');
-const closeModal = document.getElementById('close-modal');
-const firebaseConfigForm = document.getElementById('firebase-config-form');
-const adminFirebaseJson = document.getElementById('admin-firebase-json');
-const btnDisconnect = document.getElementById('btn-disconnect');
-
 // Google Drive - Elementos do DOM
 const btnDriveConfig = document.getElementById('btn-drive-config');
 const driveModal = document.getElementById('drive-modal');
@@ -87,6 +79,27 @@ const detectedDriveId = document.getElementById('detected-drive-id');
 const testDriveLink = document.getElementById('test-drive-link');
 const btnSaveDrive = document.getElementById('btn-save-drive');
 const btnClearDrive = document.getElementById('btn-clear-drive');
+
+// Contatos da Loja - Elementos do DOM (RF04)
+const btnContatoConfig = document.getElementById('btn-contato-config');
+const btnEditContatoBanner = document.getElementById('btn-edit-contato-banner');
+const contatoStatusBanner = document.getElementById('contato-status-banner');
+const contatoBannerSummary = document.getElementById('contato-banner-summary');
+const btnPreviewWhatsapp = document.getElementById('btn-preview-whatsapp');
+const contatoModal = document.getElementById('contato-modal');
+const closeContatoModal = document.getElementById('close-contato-modal');
+const contatoConfigForm = document.getElementById('contato-config-form');
+const contatoWhatsappInput = document.getElementById('contato-whatsapp');
+const contatoInstagramInput = document.getElementById('contato-instagram');
+const contatoEmailInput = document.getElementById('contato-email');
+const whatsappIdFeedback = document.getElementById('whatsapp-id-feedback');
+const detectedWhatsappDigits = document.getElementById('detected-whatsapp-digits');
+const testWhatsappModalLink = document.getElementById('test-whatsapp-modal-link');
+const instagramIdFeedback = document.getElementById('instagram-id-feedback');
+const testInstagramModalLink = document.getElementById('test-instagram-modal-link');
+const contatoErrorBox = document.getElementById('contato-error-box');
+const btnSaveContato = document.getElementById('btn-save-contato');
+const btnClearContato = document.getElementById('btn-clear-contato');
 
 // Google Drive - Banners e Helpers
 const driveFolderBanner = document.getElementById('drive-folder-banner');
@@ -122,11 +135,10 @@ function updateConnectionStatus() {
         connectionBanner.className = "status-banner success";
         connectionBanner.querySelector('.icon').textContent = "🔥";
         connectionBanner.querySelector('.message').textContent = `Conectado ao Firebase: ${config.projectId}`;
-        adminFirebaseJson.value = JSON.stringify(config, null, 2);
     } else {
         connectionBanner.className = "status-banner info";
         connectionBanner.querySelector('.icon').textContent = "⚠️";
-        connectionBanner.querySelector('.message').textContent = "Usando banco de dados local (Modo de Demonstração). Configure o Firebase para salvar na nuvem.";
+        connectionBanner.querySelector('.message').textContent = "Conexão com o Firebase indisponível.";
     }
 }
 
@@ -316,6 +328,86 @@ async function clearDriveConfig() {
     showToast("Configuração da pasta do Google Drive removida.");
 }
 
+// Contatos Oficiais da Loja - Gerenciamento e UI (RF02, RF04)
+let currentContatoConfig = null;
+
+async function loadContatoConfig() {
+    if (typeof carregarConfiguracaoContato === 'function') {
+        currentContatoConfig = await carregarConfiguracaoContato();
+    }
+    updateContatoUI();
+    return currentContatoConfig;
+}
+
+function updateContatoUI() {
+    if (!currentContatoConfig) {
+        if (contatoStatusBanner) contatoStatusBanner.style.display = 'none';
+        return;
+    }
+
+    const { whatsapp, instagram_url, email } = currentContatoConfig;
+    const hasAny = !!(whatsapp || instagram_url || email);
+
+    if (contatoStatusBanner) {
+        if (hasAny) {
+            contatoStatusBanner.style.display = 'flex';
+            const summaryParts = [];
+            if (whatsapp) summaryParts.push(`WhatsApp: ${whatsapp}`);
+            if (instagram_url) summaryParts.push(`Instagram: ${instagram_url.replace(/https?:\/\/(www\.)?instagram\.com\/?/, '@')}`);
+            if (email) summaryParts.push(`E-mail: ${email}`);
+            if (contatoBannerSummary) {
+                contatoBannerSummary.textContent = summaryParts.join(' | ') || 'Configurado';
+            }
+            if (btnPreviewWhatsapp) {
+                if (whatsapp && typeof validarWhatsApp === 'function' && validarWhatsApp(whatsapp)) {
+                    btnPreviewWhatsapp.href = `https://wa.me/${formatarNumeroWhatsApp(whatsapp)}`;
+                    btnPreviewWhatsapp.style.display = 'inline-flex';
+                } else {
+                    btnPreviewWhatsapp.style.display = 'none';
+                }
+            }
+        } else {
+            contatoStatusBanner.style.display = 'none';
+        }
+    }
+
+    if (contatoWhatsappInput && !contatoWhatsappInput.value && whatsapp) {
+        contatoWhatsappInput.value = whatsapp;
+    }
+    if (contatoInstagramInput && !contatoInstagramInput.value && instagram_url) {
+        contatoInstagramInput.value = instagram_url;
+    }
+    if (contatoEmailInput && !contatoEmailInput.value && email) {
+        contatoEmailInput.value = email;
+    }
+
+    updateContatoInputFeedbacks();
+}
+
+function updateContatoInputFeedbacks() {
+    if (contatoWhatsappInput && whatsappIdFeedback) {
+        const val = contatoWhatsappInput.value.trim();
+        if (val && typeof validarWhatsApp === 'function' && validarWhatsApp(val)) {
+            whatsappIdFeedback.style.display = 'flex';
+            const digits = formatarNumeroWhatsApp(val);
+            if (detectedWhatsappDigits) detectedWhatsappDigits.textContent = digits;
+            if (testWhatsappModalLink) testWhatsappModalLink.href = `https://wa.me/${digits}`;
+        } else {
+            whatsappIdFeedback.style.display = 'none';
+        }
+    }
+
+    if (contatoInstagramInput && instagramIdFeedback) {
+        const val = contatoInstagramInput.value.trim();
+        if (val && typeof validarInstagram === 'function' && validarInstagram(val)) {
+            instagramIdFeedback.style.display = 'flex';
+            if (testInstagramModalLink) testInstagramModalLink.href = normalizarUrlInstagram(val);
+        } else {
+            instagramIdFeedback.style.display = 'none';
+        }
+    }
+}
+
 // Renderizar Galeria de Miniaturas no Form
 function renderGalleryPreview() {
     galleryPreview.innerHTML = '';
@@ -328,12 +420,12 @@ function renderGalleryPreview() {
 
     currentGalleryImages.forEach((imgUrl, index) => {
         const normalized = normalizarUrlImagem(imgUrl);
-        const safeImg = escapeHtml(safeUrl(normalized, 'assets/prod_poltrona.webp'));
+        const safeImg = escapeHtml(safeUrl(normalized, 'assets/imagem-indisponivel.svg'));
         const isCover = index === 0;
         const card = document.createElement('div');
         card.className = `gallery-thumb-card ${isCover ? 'is-cover' : ''}`;
         card.innerHTML = `
-            <img src="${safeImg}" alt="Foto ${index + 1}" data-fallback="assets/prod_poltrona.webp" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+            <img src="${safeImg}" alt="Foto ${index + 1}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
             ${isCover ? '<span class="badge-cover">Capa</span>' : ''}
             <div class="thumb-actions">
                 ${!isCover ? `<button type="button" class="btn-thumb-cover" data-index="${index}">Tornar Capa</button>` : '<span></span>'}
@@ -425,7 +517,7 @@ async function renderCrossSellSelector(currentEditingId = null) {
         item.className = `cross-sell-item ${isSelected ? 'selected' : ''}`;
         item.dataset.id = p.id;
         item.innerHTML = `
-            <img src="${safeImg}" alt="${safeNome}" data-fallback="${escapeHtml(defaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+            <img src="${safeImg}" alt="${safeNome}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
             <div class="cross-sell-info">
                 <strong>${safeNome}</strong>
                 <span>${safePreco} • ${safeCategoria}</span>
@@ -494,7 +586,7 @@ async function renderTable() {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td>
-                <img src="${safeImg}" alt="${safeNome}" class="table-img-preview" data-fallback="${escapeHtml(defaultImg)}" onerror="this.onerror=null; this.src=this.dataset.fallback || 'assets/prod_poltrona.webp';">
+                <img src="${safeImg}" alt="${safeNome}" class="table-img-preview" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
             </td>
             <td>
                 <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -696,6 +788,14 @@ productForm.addEventListener('submit', async (e) => {
         localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
     }
 
+    // Avisar ao salvar se alguma imagem da galeria ainda aponta para o Drive (RF04, CA05)
+    const hasDriveImages = gallery.some(url => isGoogleDriveUrl(url)) || isGoogleDriveUrl(mainImg);
+    if (hasDriveImages) {
+        setTimeout(() => {
+            showToast("⚠️ Aviso: Este móvel possui imagens no Google Drive e pode sofrer bloqueio (HTTP 429). Recomendamos migrá-las para o Firebase Storage.", 6000);
+        }, 1200);
+    }
+
     resetForm();
     await renderTable();
 });
@@ -841,37 +941,6 @@ if (btnConfirmDeleteAll) {
     });
 }
 
-// Configurações do Firebase
-firebaseConfigForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const rawText = adminFirebaseJson.value.trim();
-
-    try {
-        let jsonText = rawText;
-        const match = rawText.match(/\{[\s\S]*\}/);
-        if (match) jsonText = match[0];
-        
-        const parsed = JSON.parse(jsonText);
-        FirebaseService.saveConfig(parsed);
-
-        configModal.classList.remove('open');
-        updateConnectionStatus();
-        renderTable();
-        renderCrossSellSelector();
-        showToast("Firebase conectado com sucesso!");
-    } catch (err) {
-        showToast("JSON de configuração inválido.");
-    }
-});
-
-btnDisconnect.addEventListener('click', () => {
-    FirebaseService.clearConfig();
-    configModal.classList.remove('open');
-    updateConnectionStatus();
-    renderTable();
-    renderCrossSellSelector();
-    showToast("Desconectado do Firebase. Usando modo local.");
-});
 
 // Upload via Drag and Drop & Input File
 uploadDropzone.addEventListener('click', () => imageFileInput.click());
@@ -901,7 +970,7 @@ const btnAddManualImage = document.getElementById('btn-add-manual-image');
 const productImageUrlInput = document.getElementById('product-image-url-input');
 
 if (btnAddManualImage && productImageUrlInput) {
-    btnAddManualImage.addEventListener('click', () => {
+    btnAddManualImage.addEventListener('click', async () => {
         const rawUrl = productImageUrlInput.value.trim();
         if (!rawUrl) {
             showToast("Por favor, cole um link de imagem.");
@@ -911,6 +980,37 @@ if (btnAddManualImage && productImageUrlInput) {
         const isFolder = extractDriveFolderId(rawUrl) && !extractDriveFileId(rawUrl);
         if (isFolder) {
             showToast("Você colou o link de uma pasta. Abra a pasta e copie os links das fotos individuais.");
+            return;
+        }
+
+        // Se for um link do Google Drive, baixa, converte para WebP e envia para o Storage (RF02, CA03)
+        if (isGoogleDriveUrl(rawUrl)) {
+            const originalBtnText = btnAddManualImage.textContent;
+            btnAddManualImage.disabled = true;
+            btnAddManualImage.textContent = 'Otimizando...';
+            if (uploadStatus && uploadStatusText) {
+                uploadStatus.style.display = 'flex';
+                uploadStatusText.textContent = 'Baixando foto do Google Drive e convertendo para WebP...';
+            }
+
+            try {
+                const optimizedUrl = await ImageOptimizer.optimizeAndUploadUrl(rawUrl, 'drive_foto');
+                currentGalleryImages.push(optimizedUrl);
+                productImageUrlInput.value = '';
+                renderGalleryPreview();
+                showToast("Foto do Drive otimizada e salva no Storage!");
+            } catch (err) {
+                console.error("Erro ao otimizar foto do Drive:", err);
+                const normalized = normalizarUrlImagem(rawUrl);
+                currentGalleryImages.push(normalized);
+                productImageUrlInput.value = '';
+                renderGalleryPreview();
+                showToast(`Foto adicionada com link direto: ${err.message}`);
+            } finally {
+                btnAddManualImage.disabled = false;
+                btnAddManualImage.textContent = originalBtnText;
+                if (uploadStatus) uploadStatus.style.display = 'none';
+            }
             return;
         }
 
@@ -929,9 +1029,9 @@ if (btnAddManualImage && productImageUrlInput) {
     });
 }
 
-// Importador em lote de fotos do Google Drive
+// Importador em lote de fotos do Google Drive (RF02, CA03)
 if (btnImportBulkDrive && bulkDriveUrls) {
-    btnImportBulkDrive.addEventListener('click', () => {
+    btnImportBulkDrive.addEventListener('click', async () => {
         const rawText = bulkDriveUrls.value.trim();
         if (!rawText) {
             showToast("Cole os links das fotos do Google Drive na caixa de texto.");
@@ -940,15 +1040,48 @@ if (btnImportBulkDrive && bulkDriveUrls) {
 
         // Separa por quebra de linha, vírgula ou ponto e vírgula
         const lines = rawText.split(/[\n,;]+/).map(l => l.trim()).filter(Boolean);
-        let addedCount = 0;
+        if (lines.length === 0) {
+            showToast("Nenhum link válido encontrado.");
+            return;
+        }
 
-        lines.forEach(line => {
-            if (line) {
+        const originalBtnText = btnImportBulkDrive.textContent;
+        btnImportBulkDrive.disabled = true;
+        btnImportBulkDrive.textContent = 'Importando...';
+        if (uploadStatus && uploadStatusText) {
+            uploadStatus.style.display = 'flex';
+            uploadStatusText.textContent = `Importando ${lines.length} foto(s)...`;
+        }
+
+        let addedCount = 0;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line) continue;
+            if (uploadStatusText) {
+                uploadStatusText.textContent = `Otimizando [${i + 1}/${lines.length}] foto...`;
+            }
+
+            if (isGoogleDriveUrl(line)) {
+                try {
+                    const optimizedUrl = await ImageOptimizer.optimizeAndUploadUrl(line, `drive_lote_${i + 1}`);
+                    currentGalleryImages.push(optimizedUrl);
+                    addedCount++;
+                } catch (err) {
+                    console.warn(`Aviso no link [${line}]:`, err);
+                    const normalized = normalizarUrlImagem(line);
+                    currentGalleryImages.push(normalized);
+                    addedCount++;
+                }
+            } else {
                 const normalized = normalizarUrlImagem(line);
                 currentGalleryImages.push(normalized);
                 addedCount++;
             }
-        });
+        }
+
+        btnImportBulkDrive.disabled = false;
+        btnImportBulkDrive.textContent = originalBtnText;
+        if (uploadStatus) uploadStatus.style.display = 'none';
 
         if (addedCount > 0) {
             bulkDriveUrls.value = '';
@@ -957,6 +1090,155 @@ if (btnImportBulkDrive && bulkDriveUrls) {
         } else {
             showToast("Nenhum link válido encontrado.");
         }
+    });
+}
+
+// Modal de Migração de Fotos do Google Drive (RF01, CA01, CA02)
+const btnMigrateDrive = document.getElementById('btn-migrate-drive');
+const driveMigrationModal = document.getElementById('drive-migration-modal');
+const closeMigrateDriveModal = document.getElementById('close-migrate-drive-modal');
+const btnCloseMigrationModal = document.getElementById('btn-close-migration-modal');
+const btnStartDriveMigration = document.getElementById('btn-start-drive-migration');
+const migrationSummaryText = document.getElementById('migration-summary-text');
+const migrationProgressBar = document.getElementById('migration-progress-bar');
+const migrationProgressInner = document.getElementById('migration-progress-inner');
+
+if (btnMigrateDrive && driveMigrationModal) {
+    btnMigrateDrive.addEventListener('click', async () => {
+        driveMigrationModal.classList.add('open');
+        driveMigrationModal.setAttribute('aria-hidden', 'false');
+        if (migrationProgressBar) migrationProgressBar.style.display = 'none';
+        
+        // Verifica se há produtos com URLs do Drive pendentes
+        if (migrationSummaryText) {
+            migrationSummaryText.textContent = 'Analisando catálogo de móveis...';
+        }
+        
+        const products = await fetchProducts();
+        const pending = products.filter(p => {
+            const hasMain = isGoogleDriveUrl(p.img);
+            const hasGal = (p.imagens || []).some(u => isGoogleDriveUrl(u));
+            return hasMain || hasGal;
+        });
+
+        if (migrationSummaryText) {
+            if (pending.length === 0) {
+                migrationSummaryText.innerHTML = `
+                    <span style="color: #25D366; font-weight: 600;">✔ Excelente!</span> 
+                    Todos os ${products.length} produto(s) já utilizam fotos otimizadas (Firebase Storage / WebP local). Nenhuma URL pendente do Google Drive.
+                `;
+                if (btnStartDriveMigration) btnStartDriveMigration.disabled = true;
+            } else {
+                migrationSummaryText.innerHTML = `
+                    Encontrado(s) <strong>${pending.length} móvel(is)</strong> com fotos no Google Drive.<br>
+                    Clique abaixo para baixar as fotos originais, converter para WebP e salvar no Storage.
+                `;
+                if (btnStartDriveMigration) btnStartDriveMigration.disabled = false;
+            }
+        }
+    });
+}
+
+if (closeMigrateDriveModal && driveMigrationModal) {
+    closeMigrateDriveModal.addEventListener('click', () => {
+        driveMigrationModal.classList.remove('open');
+        driveMigrationModal.setAttribute('aria-hidden', 'true');
+    });
+}
+
+if (btnCloseMigrationModal && driveMigrationModal) {
+    btnCloseMigrationModal.addEventListener('click', () => {
+        driveMigrationModal.classList.remove('open');
+        driveMigrationModal.setAttribute('aria-hidden', 'true');
+    });
+}
+
+if (btnStartDriveMigration) {
+    btnStartDriveMigration.addEventListener('click', async () => {
+        btnStartDriveMigration.disabled = true;
+        btnStartDriveMigration.textContent = 'Migrando...';
+        if (migrationProgressBar) migrationProgressBar.style.display = 'block';
+        if (migrationProgressInner) migrationProgressInner.style.width = '10%';
+
+        const products = await fetchProducts();
+        const pending = products.filter(p => {
+            const hasMain = isGoogleDriveUrl(p.img);
+            const hasGal = (p.imagens || []).some(u => isGoogleDriveUrl(u));
+            return hasMain || hasGal;
+        });
+
+        if (pending.length === 0) {
+            if (migrationSummaryText) {
+                migrationSummaryText.innerHTML = `<span style="color: #25D366; font-weight: 600;">✔ Nenhuma imagem precisa ser migrada.</span>`;
+            }
+            btnStartDriveMigration.disabled = false;
+            btnStartDriveMigration.textContent = '🚀 Iniciar Verificação e Migração';
+            return;
+        }
+
+        let processed = 0;
+        let errors = 0;
+
+        for (let i = 0; i < pending.length; i++) {
+            const p = pending[i];
+            if (migrationSummaryText) {
+                migrationSummaryText.textContent = `Processando [${i + 1}/${pending.length}]: ${p.nome}...`;
+            }
+
+            try {
+                let newImg = p.img;
+                if (isGoogleDriveUrl(p.img)) {
+                    newImg = await ImageOptimizer.optimizeAndUploadUrl(p.img, `prod_${p.id}_capa`);
+                }
+
+                const newImagens = [];
+                const gal = p.imagens || [p.img];
+                for (let j = 0; j < gal.length; j++) {
+                    const url = gal[j];
+                    if (isGoogleDriveUrl(url)) {
+                        const optUrl = await ImageOptimizer.optimizeAndUploadUrl(url, `prod_${p.id}_galeria_${j + 1}`);
+                        newImagens.push(optUrl);
+                    } else {
+                        newImagens.push(url);
+                    }
+                }
+
+                // Atualiza Firestore ou LocalStorage
+                if (FirebaseService.isConfigured && FirebaseService.db) {
+                    await FirebaseService.db.collection('produtos').doc(String(p.id)).set({
+                        img: newImg,
+                        imagens: newImagens,
+                        updated_at: new Date().toISOString()
+                    }, { merge: true });
+                } else {
+                    const idx = localProducts.findIndex(lp => String(lp.id) === String(p.id));
+                    if (idx !== -1) {
+                        localProducts[idx].img = newImg;
+                        localProducts[idx].imagens = newImagens;
+                        localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
+                    }
+                }
+
+                processed++;
+            } catch (err) {
+                console.error(`Erro ao migrar ${p.nome}:`, err);
+                errors++;
+            }
+
+            const pct = Math.round(((i + 1) / pending.length) * 100);
+            if (migrationProgressInner) migrationProgressInner.style.width = `${pct}%`;
+        }
+
+        await renderTable();
+        btnStartDriveMigration.disabled = false;
+        btnStartDriveMigration.textContent = '🚀 Iniciar Verificação e Migração';
+        if (migrationSummaryText) {
+            migrationSummaryText.innerHTML = `
+                <span style="color: #25D366; font-weight: 600;">✔ Sucesso!</span> 
+                ${processed} produto(s) migrado(s) para WebP / Storage.${errors > 0 ? ` (${errors} aviso(s))` : ''}
+            `;
+        }
+        showToast("Migração de imagens concluída com sucesso!");
     });
 }
 
@@ -1028,6 +1310,138 @@ if (btnClearDrive) {
     });
 }
 
+// Modal de Contatos - Eventos e Validação (RF04, CA04)
+if (btnContatoConfig && contatoModal) {
+    btnContatoConfig.addEventListener('click', () => {
+        if (currentContatoConfig) {
+            if (contatoWhatsappInput) contatoWhatsappInput.value = currentContatoConfig.whatsapp || '';
+            if (contatoInstagramInput) contatoInstagramInput.value = currentContatoConfig.instagram_url || '';
+            if (contatoEmailInput) contatoEmailInput.value = currentContatoConfig.email || '';
+            updateContatoInputFeedbacks();
+        }
+        if (contatoErrorBox) contatoErrorBox.style.display = 'none';
+        contatoModal.classList.add('open');
+    });
+}
+
+if (btnEditContatoBanner && contatoModal) {
+    btnEditContatoBanner.addEventListener('click', () => {
+        if (btnContatoConfig) btnContatoConfig.click();
+    });
+}
+
+if (closeContatoModal && contatoModal) {
+    closeContatoModal.addEventListener('click', () => contatoModal.classList.remove('open'));
+}
+
+window.addEventListener('click', (e) => {
+    if (e.target === contatoModal) contatoModal.classList.remove('open');
+});
+
+if (contatoWhatsappInput) {
+    contatoWhatsappInput.addEventListener('input', () => {
+        updateContatoInputFeedbacks();
+        if (contatoErrorBox) contatoErrorBox.style.display = 'none';
+    });
+}
+
+if (contatoInstagramInput) {
+    contatoInstagramInput.addEventListener('input', () => {
+        updateContatoInputFeedbacks();
+        if (contatoErrorBox) contatoErrorBox.style.display = 'none';
+    });
+}
+
+if (contatoConfigForm) {
+    contatoConfigForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (contatoErrorBox) {
+            contatoErrorBox.style.display = 'none';
+            contatoErrorBox.textContent = '';
+        }
+
+        const rawWhatsapp = (contatoWhatsappInput ? contatoWhatsappInput.value : '').trim();
+        const rawInstagram = (contatoInstagramInput ? contatoInstagramInput.value : '').trim();
+        const rawEmail = (contatoEmailInput ? contatoEmailInput.value : '').trim();
+
+        // Validação CA04: número inválido exibe erro de validação e NADA é gravado
+        if (rawWhatsapp && typeof validarWhatsApp === 'function' && !validarWhatsApp(rawWhatsapp)) {
+            const errorMsg = 'Número de WhatsApp comercial inválido. Digite um número válido no formato internacional E.164 (ex: +5511999998888 ou 5511999998888).';
+            if (contatoErrorBox) {
+                contatoErrorBox.textContent = errorMsg;
+                contatoErrorBox.style.display = 'block';
+            }
+            showToast(errorMsg);
+            return;
+        }
+
+        if (rawInstagram && typeof validarInstagram === 'function' && !validarInstagram(rawInstagram)) {
+            const errorMsg = 'Perfil do Instagram inválido. Digite uma URL válida ou @usuario (ex: https://instagram.com/pacomoveis ou @pacomoveis).';
+            if (contatoErrorBox) {
+                contatoErrorBox.textContent = errorMsg;
+                contatoErrorBox.style.display = 'block';
+            }
+            showToast(errorMsg);
+            return;
+        }
+
+        if (rawEmail && typeof validarEmail === 'function' && !validarEmail(rawEmail)) {
+            const errorMsg = 'E-mail de atendimento inválido (ex: contato@pacomoveis.com.br).';
+            if (contatoErrorBox) {
+                contatoErrorBox.textContent = errorMsg;
+                contatoErrorBox.style.display = 'block';
+            }
+            showToast(errorMsg);
+            return;
+        }
+
+        try {
+            const saved = await salvarConfiguracaoContato(
+                (FirebaseService.isConfigured && FirebaseService.db) ? FirebaseService.db : null,
+                {
+                    whatsapp: rawWhatsapp,
+                    instagram_url: rawInstagram,
+                    email: rawEmail
+                }
+            );
+            currentContatoConfig = saved;
+            updateContatoUI();
+            if (contatoModal) contatoModal.classList.remove('open');
+            showToast('Contatos oficiais da loja salvos com sucesso!');
+        } catch (err) {
+            if (contatoErrorBox) {
+                contatoErrorBox.textContent = err.message;
+                contatoErrorBox.style.display = 'block';
+            }
+            showToast(err.message);
+        }
+    });
+}
+
+if (btnClearContato) {
+    btnClearContato.addEventListener('click', async () => {
+        if (confirm("Deseja remover as configurações de contato da loja?")) {
+            if (FirebaseService.isConfigured && FirebaseService.db) {
+                try {
+                    await FirebaseService.db.collection('configuracoes').doc('contato').delete();
+                } catch (e) {
+                    console.error('Erro ao deletar configuracoes/contato:', e);
+                }
+            }
+            if (typeof localStorage !== 'undefined') {
+                localStorage.removeItem(CONTATO_CACHE_KEY);
+            }
+            currentContatoConfig = null;
+            if (contatoWhatsappInput) contatoWhatsappInput.value = '';
+            if (contatoInstagramInput) contatoInstagramInput.value = '';
+            if (contatoEmailInput) contatoEmailInput.value = '';
+            updateContatoUI();
+            if (contatoModal) contatoModal.classList.remove('open');
+            showToast('Configurações de contatos removidas.');
+        }
+    });
+}
+
 document.querySelectorAll('.preset-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
         const url = e.target.dataset.url;
@@ -1062,27 +1476,26 @@ btnLogout.addEventListener('click', async () => {
     }
 });
 
-// Modal de Configuração Firebase
-btnConfig.addEventListener('click', () => configModal.classList.add('open'));
-closeModal.addEventListener('click', () => configModal.classList.remove('open'));
-window.addEventListener('click', (e) => {
-    if (e.target === configModal) configModal.classList.remove('open');
-});
-
 searchInput.addEventListener('input', renderTable);
 btnCancel.addEventListener('click', resetForm);
 
-// Inicialização Principal com Guard de Autenticação
+// Inicialização Principal com Guard de Autenticação (RF04, RF06, CA04)
 document.addEventListener('DOMContentLoaded', async () => {
-    updateConnectionStatus();
-    await loadDriveConfig();
-
+    // 1. Guard de autenticação antes de qualquer carregamento de dados
     const user = await Auth.requireAuth();
-    if (user) {
-        userDisplay.style.display = 'inline-flex';
-        userEmail.textContent = user.email || 'Admin';
+    if (!user) {
+        return;
     }
 
+    // 2. Revela o painel apenas após autenticação confirmada
+    document.body.classList.add('authenticated');
+    userDisplay.style.display = 'inline-flex';
+    userEmail.textContent = user.email || 'Admin';
+
+    // 3. Atualizar conexão e carregar dados
+    updateConnectionStatus();
+    await loadDriveConfig();
+    await loadContatoConfig();
     await renderTable();
     await renderCrossSellSelector();
 });

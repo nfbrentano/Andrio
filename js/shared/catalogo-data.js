@@ -3,54 +3,72 @@
  * Fonte única da verdade para dados padrão, imagens e carregamento de produtos
  */
 
-const CATEGORY_DEFAULT_IMAGES = {
-    poltrona: {
-        img: "assets/prod_poltrona.webp",
-        hover: "assets/hero_left_chair.webp"
-    },
-    luminaria: {
-        img: "assets/prod_luminaria.webp",
-        hover: "assets/middle_model.webp"
-    },
-    cadeira: {
-        img: "assets/prod_cadeira.webp",
-        hover: "assets/people_grid_1.webp"
-    },
-    mesa: {
-        img: "assets/prod_mesa.webp",
-        hover: "assets/hero_product.webp"
-    }
+const PLACEHOLDER_IMAGEM_INDISPONIVEL = 'assets/imagem-indisponivel.svg';
+const PLACEHOLDER_IMAGE = PLACEHOLDER_IMAGEM_INDISPONIVEL;
+
+// Mapeamento de links conhecidos legados do Google Drive para os assets WebP otimizados locais
+const DRIVE_LEGACY_IMAGE_MAP = {
+    '1W2L251aE7LfS7lz-kjSLkPO_H0FEy83H': 'assets/produtos/poltrona_azul_1.webp',
+    '1vHrx6SoVnK025fC-eu76ev6e_mU8mPkW': 'assets/produtos/poltrona_azul_2.webp',
+    '1GC67VMTBN85Jo5EcfMkF_Yh614Hv4yj4': 'assets/produtos/novo_movel_1.webp',
+    '1l1uW6rBrH9X56f4wLEiusEVoeowFCxuc': 'assets/produtos/kit_poltronas.webp',
+    '1MYogDCG3jGcAzl8-G9fbnFC42HwfE978': 'assets/produtos/poltrona_guerra.webp'
 };
 
+// Extração de ID de arquivo/foto do Google Drive
+function extractDriveFileId(input) {
+    if (!input) return null;
+    const str = String(input).trim();
+    const match = str.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
+                  str.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
+                  str.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
+                  str.match(/thumbnail\?id=([a-zA-Z0-9_-]+)/) ||
+                  str.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) return match[1];
+    if (/^[a-zA-Z0-9_-]{25,}$/.test(str) && !str.includes('/') && !str.includes('.')) {
+        return str;
+    }
+    return null;
+}
+
+// Verifica se uma URL aponta para o Google Drive
+function isGoogleDriveUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    const trimmed = url.trim();
+    return /drive\.google\.com/i.test(trimmed) ||
+           /docs\.google\.com/i.test(trimmed) ||
+           /googleusercontent\.com\/d\//i.test(trimmed) ||
+           /\/thumbnail\?id=/i.test(trimmed) ||
+           !!extractDriveFileId(trimmed);
+}
+
+// Fallback neutro para produtos sem imagem ou em erro
 function getDefaultImageForCategory(categoria) {
-    const cat = String(categoria || '').toLowerCase().trim();
-    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].img : 'assets/prod_poltrona.webp';
+    return PLACEHOLDER_IMAGEM_INDISPONIVEL;
 }
 
 function getDefaultHoverImageForCategory(categoria) {
-    const cat = String(categoria || '').toLowerCase().trim();
-    return CATEGORY_DEFAULT_IMAGES[cat] ? CATEGORY_DEFAULT_IMAGES[cat].hover : 'assets/hero_left_chair.webp';
+    return PLACEHOLDER_IMAGEM_INDISPONIVEL;
 }
 
 // Função para normalizar e converter links do Google Drive e URLs em geral
 function normalizarUrlImagem(url, categoria) {
-    const fallback = categoria ? getDefaultImageForCategory(categoria) : '';
+    const fallback = PLACEHOLDER_IMAGEM_INDISPONIVEL;
     if (!url || String(url).trim() === '') {
         return fallback;
     }
     const trimmed = String(url).trim();
 
+    // 1. Verifica se é um ID conhecido do Drive já mapeado para WebP
+    const driveId = extractDriveFileId(trimmed);
+    if (driveId && DRIVE_LEGACY_IMAGE_MAP[driveId]) {
+        return DRIVE_LEGACY_IMAGE_MAP[driveId];
+    }
+
+    // 2. Se for link do Drive, usa o endpoint direto lh3 para evitar HTTP 429
     let resolved = trimmed;
-    const driveMatch = trimmed.match(/\/file\/d\/([a-zA-Z0-9_-]+)/) || 
-                       trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) ||
-                       trimmed.match(/[?&]id=([a-zA-Z0-9_-]+)/) ||
-                       trimmed.match(/thumbnail\?id=([a-zA-Z0-9_-]+)/) ||
-                       trimmed.match(/googleusercontent\.com\/d\/([a-zA-Z0-9_-]+)/);
-                       
-    if (driveMatch && driveMatch[1]) {
-        resolved = `https://drive.google.com/thumbnail?id=${driveMatch[1]}&sz=w1600`;
-    } else if (/^[a-zA-Z0-9_-]{25,}$/.test(trimmed) && !trimmed.includes('/') && !trimmed.includes('.')) {
-        resolved = `https://drive.google.com/thumbnail?id=${trimmed}&sz=w1600`;
+    if (driveId) {
+        resolved = `https://lh3.googleusercontent.com/d/${driveId}=w1600`;
     }
 
     if (typeof safeUrl === 'function') {
@@ -283,7 +301,10 @@ async function carregarProdutos() {
 
 // Disponibiliza no escopo global
 if (typeof window !== 'undefined') {
-    window.CATEGORY_DEFAULT_IMAGES = CATEGORY_DEFAULT_IMAGES;
+    window.PLACEHOLDER_IMAGEM_INDISPONIVEL = PLACEHOLDER_IMAGEM_INDISPONIVEL;
+    window.PLACEHOLDER_IMAGE = PLACEHOLDER_IMAGE;
+    window.extractDriveFileId = extractDriveFileId;
+    window.isGoogleDriveUrl = isGoogleDriveUrl;
     window.getDefaultImageForCategory = getDefaultImageForCategory;
     window.getDefaultHoverImageForCategory = getDefaultHoverImageForCategory;
     window.normalizarUrlImagem = normalizarUrlImagem;
@@ -294,7 +315,10 @@ if (typeof window !== 'undefined') {
 
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        CATEGORY_DEFAULT_IMAGES,
+        PLACEHOLDER_IMAGEM_INDISPONIVEL,
+        PLACEHOLDER_IMAGE,
+        extractDriveFileId,
+        isGoogleDriveUrl,
         getDefaultImageForCategory,
         getDefaultHoverImageForCategory,
         normalizarUrlImagem,
