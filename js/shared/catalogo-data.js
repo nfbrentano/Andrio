@@ -152,6 +152,19 @@ const PRODUTOS_PADRAO = [
     }
 ];
 
+// Converte data/timestamp (ISO string, Firestore Timestamp ou Date) para milissegundos
+function parseDataTimestamp(val) {
+    if (!val) return 0;
+    if (typeof val.toDate === 'function') {
+        return val.toDate().getTime();
+    }
+    if (typeof val === 'object' && typeof val.seconds === 'number') {
+        return val.seconds * 1000;
+    }
+    const t = new Date(val).getTime();
+    return isNaN(t) ? 0 : t;
+}
+
 // Carregamento unificado com suporte a Firestore, LocalStorage e Mock Padrão
 async function carregarProdutos() {
     if (typeof FirebaseService !== 'undefined') {
@@ -159,9 +172,8 @@ async function carregarProdutos() {
 
         if (FirebaseService.isConfigured && FirebaseService.db) {
             try {
-                const snapshot = await FirebaseService.db.collection('produtos')
-                    .orderBy('created_at', 'desc')
-                    .get();
+                // Busca sem orderBy('created_at') para não excluir documentos legados sem o campo (RF03, CA04)
+                const snapshot = await FirebaseService.db.collection('produtos').get();
 
                 const items = [];
                 snapshot.forEach(doc => {
@@ -180,6 +192,13 @@ async function carregarProdutos() {
                         img: mainImg,
                         imagens: imagens
                     });
+                });
+
+                // Ordena por created_at desc em memória mantendo documentos sem created_at (RF03, CA04)
+                items.sort((a, b) => {
+                    const timeA = parseDataTimestamp(a.created_at);
+                    const timeB = parseDataTimestamp(b.created_at);
+                    return timeB - timeA;
                 });
 
                 return items.map(item => {
@@ -263,9 +282,24 @@ async function carregarProdutos() {
 }
 
 // Disponibiliza no escopo global
-window.CATEGORY_DEFAULT_IMAGES = CATEGORY_DEFAULT_IMAGES;
-window.getDefaultImageForCategory = getDefaultImageForCategory;
-window.getDefaultHoverImageForCategory = getDefaultHoverImageForCategory;
-window.normalizarUrlImagem = normalizarUrlImagem;
-window['PRODUTOS_PADRAO'] = PRODUTOS_PADRAO;
-window.carregarProdutos = carregarProdutos;
+if (typeof window !== 'undefined') {
+    window.CATEGORY_DEFAULT_IMAGES = CATEGORY_DEFAULT_IMAGES;
+    window.getDefaultImageForCategory = getDefaultImageForCategory;
+    window.getDefaultHoverImageForCategory = getDefaultHoverImageForCategory;
+    window.normalizarUrlImagem = normalizarUrlImagem;
+    window['PRODUTOS_PADRAO'] = PRODUTOS_PADRAO;
+    window.parseDataTimestamp = parseDataTimestamp;
+    window.carregarProdutos = carregarProdutos;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        CATEGORY_DEFAULT_IMAGES,
+        getDefaultImageForCategory,
+        getDefaultHoverImageForCategory,
+        normalizarUrlImagem,
+        PRODUTOS_PADRAO,
+        parseDataTimestamp,
+        carregarProdutos
+    };
+}

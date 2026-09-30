@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity (validação e implementação) · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-29
 
 ## Detalhes da Atividade
 
@@ -43,10 +43,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um produto criado em D1, quando o edito em D2, então `created_at` continua D1 e `updated_at` vira D2.
-- [ ] **CA02:** Dado três produtos criados na ordem A, B, C, quando edito A, então "Mais Recentes" continua mostrando C, B, A.
-- [ ] **CA03:** Dado o modo local, quando seleciono "Mais Recentes", então a lista fica ordenada por data de criação desc.
-- [ ] **CA04:** Dado um documento sem `created_at`, quando carrego o catálogo, então ele aparece na lista.
+- [x] **CA01:** Dado um produto criado em D1, quando o edito em D2, então `created_at` continua D1 e `updated_at` vira D2.
+- [x] **CA02:** Dado três produtos criados na ordem A, B, C, quando edito A, então "Mais Recentes" continua mostrando C, B, A.
+- [x] **CA03:** Dado o modo local, quando seleciono "Mais Recentes", então a lista fica ordenada por data de criação desc.
+- [x] **CA04:** Dado um documento sem `created_at`, quando carrego o catálogo, então ele aparece na lista.
 
 ## O que a atividade não inclui
 
@@ -60,7 +60,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Padronizar em `serverTimestamp()` ou manter string ISO? | dev | Não | |
+| D01 | Padronizar em `serverTimestamp()` ou manter string ISO? | dev | Não | Mantida string ISO (`new Date().toISOString()`) para consistência direta entre LocalStorage e Firestore sem migração de tipos, com parser defensivo (`parseDataTimestamp`) que suporta ambos. |
 
 ## Sugestões de casos de teste
 

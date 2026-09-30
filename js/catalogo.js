@@ -116,6 +116,13 @@ function renderizarCatalogo() {
         filtrados.sort((a, b) => parsePrice(b.preco) - parsePrice(a.preco));
     } else if (sortVal === 'name-asc') {
         filtrados.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
+    } else if (sortVal === 'recent') {
+        filtrados.sort((a, b) => {
+            const getTimestamp = typeof parseDataTimestamp === 'function' 
+                ? parseDataTimestamp 
+                : (val => (val ? new Date(val).getTime() || 0 : 0));
+            return getTimestamp(b.created_at) - getTimestamp(a.created_at);
+        });
     }
 
     // Atualiza Contador com pluralização correta (RF04, CA04)

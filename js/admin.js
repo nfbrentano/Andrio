@@ -141,25 +141,31 @@ function showToast(message) {
 
 // Buscar produtos do Firestore ou localStorage
 async function fetchProducts() {
+    const getTimestamp = typeof parseDataTimestamp === 'function' 
+        ? parseDataTimestamp 
+        : (val => (val ? new Date(val).getTime() || 0 : 0));
+
     if (FirebaseService.isConfigured && FirebaseService.db) {
         try {
-            const snapshot = await FirebaseService.db.collection('produtos')
-                .orderBy('created_at', 'desc')
-                .get();
+            // Busca sem orderBy('created_at') para não excluir documentos legados sem o campo (RF03, CA04)
+            const snapshot = await FirebaseService.db.collection('produtos').get();
 
             const items = [];
             snapshot.forEach(doc => {
                 items.push({ id: doc.id, ...doc.data() });
             });
 
+            // Ordena por created_at desc mantendo produtos sem created_at (RF03, CA04)
+            items.sort((a, b) => getTimestamp(b.created_at) - getTimestamp(a.created_at));
+
             return items;
         } catch (error) {
             console.error("Erro ao carregar dados do Firestore:", error);
             showToast("Falha ao buscar do Firestore. Usando fallback local.");
-            return localProducts;
+            return [...localProducts].sort((a, b) => getTimestamp(b.created_at) - getTimestamp(a.created_at));
         }
     } else {
-        return localProducts;
+        return [...localProducts].sort((a, b) => getTimestamp(b.created_at) - getTimestamp(a.created_at));
     }
 }
 
@@ -613,7 +619,7 @@ productForm.addEventListener('submit', async (e) => {
     const mainImg = currentGalleryImages.length > 0 ? currentGalleryImages[0] : productImageInput.value;
     const gallery = currentGalleryImages.length > 0 ? currentGalleryImages : [mainImg];
 
-    const productData = {
+    const baseProductData = {
         nome,
         preco,
         categoria,
@@ -633,17 +639,28 @@ productForm.addEventListener('submit', async (e) => {
         altura_cm: productHeightInput.value ? parseFloat(productHeightInput.value) : null,
         peso_kg: productWeightInput.value ? parseFloat(productWeightInput.value) : null,
         pasta_drive_url: productDriveFolderInput ? productDriveFolderInput.value.trim() || null : null,
-        produtos_relacionados: currentRelatedProducts,
-        created_at: new Date().toISOString()
+        produtos_relacionados: currentRelatedProducts
     };
+
+    const now = new Date().toISOString();
 
     if (FirebaseService.isConfigured && FirebaseService.db) {
         try {
             if (id) {
-                await FirebaseService.db.collection('produtos').doc(id).set(productData, { merge: true });
+                // Edição: preserva created_at existente e registra updated_at (RF01, RF02, CA01)
+                const updateData = {
+                    ...baseProductData,
+                    updated_at: now
+                };
+                await FirebaseService.db.collection('produtos').doc(id).set(updateData, { merge: true });
                 showToast("Móvel atualizado no Firestore!");
             } else {
-                await FirebaseService.db.collection('produtos').add(productData);
+                // Criação: registra created_at na criação (RF01)
+                const newProductData = {
+                    ...baseProductData,
+                    created_at: now
+                };
+                await FirebaseService.db.collection('produtos').add(newProductData);
                 showToast("Móvel cadastrado no Firestore!");
             }
         } catch (error) {
@@ -656,12 +673,24 @@ productForm.addEventListener('submit', async (e) => {
         if (id) {
             const index = localProducts.findIndex(p => String(p.id) === String(id));
             if (index !== -1) {
-                localProducts[index] = { ...localProducts[index], ...productData };
+                const existing = localProducts[index];
+                localProducts[index] = {
+                    ...existing,
+                    ...baseProductData,
+                    updated_at: now
+                };
+                if (existing.created_at) {
+                    localProducts[index].created_at = existing.created_at;
+                }
             }
             showToast("Móvel atualizado localmente!");
         } else {
             const newId = "local_" + Date.now();
-            localProducts.push({ id: newId, ...productData });
+            localProducts.push({
+                id: newId,
+                ...baseProductData,
+                created_at: now
+            });
             showToast("Móvel cadastrado localmente!");
         }
         localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
