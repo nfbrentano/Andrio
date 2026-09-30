@@ -1067,11 +1067,35 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .fun-navbar-left {
-        flex: 0;
+        flex: 0 1 auto;
+        min-width: 0;
+        max-width: calc(100% - 60px);
+    }
+
+    .fun-navbar .fun-logo-wrap {
+        height: 48px;
+        margin-top: 0;
+        max-width: 100%;
+    }
+
+    .fun-navbar .fun-logo-img {
+        max-height: 48px;
+        max-width: 100%;
+        width: auto;
+    }
+
+    .fun-navbar.scrolled .fun-logo-wrap {
+        height: 38px;
+        margin-top: 0;
+    }
+
+    .fun-navbar.scrolled .fun-logo-img {
+        max-height: 38px;
     }
 
     .fun-navbar-right {
         margin-left: auto;
+        flex-shrink: 0;
     }
 
     /* Mobile Overlay */

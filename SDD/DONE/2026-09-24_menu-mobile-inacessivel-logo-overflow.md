@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity (validação e implementação) · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -43,11 +43,11 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um celular de 375px, quando abro `index.html`, `catalogo.html` ou `produto.html`, então o logo aparece inteiro e o hambúrguer fica dentro da tela.
-- [ ] **CA02:** Dado um celular de 320px, quando toco no hambúrguer, então o menu de categorias abre.
-- [ ] **CA03:** Dado que rolo a página, quando a navbar recebe `.scrolled`, então o logo diminui sem cortar e sem cobrir o hambúrguer.
-- [ ] **CA04:** Dado qualquer largura entre 320px e 1440px, quando a página carrega, então não há rolagem horizontal.
-- [ ] **CA05:** Dado um desktop de 1440px, quando a página carrega, então o layout não muda em relação ao atual (caso negativo).
+- [x] **CA01:** Dado um celular de 375px, quando abro `index.html`, `catalogo.html` ou `produto.html`, então o logo aparece inteiro e o hambúrguer fica dentro da tela.
+- [x] **CA02:** Dado um celular de 320px, quando toco no hambúrguer, então o menu de categorias abre.
+- [x] **CA03:** Dado que rolo a página, quando a navbar recebe `.scrolled`, então o logo diminui sem cortar e sem cobrir o hambúrguer.
+- [x] **CA04:** Dado qualquer largura entre 320px e 1440px, quando a página carrega, então não há rolagem horizontal.
+- [x] **CA05:** Dado um desktop de 1440px, quando a página carrega, então o layout não muda em relação ao atual (caso negativo).
 
 ## O que a atividade não inclui
 
@@ -62,7 +62,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Qual altura máxima do logo no mobile o design aprova? | design | Não | |
+| D01 | Qual altura máxima do logo no mobile o design aprova? | design | Não | Definido 48px para mobile (<= 1024px) e 38px com scroll (.scrolled), com max-width: 100%, garantindo espaçamento de sobra, proporção preservada e hambúrguer 100% visível inclusive em 320px. |
 
 ## Sugestões de casos de teste
 
