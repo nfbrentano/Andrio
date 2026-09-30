@@ -37,6 +37,8 @@ const userEmail = document.getElementById('user-email');
 const productIdInput = document.getElementById('product-id');
 const productNameInput = document.getElementById('product-name');
 const productPriceInput = document.getElementById('product-price');
+const productPriceSobConsulta = document.getElementById('product-price-sob-consulta');
+const labelProductPrice = document.getElementById('label-product-price');
 const productCategoryInput = document.getElementById('product-category');
 const productSubheadInput = document.getElementById('product-subhead');
 const productAvailabilityInput = document.getElementById('product-availability');
@@ -509,7 +511,7 @@ async function renderCrossSellSelector(currentEditingId = null) {
         const defaultImg = getDefaultImageForCategory(p.categoria);
         const safeImg = escapeHtml(safeUrl(p.img, defaultImg));
         const safeNome = escapeHtml(p.nome);
-        const safePreco = escapeHtml(p.preco);
+        const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(p) : p.preco);
         const safeCategoria = escapeHtml(p.categoria);
         const safeId = escapeHtml(String(p.id));
 
@@ -580,7 +582,7 @@ async function renderTable() {
         const safeTipoMadeira = escapeHtml(p.tipo_madeira || 'Madeira maciça');
         const safeMaterialEstofado = escapeHtml(p.material_estofado || 'Tecido');
         const safeCategoria = escapeHtml(p.categoria);
-        const safePreco = escapeHtml(p.preco);
+        const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(p) : p.preco);
         const safeId = escapeHtml(String(p.id));
         
         const tr = document.createElement('tr');
@@ -636,7 +638,30 @@ async function prepareEdit(id) {
 
     productIdInput.value = item.id;
     productNameInput.value = item.nome;
-    productPriceInput.value = item.preco;
+    if (item.preco_sob_consulta || (typeof isSobConsulta === 'function' && isSobConsulta(item.preco))) {
+        if (productPriceSobConsulta) productPriceSobConsulta.checked = true;
+        if (productPriceInput) {
+            productPriceInput.value = '';
+            productPriceInput.disabled = true;
+            productPriceInput.required = false;
+            productPriceInput.placeholder = 'Sob consulta';
+        }
+        if (labelProductPrice) labelProductPrice.textContent = 'Preço (R$)';
+    } else {
+        if (productPriceSobConsulta) productPriceSobConsulta.checked = false;
+        if (productPriceInput) {
+            productPriceInput.disabled = false;
+            productPriceInput.required = true;
+            productPriceInput.placeholder = 'Ex: R$ 2.890,00';
+            const centavos = typeof item.preco_centavos === 'number' && item.preco_centavos > 0
+                ? item.preco_centavos
+                : (typeof parsePrecoParaCentavos === 'function' ? parsePrecoParaCentavos(item.preco) : null);
+            productPriceInput.value = (centavos !== null && typeof formatarPrecoCentavos === 'function')
+                ? formatarPrecoCentavos(centavos)
+                : (item.preco || '');
+        }
+        if (labelProductPrice) labelProductPrice.textContent = 'Preço (R$) *';
+    }
     productCategoryInput.value = item.categoria;
     productSubheadInput.value = item.subhead || '';
     productAvailabilityInput.value = item.disponibilidade || 'pronta_entrega';
@@ -677,6 +702,13 @@ async function prepareEdit(id) {
 function resetForm() {
     productIdInput.value = '';
     productForm.reset();
+    if (productPriceSobConsulta) productPriceSobConsulta.checked = false;
+    if (productPriceInput) {
+        productPriceInput.disabled = false;
+        productPriceInput.required = true;
+        productPriceInput.placeholder = 'Ex: R$ 2.890,00';
+    }
+    if (labelProductPrice) labelProductPrice.textContent = 'Preço (R$) *';
     if (productDriveFolderInput) productDriveFolderInput.value = '';
     if (bulkDriveUrls) bulkDriveUrls.value = '';
     currentGalleryImages = [];
@@ -701,7 +733,37 @@ productForm.addEventListener('submit', async (e) => {
 
     const id = productIdInput.value;
     const nome = productNameInput.value.trim();
-    const preco = productPriceInput.value.trim();
+
+    let preco_centavos = null;
+    let preco_sob_consulta = false;
+    let preco = '';
+
+    if (productPriceSobConsulta && productPriceSobConsulta.checked) {
+        preco_sob_consulta = true;
+        preco_centavos = null;
+        preco = 'Sob consulta';
+    } else {
+        const rawPreco = productPriceInput ? productPriceInput.value.trim() : '';
+        if (!rawPreco) {
+            showToast("Por favor, informe um preço válido maior que zero ou marque 'Sob consulta'.");
+            if (productPriceInput) productPriceInput.focus();
+            return;
+        }
+        const centavos = typeof parsePrecoParaCentavos === 'function'
+            ? parsePrecoParaCentavos(rawPreco)
+            : null;
+        if (centavos === null || isNaN(centavos) || centavos <= 0) {
+            showToast("Por favor, informe um preço válido maior que zero ou marque 'Sob consulta'.");
+            if (productPriceInput) productPriceInput.focus();
+            return;
+        }
+        preco_centavos = centavos;
+        preco_sob_consulta = false;
+        preco = typeof formatarPrecoCentavos === 'function'
+            ? formatarPrecoCentavos(centavos)
+            : rawPreco;
+    }
+
     const categoria = productCategoryInput.value;
     const subhead = productSubheadInput.value.trim() || 'Design Autoral PACO';
     const disponibilidade = productAvailabilityInput.value;
@@ -714,6 +776,8 @@ productForm.addEventListener('submit', async (e) => {
     const baseProductData = {
         nome,
         preco,
+        preco_centavos,
+        preco_sob_consulta,
         categoria,
         subhead,
         desc,
@@ -1478,6 +1542,38 @@ btnLogout.addEventListener('click', async () => {
 
 searchInput.addEventListener('input', renderTable);
 btnCancel.addEventListener('click', resetForm);
+
+// Toggle do campo de preço quando 'Sob consulta' é marcado (RF05, CA04, CA06)
+if (productPriceSobConsulta) {
+    productPriceSobConsulta.addEventListener('change', () => {
+        if (productPriceSobConsulta.checked) {
+            productPriceInput.value = '';
+            productPriceInput.disabled = true;
+            productPriceInput.required = false;
+            productPriceInput.placeholder = 'Sob consulta';
+            if (labelProductPrice) labelProductPrice.textContent = 'Preço (R$)';
+        } else {
+            productPriceInput.disabled = false;
+            productPriceInput.required = true;
+            productPriceInput.placeholder = 'Ex: R$ 2.890,00';
+            if (labelProductPrice) labelProductPrice.textContent = 'Preço (R$) *';
+            productPriceInput.focus();
+        }
+    });
+}
+
+// Formatação amigável ao sair do campo de preço (RF05, CA02)
+if (productPriceInput) {
+    productPriceInput.addEventListener('blur', () => {
+        if (productPriceSobConsulta && productPriceSobConsulta.checked) return;
+        const val = productPriceInput.value.trim();
+        if (!val) return;
+        const centavos = typeof parsePrecoParaCentavos === 'function' ? parsePrecoParaCentavos(val) : null;
+        if (centavos !== null && centavos > 0 && typeof formatarPrecoCentavos === 'function') {
+            productPriceInput.value = formatarPrecoCentavos(centavos);
+        }
+    });
+}
 
 // Inicialização Principal com Guard de Autenticação (RF04, RF06, CA04)
 document.addEventListener('DOMContentLoaded', async () => {

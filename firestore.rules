@@ -9,6 +9,8 @@ service cloud.firestore {
     //   - nome: string (1..120 chars) - obrigatório
     //   - categoria: string ('poltrona' | 'mesa' | 'cadeira' | 'luminaria') - obrigatório
     //   - preco: string (<= 50 chars) - opcional
+    //   - preco_centavos: number (>= 0) ou null - opcional
+    //   - preco_sob_consulta: bool - opcional
     //   - subhead: string (<= 150 chars) - opcional
     //   - desc: string (<= 2000 chars) - opcional
     //   - disponibilidade: string (<= 50 chars) - opcional
@@ -51,6 +53,8 @@ service cloud.firestore {
         && isValidCategory(data.categoria)
         && (!('imagens' in data) || (data.imagens is list && data.imagens.size() <= 20))
         && (!('preco' in data) || (data.preco is string && data.preco.size() <= 50))
+        && (!('preco_centavos' in data) || data.preco_centavos == null || (data.preco_centavos is number && data.preco_centavos >= 0))
+        && (!('preco_sob_consulta' in data) || data.preco_sob_consulta is bool)
         && (!('subhead' in data) || (data.subhead is string && data.subhead.size() <= 150))
         && (!('desc' in data) || (data.desc is string && data.desc.size() <= 2000))
         && (!('img' in data) || (data.img is string && data.img.size() <= 1000))

@@ -67,10 +67,17 @@ const catalogoSort = document.getElementById('catalogo-sort');
 const catalogoCount = document.getElementById('catalogo-count');
 const filterBtns = document.querySelectorAll('.fun-pill-btn');
 
-// Converte string de preço "R$ 2.890,00" para número float
-function parsePrice(priceStr) {
-    if (!priceStr) return 0;
-    const clean = priceStr.replace(/[^\d,]/g, '').replace(',', '.');
+// Converte preço para centavos numéricos para comparação e ordenação (RF03, CA03, CA04)
+function parsePrice(itemOrPriceStr) {
+    if (typeof itemOrPriceStr === 'object' && itemOrPriceStr !== null) {
+        return typeof obterPrecoCentavos === 'function' ? (obterPrecoCentavos(itemOrPriceStr) || 0) : 0;
+    }
+    if (typeof parsePrecoParaCentavos === 'function') {
+        const cents = parsePrecoParaCentavos(itemOrPriceStr);
+        return cents !== null ? cents : 0;
+    }
+    if (!itemOrPriceStr) return 0;
+    const clean = String(itemOrPriceStr).replace(/[^\d,]/g, '').replace(',', '.');
     return parseFloat(clean) || 0;
 }
 
@@ -109,11 +116,11 @@ function renderizarCatalogo() {
         });
     }
 
-    // Ordenação
+    // Ordenação numérica por preço ou nome/data (RF03, CA03, CA04)
     if (sortVal === 'price-asc') {
-        filtrados.sort((a, b) => parsePrice(a.preco) - parsePrice(b.preco));
+        filtrados.sort((a, b) => typeof compararPreco === 'function' ? compararPreco(a, b, 'asc') : (parsePrice(a) - parsePrice(b)));
     } else if (sortVal === 'price-desc') {
-        filtrados.sort((a, b) => parsePrice(b.preco) - parsePrice(a.preco));
+        filtrados.sort((a, b) => typeof compararPreco === 'function' ? compararPreco(a, b, 'desc') : (parsePrice(b) - parsePrice(a)));
     } else if (sortVal === 'name-asc') {
         filtrados.sort((a, b) => (a.nome || '').localeCompare(b.nome || '', 'pt-BR'));
     } else if (sortVal === 'recent') {
@@ -158,7 +165,7 @@ function renderizarCatalogo() {
         const safeDefaultHover = escapeHtml(defaultHover);
 
         const safeNome = escapeHtml(p.nome);
-        const safePreco = escapeHtml(p.preco);
+        const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(p) : p.preco);
         const safeSubhead = escapeHtml(p.subhead || p.categoria || 'Design Autoral');
         const safeDesc = escapeHtml(p.desc || '');
         const safeId = encodeURIComponent(String(p.id));

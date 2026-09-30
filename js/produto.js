@@ -73,7 +73,7 @@ async function renderizarProduto() {
     document.title = `${produto.nome} | PACO Móveis`;
 
     const safeNome = escapeHtml(produto.nome);
-    const safePreco = escapeHtml(produto.preco);
+    const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(produto) : produto.preco);
     const safeCategoria = escapeHtml(produto.categoria || '');
     const safeDesc = escapeHtml(produto.desc || 'Peça exclusiva de design autoral em materiais nobres.');
     const safeColor = sanitizeHexColor(produto.color, '#2b7fff');
@@ -201,7 +201,7 @@ async function renderizarProduto() {
                                     : item.img;
                                 const safeRelImg = escapeHtml(safeUrl(relNormalized, relDefaultImg));
                                 const safeRelNome = escapeHtml(item.nome);
-                                const safeRelPreco = escapeHtml(item.preco);
+                                const safeRelPreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(item) : item.preco);
                                 const safeRelId = encodeURIComponent(String(item.id));
                                 return `
                                 <a class="modal-bundle-card" href="produto.html?id=${safeRelId}" data-id="${safeRelId}" aria-label="${safeRelNome} - ${safeRelPreco}">

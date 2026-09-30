@@ -137,7 +137,7 @@ function renderizarProdutos(categoria = 'poltrona') {
         const safeDefaultHover = escapeHtml(defaultHover);
 
         const safeNome = escapeHtml(produto.nome);
-        const safePreco = escapeHtml(produto.preco);
+        const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(produto) : produto.preco);
         const safeSubhead = escapeHtml(produto.subhead || 'Design Autoral');
         const safeDesc = escapeHtml(produto.desc || '');
         const safeId = encodeURIComponent(String(produto.id));

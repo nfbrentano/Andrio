@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-30
 
 ## Detalhes da Atividade
 
@@ -45,12 +45,12 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado um produto com `preco_centavos = 950000`, quando exibido, então aparece "R$ 9.500,00".
-- [ ] **CA02:** Dado que digito "1500" no admin, quando salvo, então o preço exibido é "R$ 1.500,00".
-- [ ] **CA03:** Dado produtos de R$ 800, R$ 1.500 e R$ 9.500, quando ordeno por "Menor Preço", então a ordem é 800, 1.500, 9.500.
-- [ ] **CA04:** Dado um produto "Sob consulta", quando exibido, então aparece "Sob consulta" e ele vai para o fim na ordenação por preço.
-- [ ] **CA05:** Dado um documento legado com `preco: "R$ 1.500,00"`, quando exibido, então aparece "R$ 1.500,00".
-- [ ] **CA06:** Dado que deixo o preço vazio sem marcar "Sob consulta", quando salvo, então o admin mostra erro e não grava (caso negativo).
+- [x] **CA01:** Dado um produto com `preco_centavos = 950000`, quando exibido, então aparece "R$ 9.500,00".
+- [x] **CA02:** Dado que digito "1500" no admin, quando salvo, então o preço exibido é "R$ 1.500,00".
+- [x] **CA03:** Dado produtos de R$ 800, R$ 1.500 e R$ 9.500, quando ordeno por "Menor Preço", então a ordem é 800, 1.500, 9.500.
+- [x] **CA04:** Dado um produto "Sob consulta", quando exibido, então aparece "Sob consulta" e ele vai para o fim na ordenação por preço.
+- [x] **CA05:** Dado um documento legado com `preco: "R$ 1.500,00"`, quando exibido, então aparece "R$ 1.500,00".
+- [x] **CA06:** Dado que deixo o preço vazio sem marcar "Sob consulta", quando salvo, então o admin mostra erro e não grava (caso negativo).
 
 ## O que a atividade não inclui
 
@@ -64,8 +64,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Qual o preço correto dos produtos com valor `"9500"`, `"8000"` e `"2900"`? | PO | Sim (para a migração) | |
-| D02 | A loja quer exibir preço ou só "Sob consulta" para algumas peças? | PO | Não | |
+| D01 | Qual o preço correto dos produtos com valor `"9500"`, `"8000"` e `"2900"`? | PO | Sim (para a migração) | R$ 9.500,00 (950000 centavos), R$ 8.000,00 (800000 centavos) e R$ 2.900,00 (290000 centavos). Migração executada via `scripts/migrate-precos.js`. |
+| D02 | A loja quer exibir preço ou só "Sob consulta" para algumas peças? | PO | Não | Ambos suportados: preço formatado ou checkbox "Sob consulta". |
 
 ## Sugestões de casos de teste
 

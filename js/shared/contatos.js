@@ -109,7 +109,12 @@ function gerarLinkWhatsAppProduto(phone, produto, urlProduto) {
     if (!validarWhatsApp(phone)) return '';
     const cleanNumber = formatarNumeroWhatsApp(phone);
     const nome = produto && produto.nome ? produto.nome : 'Móvel';
-    const preco = produto && produto.preco ? produto.preco : '';
+    let preco = '';
+    if (typeof formatarPrecoProduto === 'function') {
+        preco = formatarPrecoProduto(produto);
+    } else if (produto && produto.preco) {
+        preco = produto.preco;
+    }
     const precoInfo = preco ? ` (${preco})` : '';
 
     let urlFinal = urlProduto;

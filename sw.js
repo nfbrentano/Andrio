@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paco-cache-v16';
+const CACHE_NAME = 'paco-cache-v17';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [

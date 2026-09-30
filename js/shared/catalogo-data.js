@@ -83,7 +83,9 @@ const PRODUTOS_PADRAO = [
     { 
         id: 1, 
         nome: "Poltrona Clássica Veludo", 
-        preco: "R$ 2.890,00", 
+        preco: "R$ 2.890,00",
+        preco_centavos: 289000,
+        preco_sob_consulta: false,
         categoria: "poltrona", 
         img: "assets/prod_poltrona.webp", 
         imagens: ["assets/prod_poltrona.webp", "assets/hero_left_chair.webp"],
@@ -105,7 +107,9 @@ const PRODUTOS_PADRAO = [
     { 
         id: 2, 
         nome: "Luminária Moderno Terracota", 
-        preco: "R$ 4.590,00", 
+        preco: "R$ 4.590,00",
+        preco_centavos: 459000,
+        preco_sob_consulta: false,
         categoria: "luminaria", 
         img: "assets/prod_luminaria.webp", 
         imagens: ["assets/prod_luminaria.webp", "assets/middle_model.webp"],
@@ -127,7 +131,9 @@ const PRODUTOS_PADRAO = [
     { 
         id: 3, 
         nome: "Cadeira de Jantar Mostarda", 
-        preco: "R$ 1.290,00", 
+        preco: "R$ 1.290,00",
+        preco_centavos: 129000,
+        preco_sob_consulta: false,
         categoria: "cadeira", 
         img: "assets/prod_cadeira.webp", 
         imagens: ["assets/prod_cadeira.webp", "assets/people_grid_1.webp"],
@@ -149,7 +155,9 @@ const PRODUTOS_PADRAO = [
     { 
         id: 4, 
         nome: "Mesa Lateral Mármore", 
-        preco: "R$ 1.890,00", 
+        preco: "R$ 1.890,00",
+        preco_centavos: 189000,
+        preco_sob_consulta: false,
         categoria: "mesa", 
         img: "assets/prod_mesa.webp", 
         imagens: ["assets/prod_mesa.webp", "assets/hero_product.webp"],
@@ -169,6 +177,110 @@ const PRODUTOS_PADRAO = [
         produtos_relacionados: [1, 2]
     }
 ];
+
+// Formatação e conversão de preços em Real (BRL) e centavos (RF01, RF02, RF04, RNF01)
+const BRL_FORMATTER = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+});
+
+function isSobConsulta(input) {
+    if (input === true) return true;
+    if (typeof input === 'string') {
+        const str = input.trim().toLowerCase();
+        return str.includes('consulta') || str.includes('sob consulta');
+    }
+    return false;
+}
+
+function formatarPrecoCentavos(centavos) {
+    if (centavos === null || centavos === undefined || isNaN(centavos) || centavos <= 0) {
+        return "Sob consulta";
+    }
+    const valorReais = Math.round(centavos) / 100;
+    return BRL_FORMATTER.format(valorReais).replace(/\u00a0/g, ' ');
+}
+
+function parsePrecoParaCentavos(input) {
+    if (input === null || input === undefined) return null;
+    if (typeof input === 'number') {
+        if (isNaN(input) || input <= 0) return null;
+        return Math.round(input * 100);
+    }
+    const str = String(input).trim();
+    if (!str || isSobConsulta(str)) return null;
+
+    let clean = str.replace(/[R$\s]/g, '');
+
+    // Verifica se possui ambos os separadores: ex "1.500,50" ou "1,500.50"
+    if (clean.includes('.') && clean.includes(',')) {
+        if (clean.lastIndexOf(',') > clean.lastIndexOf('.')) {
+            // Padrão Brasileiro: "1.500,50" -> "1500.50"
+            clean = clean.replace(/\./g, '').replace(',', '.');
+        } else {
+            // Padrão Internacional: "1,500.50" -> "1500.50"
+            clean = clean.replace(/,/g, '');
+        }
+    } else if (clean.includes(',')) {
+        // Apenas vírgula: "2890,50", "1500,00", "9,5"
+        clean = clean.replace(',', '.');
+    } else if (clean.includes('.')) {
+        // Apenas ponto: "9.500" (milhar) vs "1500.50" (decimal)
+        const parts = clean.split('.');
+        if (parts.length > 2 || (parts.length === 2 && parts[1].length === 3)) {
+            // Separador de milhar
+            clean = clean.replace(/\./g, '');
+        }
+    }
+
+    const valorReais = parseFloat(clean);
+    if (isNaN(valorReais) || valorReais <= 0) return null;
+    return Math.round(valorReais * 100);
+}
+
+function obterPrecoCentavos(produto) {
+    if (!produto) return null;
+    if (produto.preco_sob_consulta === true || isSobConsulta(produto.preco)) return null;
+    if (typeof produto.preco_centavos === 'number' && !isNaN(produto.preco_centavos) && produto.preco_centavos > 0) {
+        return Math.round(produto.preco_centavos);
+    }
+    if (produto.preco !== undefined && produto.preco !== null) {
+        return parsePrecoParaCentavos(produto.preco);
+    }
+    return null;
+}
+
+function formatarPrecoProduto(produto) {
+    if (!produto) return "Sob consulta";
+    if (produto.preco_sob_consulta === true || isSobConsulta(produto.preco)) {
+        return "Sob consulta";
+    }
+    if (typeof produto.preco_centavos === 'number' && !isNaN(produto.preco_centavos) && produto.preco_centavos > 0) {
+        return formatarPrecoCentavos(produto.preco_centavos);
+    }
+    if (produto.preco !== undefined && produto.preco !== null && String(produto.preco).trim() !== '') {
+        const centavos = parsePrecoParaCentavos(produto.preco);
+        if (centavos !== null && centavos > 0) {
+            return formatarPrecoCentavos(centavos);
+        }
+    }
+    return "Sob consulta";
+}
+
+function compararPreco(a, b, ordem = 'asc') {
+    const precoA = obterPrecoCentavos(a);
+    const precoB = obterPrecoCentavos(b);
+    const aSob = precoA === null;
+    const bSob = precoB === null;
+
+    if (aSob && bSob) return 0;
+    if (aSob) return 1; // "Sob consulta" sempre vai para o fim
+    if (bSob) return -1;
+
+    return ordem === 'desc' ? (precoB - precoA) : (precoA - precoB);
+}
 
 // Converte data/timestamp (ISO string, Firestore Timestamp ou Date) para milissegundos
 function parseDataTimestamp(val) {
@@ -204,9 +316,29 @@ async function carregarProdutos() {
                         : [mainImg, defaultHover];
                     if (imagens.length === 0) imagens = [mainImg, defaultHover];
 
+                    // Resolução e normalização de preço (RF01, RF04, CA01, CA04, CA05)
+                    const sobConsulta = Boolean(
+                        data.preco_sob_consulta === true || 
+                        isSobConsulta(data.preco)
+                    );
+                    let precoCentavos = null;
+                    if (!sobConsulta) {
+                        if (typeof data.preco_centavos === 'number' && !isNaN(data.preco_centavos) && data.preco_centavos > 0) {
+                            precoCentavos = Math.round(data.preco_centavos);
+                        } else if (data.preco !== undefined && data.preco !== null) {
+                            precoCentavos = parsePrecoParaCentavos(data.preco);
+                        }
+                    }
+                    const precoFormatado = sobConsulta || precoCentavos === null
+                        ? "Sob consulta"
+                        : formatarPrecoCentavos(precoCentavos);
+
                     items.push({ 
                         id: doc.id, 
                         ...data,
+                        preco_centavos: precoCentavos,
+                        preco_sob_consulta: sobConsulta,
+                        preco: precoFormatado,
                         img: mainImg,
                         imagens: imagens
                     });
@@ -238,16 +370,18 @@ async function carregarProdutos() {
     
     // Fallback: LocalStorage ou Mock Padrão
     let raw = null;
-    try {
-        const local = localStorage.getItem('fun_produtos');
-        if (local !== null) {
-            const parsed = JSON.parse(local);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                raw = parsed;
+    if (typeof localStorage !== 'undefined') {
+        try {
+            const local = localStorage.getItem('fun_produtos');
+            if (local !== null) {
+                const parsed = JSON.parse(local);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    raw = parsed;
+                }
             }
+        } catch (e) {
+            console.error("[CatalogoData] Erro ao carregar do localStorage:", e);
         }
-    } catch (e) {
-        console.error("[CatalogoData] Erro ao carregar do localStorage:", e);
     }
 
     if (raw === null) {
@@ -285,10 +419,30 @@ async function carregarProdutos() {
         const safeColor = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.color, '#2b7fff') : (item.color || '#2b7fff');
         const safeBg = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.bg, safeColor) : (item.bg || item.color || "#4190de");
 
+        // Resolução e normalização de preço (RF01, RF04, CA01, CA04, CA05)
+        const sobConsulta = Boolean(
+            item.preco_sob_consulta === true || 
+            isSobConsulta(item.preco)
+        );
+        let precoCentavos = null;
+        if (!sobConsulta) {
+            if (typeof item.preco_centavos === 'number' && !isNaN(item.preco_centavos) && item.preco_centavos > 0) {
+                precoCentavos = Math.round(item.preco_centavos);
+            } else if (item.preco !== undefined && item.preco !== null) {
+                precoCentavos = parsePrecoParaCentavos(item.preco);
+            }
+        }
+        const precoFormatado = sobConsulta || precoCentavos === null
+            ? "Sob consulta"
+            : formatarPrecoCentavos(precoCentavos);
+
         return {
             ...item,
             id: itemId,
             produtos_relacionados: relacionados,
+            preco_centavos: precoCentavos,
+            preco_sob_consulta: sobConsulta,
+            preco: precoFormatado,
             img: mainImg,
             imagens: imagens,
             color: safeColor,
@@ -309,6 +463,13 @@ if (typeof window !== 'undefined') {
     window.getDefaultHoverImageForCategory = getDefaultHoverImageForCategory;
     window.normalizarUrlImagem = normalizarUrlImagem;
     window['PRODUTOS_PADRAO'] = PRODUTOS_PADRAO;
+    window.BRL_FORMATTER = BRL_FORMATTER;
+    window.isSobConsulta = isSobConsulta;
+    window.formatarPrecoCentavos = formatarPrecoCentavos;
+    window.parsePrecoParaCentavos = parsePrecoParaCentavos;
+    window.obterPrecoCentavos = obterPrecoCentavos;
+    window.formatarPrecoProduto = formatarPrecoProduto;
+    window.compararPreco = compararPreco;
     window.parseDataTimestamp = parseDataTimestamp;
     window.carregarProdutos = carregarProdutos;
 }
@@ -323,6 +484,13 @@ if (typeof module !== 'undefined' && module.exports) {
         getDefaultHoverImageForCategory,
         normalizarUrlImagem,
         PRODUTOS_PADRAO,
+        BRL_FORMATTER,
+        isSobConsulta,
+        formatarPrecoCentavos,
+        parsePrecoParaCentavos,
+        obterPrecoCentavos,
+        formatarPrecoProduto,
+        compararPreco,
         parseDataTimestamp,
         carregarProdutos
     };
