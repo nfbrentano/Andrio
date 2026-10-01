@@ -88,10 +88,10 @@ async function runAllTests() {
         );
     });
 
-    runTest('sw.js deve incluir js/login.js na lista de PRECACHE_ASSETS', () => {
+    runTest('sw.js não deve pré-cachear js/login.js para visitantes anônimos (SDD Service Worker RF02)', () => {
         assert.ok(
-            swJsContent.includes("'js/login.js'"),
-            'sw.js deve pré-cachear js/login.js'
+            !swJsContent.includes("'js/login.js'"),
+            'sw.js não deve pré-cachear js/login.js'
         );
     });
 

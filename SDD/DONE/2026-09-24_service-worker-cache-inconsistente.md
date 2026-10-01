@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-10-01
 
 ## Detalhes da Atividade
 
@@ -48,11 +48,11 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado uma instalação limpa do SW, quando inspeciono o Cache Storage, então `assets/logo.webp` está presente e não há erros de precache.
-- [ ] **CA02:** Dado um novo deploy com CSS alterado, quando o visitante recarrega uma vez, então recebe o novo CSS.
-- [ ] **CA03:** Dado um visitante anônimo, quando o SW instala, então `admin.html` e `js/admin.js` não são baixados (caso negativo).
-- [ ] **CA04:** Dado que o visitante entrou direto pelo catálogo, quando fica offline e recarrega, então o catálogo carrega do cache.
-- [ ] **CA05:** Dado 100 imagens diferentes visitadas, quando inspeciono o cache de runtime, então ele não passa do limite configurado.
+- [x] **CA01:** Dado uma instalação limpa do SW, quando inspeciono o Cache Storage, então `assets/logo.webp` está presente e não há erros de precache.
+- [x] **CA02:** Dado um novo deploy com CSS alterado, quando o visitante recarrega uma vez, então recebe o novo CSS.
+- [x] **CA03:** Dado um visitante anônimo, quando o SW instala, então `admin.html` e `js/admin.js` não são baixados (caso negativo).
+- [x] **CA04:** Dado que o visitante entrou direto pelo catálogo, quando fica offline e recarrega, então o catálogo carrega do cache.
+- [x] **CA05:** Dado 100 imagens diferentes visitadas, quando inspeciono o cache de runtime, então ele não passa do limite configurado.
 
 ## O que a atividade não inclui
 
@@ -67,7 +67,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | O suporte offline é um requisito do negócio ou só otimização? | PO | Não | |
+| D01 | O suporte offline é um requisito do negócio ou só otimização? | PO | Não | Implementado como resiliência/otimização: páginas públicas (`index`, `catalogo`, `produto`), CSS e JS suportam offline via cache fallback, e imagens usam cache de runtime limitado. |
 
 ## Sugestões de casos de teste
 

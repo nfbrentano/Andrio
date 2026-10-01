@@ -148,5 +148,14 @@
     <script src="js/shared/catalogo-data.js" defer></script>
     <script src="js/shared/ui.js" defer></script>
     <script src="js/produto.js" defer></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then((reg) => console.log('[SW] Registrado com sucesso:', reg.scope))
+                    .catch((err) => console.warn('[SW] Erro ao registrar:', err));
+            });
+        }
+    </script>
 </body>
 </html>

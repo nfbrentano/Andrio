@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-10-01
 
 ## Detalhes da Atividade
 
@@ -54,11 +54,11 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado o repositório, quando busco "funcosmeticos", então não há ocorrências.
-- [ ] **CA02:** Dado o link da home compartilhado no WhatsApp, quando a prévia é gerada, então mostra título, imagem e domínio da PACO.
-- [ ] **CA03:** Dado uma página de produto, quando passo pelo Rich Results Test, então é reconhecido um `Product` válido.
-- [ ] **CA04:** Dado o `sitemap.xml`, quando o abro, então contém home, catálogo e todos os produtos.
-- [ ] **CA05:** Dado o catálogo, quando inspeciono um card, então ele contém um `<a href>` para o produto.
+- [x] **CA01:** Dado o repositório, quando busco "funcosmeticos", então não há ocorrências.
+- [x] **CA02:** Dado o link da home compartilhado no WhatsApp, quando a prévia é gerada, então mostra título, imagem e domínio da PACO.
+- [x] **CA03:** Dado uma página de produto, quando passo pelo Rich Results Test, então é reconhecido um `Product` válido.
+- [x] **CA04:** Dado o `sitemap.xml`, quando o abro, então contém home, catálogo e todos os produtos.
+- [x] **CA05:** Dado o catálogo, quando inspeciono um card, então ele contém um `<a href>` para o produto.
 
 ## O que a atividade não inclui
 
@@ -74,8 +74,8 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Qual o domínio oficial da PACO? | PO | Sim | |
-| D02 | O sitemap deve ser gerado no deploy (GitHub Actions) ou manualmente? | dev | Não | |
+| D01 | Qual o domínio oficial da PACO? | PO | Sim | `https://pacomoveis.com.br` (conforme padrão oficial adotado em contatos, e-mails `contato@pacomoveis.com.br` e testes). |
+| D02 | O sitemap deve ser gerado no deploy (GitHub Actions) ou manualmente? | dev | Não | Gerado via script Node.js (`scripts/generate-sitemap.js`) a partir do catálogo e versionado na raiz, além de incluído no workflow de deploy do GitHub Pages. |
 
 ## Sugestões de casos de teste
 
