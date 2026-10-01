@@ -1,4 +1,4 @@
-const CACHE_NAME = 'paco-cache-v17';
+const CACHE_NAME = 'paco-cache-v19';
 
 // Recursos estáticos essenciais pré-cacheados na instalação
 const PRECACHE_ASSETS = [
@@ -8,6 +8,7 @@ const PRECACHE_ASSETS = [
     'produto.html',
     'admin.html',
     'login.html',
+    'manifest.json',
     'css/style.css',
     'css/antigravity.min.css',
     'css/admin.css',
@@ -18,6 +19,7 @@ const PRECACHE_ASSETS = [
     'js/shared/ui.js',
     'js/app.js',
     'js/admin.js',
+    'js/login.js',
     'js/firebase-config.js',
     'js/auth.js',
     'js/catalogo.js',

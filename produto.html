@@ -3,12 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Detalhes do Produto | PACO Móveis">
+    <meta name="description" id="meta-description" content="Detalhes do Produto | PACO Móveis de Design - Peças exclusivas de design autoral e acabamento refinado.">
     <meta name="author" content="PACO Móveis">
+    <meta name="theme-color" content="#2b7fff">
     
-    <title>Detalhes do Produto | PACO Móveis de Design</title>
+    <link rel="canonical" id="canonical-link" href="https://pacomoveis.com.br/produto.html">
+    <link rel="manifest" href="manifest.json">
     
+    <!-- Open Graph (SEO Redes Sociais) -->
+    <meta property="og:title" id="og-title" content="Detalhes do Produto | PACO Móveis de Design">
+    <meta property="og:description" id="og-description" content="Detalhes do Produto | PACO Móveis de Design - Peças exclusivas de design autoral e acabamento refinado.">
+    <meta property="og:image" id="og-image" content="https://pacomoveis.com.br/assets/hero_product.webp">
+    <meta property="og:type" id="og-type" content="product">
+    <meta property="og:url" id="og-url" content="https://pacomoveis.com.br/produto.html">
+    <meta property="og:site_name" content="PACO Móveis">
+    <meta property="og:locale" content="pt_BR">
 
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="twitter-title" content="Detalhes do Produto | PACO Móveis de Design">
+    <meta name="twitter:description" id="twitter-description" content="Detalhes do Produto | PACO Móveis de Design - Peças exclusivas de design autoral e acabamento refinado.">
+    <meta name="twitter:image" id="twitter-image" content="https://pacomoveis.com.br/assets/hero_product.webp">
+
+    <title id="page-title">Detalhes do Produto | PACO Móveis de Design</title>
+
+    <!-- Structured Data Schema.org (JSON-LD) -->
+    <script type="application/ld+json" id="product-jsonld">
+    {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "Móvel de Design Autoral",
+      "description": "Peça exclusiva de design autoral em materiais nobres.",
+      "brand": {
+        "@type": "Brand",
+        "name": "PACO Móveis"
+      }
+    }
+    </script>
+    
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
     
@@ -40,10 +72,10 @@
                 <button class="fun-mobile-close-btn" id="fun-close-menu" aria-label="Fechar menu de categorias">✕</button>
             </div>
             <div id="filtros" class="fun-navbar-filters" role="group" aria-label="Filtrar produtos por categoria">
-                <button class="fun-pill-btn active" aria-pressed="true" data-category="poltrona" data-color="#2400ff" style="--btn-color: #2400ff;">Poltronas</button>
-                <button class="fun-pill-btn" aria-pressed="false" data-category="mesa" data-color="#ff0000" style="--btn-color: #ff0000;">Mesas</button>
-                <button class="fun-pill-btn" aria-pressed="false" data-category="cadeira" data-color="#ffcd01" style="--btn-color: #ffcd01;">Cadeiras</button>
-                <button class="fun-pill-btn" aria-pressed="false" data-category="luminaria" data-color="#000000" style="--btn-color: #000000;">Luminárias</button>
+                <a href="catalogo.html?categoria=poltrona" class="fun-pill-btn active" aria-pressed="true" aria-selected="true" data-category="poltrona" data-color="#2400ff" style="--btn-color: #2400ff;">Poltronas</a>
+                <a href="catalogo.html?categoria=mesa" class="fun-pill-btn" aria-pressed="false" aria-selected="false" data-category="mesa" data-color="#ff0000" style="--btn-color: #ff0000;">Mesas</a>
+                <a href="catalogo.html?categoria=cadeira" class="fun-pill-btn" aria-pressed="false" aria-selected="false" data-category="cadeira" data-color="#ffcd01" style="--btn-color: #ffcd01;">Cadeiras</a>
+                <a href="catalogo.html?categoria=luminaria" class="fun-pill-btn" aria-pressed="false" aria-selected="false" data-category="luminaria" data-color="#000000" style="--btn-color: #000000;">Luminárias</a>
             </div>
             <div class="fun-mobile-nav-actions">
                 <a href="catalogo.html" class="fun-btn-admin-mobile" style="background: #2b7fff; margin-bottom: 8px;">Ver Catálogo Completo →</a>

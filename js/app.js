@@ -217,38 +217,25 @@ function getButtonColor(btn) {
 }
 
 function applyButtonActiveColor(btn) {
-    const targetColor = getButtonColor(btn);
-    requestAnimationFrame(() => {
-        btn.style.backgroundColor = targetColor;
-        btn.style.borderColor = targetColor;
-        btn.style.color = 'white';
+    if (!btn) return;
+    const filterButtons = document.querySelectorAll('.fun-navbar-filters .fun-pill-btn, .fun-pill-btn');
+    filterButtons.forEach(b => {
+        const isActive = (b === btn);
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        // Clear inline styles so CSS classes and custom property --btn-color drive appearance
+        b.style.backgroundColor = '';
+        b.style.borderColor = '';
+        b.style.color = '';
     });
 }
 
-// Read all colors first to prevent layout thrashing (forced reflow)
-const buttonColorData = Array.from(filterBtns).map(btn => ({
-    btn: btn,
-    color: getButtonColor(btn)
-}));
-
-// Then apply the styles
-buttonColorData.forEach(data => {
-    const btn = data.btn;
-    const color = data.color;
-    // Initialize all buttons with their solid colors
-    btn.style.backgroundColor = color;
-    btn.style.borderColor = color;
-    btn.style.color = 'white';
-
+// Bind click events on filter buttons
+filterBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-        filterBtns.forEach(b => {
-            b.classList.remove('active');
-            b.setAttribute('aria-pressed', 'false');
-        });
-        
         const activeBtn = e.currentTarget;
-        activeBtn.classList.add('active');
-        activeBtn.setAttribute('aria-pressed', 'true');
+        applyButtonActiveColor(activeBtn);
         
         renderizarProdutos(activeBtn.dataset.category);
         
@@ -377,9 +364,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Intersection Observer for highlighting current section
+    // Intersection Observer for highlighting current section (anchor links only, strictly excluding filter buttons)
     const sections = document.querySelectorAll('section[id], main[id], header[id]');
-    const navLinks = document.querySelectorAll('.fun-nav-center a[href*="#"]');
+    const navLinks = document.querySelectorAll('.fun-nav-center a[href^="#"]:not(.fun-pill-btn)');
     
     if (sections.length > 0 && navLinks.length > 0) {
         const observerOptions = {
@@ -394,7 +381,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const activeId = entry.target.id;
                     navLinks.forEach(link => {
                         const href = link.getAttribute('href');
-                        if (href && href.includes(`#${activeId}`)) {
+                        if (href && href === `#${activeId}`) {
                             link.classList.add('active');
                         } else {
                             link.classList.remove('active');
@@ -408,3 +395,14 @@ document.addEventListener('DOMContentLoaded', () => {
         sections.forEach(section => observer.observe(section));
     }
 });
+
+if (typeof window !== 'undefined') {
+    window.applyButtonActiveColor = applyButtonActiveColor;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        applyButtonActiveColor,
+        getButtonColor
+    };
+}

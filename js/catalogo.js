@@ -42,6 +42,7 @@ function atualizarBotoesFiltro() {
         const isSelected = (btn.dataset.category || '').toLowerCase() === activeCategory;
         btn.classList.toggle('active', isSelected);
         btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+        btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
     });
 }
 

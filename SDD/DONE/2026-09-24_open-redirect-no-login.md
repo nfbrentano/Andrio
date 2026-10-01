@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Natanael Brentano / Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-10-01
 
 ## Detalhes da Atividade
 
@@ -42,10 +42,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado o link `login.html?redirect=javascript:alert(1)`, quando o admin faz login, então nenhum script é executado e ele é levado a `admin.html`.
-- [ ] **CA02:** Dado o link `login.html?redirect=https://exemplo.com`, quando o admin faz login, então ele fica no domínio e vai para `admin.html`.
-- [ ] **CA03:** Dado o link `login.html?redirect=admin.html`, quando o admin faz login, então é levado a `admin.html`.
-- [ ] **CA04:** Dado o link `login.html?redirect=//exemplo.com`, quando o admin faz login, então vai para `admin.html` e não para `exemplo.com`.
+- [x] **CA01:** Dado o link `login.html?redirect=javascript:alert(1)`, quando o admin faz login, então nenhum script é executado e ele é levado a `admin.html`.
+- [x] **CA02:** Dado o link `login.html?redirect=https://exemplo.com`, quando o admin faz login, então ele fica no domínio e vai para `admin.html`.
+- [x] **CA03:** Dado o link `login.html?redirect=admin.html`, quando o admin faz login, então é levado a `admin.html`.
+- [x] **CA04:** Dado o link `login.html?redirect=//exemplo.com`, quando o admin faz login, então vai para `admin.html` e não para `exemplo.com`.
 
 ## O que a atividade não inclui
 
@@ -60,7 +60,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Além de `admin.html`, alguma outra página deve poder ser destino pós-login? | PO | Não | |
+| D01 | Além de `admin.html`, alguma outra página deve poder ser destino pós-login? | PO | Não | Apenas `admin.html` é permitida na allowlist interna. |
 
 ## Sugestões de casos de teste
 

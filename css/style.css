@@ -240,11 +240,11 @@ h1, h2, h3, h4, h5, h6 {
     gap: 8px;
 }
 
-.produto-page .fun-navbar-filters {
-    display: none !important;
-}
-
 .fun-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
     background-color: var(--btn-color, #2b7fff);
     color: #000;
     border: 2px solid var(--btn-color, #2b7fff);
@@ -266,7 +266,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .catalogo-page .fun-pill-btn {
-    color: #fff;
+    color: var(--fun-text-main, #1a1a1a);
 }
 
 @media (min-width: 1025px) {
@@ -275,9 +275,41 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* Yellow pill needs dark text */
-.fun-pill-btn[data-color="#ffeb3b"] {
-    color: #fff;
+/* Navbar category filter pills - Inactive: outline pill with category border and accessible dark text */
+.fun-navbar-filters .fun-pill-btn {
+    background-color: rgba(255, 255, 255, 0.95);
+    color: var(--fun-text-main, #1a1a1a);
+    border: 2px solid var(--btn-color, #2b7fff);
+    font-weight: 500;
+}
+
+.fun-navbar-filters .fun-pill-btn:hover {
+    transform: translateY(-1px);
+    background-color: var(--btn-color, #2b7fff);
+    color: #ffffff;
+}
+
+/* Yellow pill hover needs dark text for contrast */
+.fun-navbar-filters .fun-pill-btn:hover[data-color="#ffcd01"],
+.fun-navbar-filters .fun-pill-btn:hover[data-color="#ffeb3b"],
+.fun-navbar-filters .fun-pill-btn:hover[data-category="cadeira"] {
+    color: #111111;
+}
+
+/* Active pill: solid category background with high-contrast text and elevated shadow */
+.fun-navbar-filters .fun-pill-btn.active {
+    background-color: var(--btn-color, #2b7fff);
+    border-color: var(--btn-color, #2b7fff);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+    font-weight: 700;
+}
+
+/* Yellow active pill needs dark text for WCAG AA compliance (4.5:1 ratio) */
+.fun-navbar-filters .fun-pill-btn.active[data-color="#ffcd01"],
+.fun-navbar-filters .fun-pill-btn.active[data-color="#ffeb3b"],
+.fun-navbar-filters .fun-pill-btn.active[data-category="cadeira"] {
+    color: #111111;
 }
 
 .fun-pill-btn:hover {

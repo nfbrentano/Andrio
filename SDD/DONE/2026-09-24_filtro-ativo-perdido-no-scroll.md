@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-10-01
 
 ## Detalhes da Atividade
 
@@ -42,10 +42,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado "Poltronas" selecionado na home, quando rolo a página até o fim, então "Poltronas" continua com o destaque de ativo.
-- [ ] **CA02:** Dado que clico em "Mesas", quando o catálogo rola até a seção, então só "Mesas" fica ativo e com `aria-selected="true"`.
-- [ ] **CA03:** Dado os 4 botões, quando olho a navbar, então dá para distinguir o ativo dos demais.
-- [ ] **CA04:** Dado qualquer posição de scroll, quando conto `.fun-pill-btn.active`, então nunca há 0 nem mais de 1 (caso negativo).
+- [x] **CA01:** Dado "Poltronas" selecionado na home, quando rolo a página até o fim, então "Poltronas" continua com o destaque de ativo.
+- [x] **CA02:** Dado que clico em "Mesas", quando o catálogo rola até a seção, então só "Mesas" fica ativo e com `aria-selected="true"`.
+- [x] **CA03:** Dado os 4 botões, quando olho a navbar, então dá para distinguir o ativo dos demais.
+- [x] **CA04:** Dado qualquer posição de scroll, quando conto `.fun-pill-btn.active`, então nunca há 0 nem mais de 1 (caso negativo).
 
 ## O que a atividade não inclui
 
@@ -60,7 +60,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Como deve ser o estilo do inativo (outline, opacidade reduzida)? | design | Não | |
+| D01 | Como deve ser o estilo do inativo (outline, opacidade reduzida)? | design | Não | Estilo outline pill com borda colorida da categoria, fundo claro e texto escuro `#1a1a1a`, garantindo contraste AAA (17:1) e distinção imediata para o botão ativo sólido. |
 
 ## Sugestões de casos de teste
 

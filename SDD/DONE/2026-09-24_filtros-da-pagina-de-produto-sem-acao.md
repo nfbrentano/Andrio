@@ -4,8 +4,8 @@
 Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · [DOCS]
 -->
 
-> **Status:** Rascunho
-> **Autor:** Claude Code (validação da aplicação) · **Revisor:** — · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-09-25
+> **Status:** Concluído
+> **Autor:** Claude Code (validação da aplicação) · **Revisor:** Natanael Brentano / Antigravity · **Criada em:** 2026-09-24 · **Atualizada em:** 2026-10-01
 
 ## Detalhes da Atividade
 
@@ -42,10 +42,10 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 ## Critérios de Aceitação / Entregas
 
-- [ ] **CA01:** Dado que estou em `produto.html?id=X`, quando clico em "Mesas", então vou para `catalogo.html?categoria=mesa` com "Mesas" ativo.
-- [ ] **CA02:** Dado que vejo uma poltrona, quando a página de produto carrega, então o botão "Poltronas" aparece como ativo.
-- [ ] **CA03:** Dado que clico numa categoria com Ctrl/Cmd, quando o navegador processa, então o catálogo abre em nova aba.
-- [ ] **CA04:** Dado um produto com categoria desconhecida, quando a página carrega, então nenhum botão fica ativo e não há erro (caso-limite).
+- [x] **CA01:** Dado que estou em `produto.html?id=X`, quando clico em "Mesas", então vou para `catalogo.html?categoria=mesa` com "Mesas" ativo.
+- [x] **CA02:** Dado que vejo uma poltrona, quando a página de produto carrega, então o botão "Poltronas" aparece como ativo.
+- [x] **CA03:** Dado que clico numa categoria com Ctrl/Cmd, quando o navegador processa, então o catálogo abre em nova aba.
+- [x] **CA04:** Dado um produto com categoria desconhecida, quando a página carrega, então nenhum botão fica ativo e não há erro (caso-limite).
 
 ## O que a atividade não inclui
 
@@ -59,7 +59,7 @@ Tags padronizadas: [FEAT] · [FIX] · [UI] · [SEO] · [REFACTOR] · [CHORE] · 
 
 | # | Dúvida | Responsável (PO/dev/design) | Bloqueante? | Resposta |
 |---|--------|-----------------------------|-------------|----------|
-| D01 | Os filtros devem mesmo aparecer na página de produto, ou basta um link "Voltar ao catálogo"? | PO | Não | |
+| D01 | Os filtros devem mesmo aparecer na página de produto, ou basta um link "Voltar ao catálogo"? | PO | Não | Sim, os botões de categoria aparecem na navbar estilizados como links (<a href="catalogo.html?categoria=slug">), destacando a categoria do produto atual e navegando diretamente para o catálogo filtrado. |
 
 ## Sugestões de casos de teste
 

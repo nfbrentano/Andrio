@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#2b7fff">
     <title>Entrar | Painel Administrativo PACO Móveis</title>
     
-
+    <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
     
     <!-- Defer CSS -->
@@ -24,6 +25,8 @@
     
     <script src="js/firebase-config.js" defer></script>
     <script src="js/auth.js" defer></script>
+    <script src="js/shared/security.js" defer></script>
+    <script src="js/login.js" defer></script>
 </head>
 <body class="login-body">
     <div class="login-wrapper">
@@ -64,63 +67,5 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const loginForm = document.getElementById('login-form');
-            const emailInput = document.getElementById('admin-email');
-            const passInput = document.getElementById('admin-password');
-            const alertBox = document.getElementById('login-alert');
-            const btnSubmit = document.getElementById('btn-login-submit');
-            const btnText = document.getElementById('btn-text');
-            const btnSpinner = document.getElementById('btn-spinner');
-
-            function showAlert(msg, type = 'error') {
-                alertBox.textContent = msg;
-                alertBox.className = `login-alert ${type}`;
-                alertBox.style.display = 'block';
-            }
-
-            // Checa se já está logado
-            const user = await Auth.getCurrentUser();
-            if (user) {
-                window.location.href = 'admin.html';
-                return;
-            }
-
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                alertBox.style.display = 'none';
-
-                const email = emailInput.value;
-                const password = passInput.value;
-
-                btnSubmit.disabled = true;
-                btnText.style.display = 'none';
-                btnSpinner.style.display = 'inline';
-
-                if (!FirebaseService.isConfigured) {
-                    showAlert('Serviço de autenticação temporariamente indisponível.', 'error');
-                    btnSubmit.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnSpinner.style.display = 'none';
-                    return;
-                }
-
-                try {
-                    await Auth.signIn(email, password);
-                    const params = new URLSearchParams(window.location.search);
-                    const redirect = params.get('redirect') || 'admin.html';
-                    window.location.href = redirect;
-                } catch (err) {
-                    console.error('Erro de autenticação:', err);
-                    showAlert(err.message || 'Erro ao autenticar. Verifique email e senha.', 'error');
-                    btnSubmit.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnSpinner.style.display = 'none';
-                }
-            });
-        });
-    </script>
 </body>
 </html>

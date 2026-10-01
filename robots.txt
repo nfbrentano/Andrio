@@ -1,6 +1,7 @@
-# robots.txt for https://funcosmeticos.com.br/
+# robots.txt for https://pacomoveis.com.br/
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /login.html
 
-Sitemap: https://funcosmeticos.com.br/sitemap.xml
+Sitemap: https://pacomoveis.com.br/sitemap.xml

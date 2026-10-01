@@ -30,7 +30,7 @@ jobs:
           mkdir -p _site
           cp *.html _site/
           cp -r css js assets _site/
-          cp sw.js robots.txt sitemap.xml _site/
+          cp sw.js robots.txt sitemap.xml manifest.json _site/
           touch _site/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

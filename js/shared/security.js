@@ -93,9 +93,85 @@ function sanitizeHexColor(color, defaultColor = '#2b7fff') {
     return defaultColor;
 }
 
+/**
+ * Valida o destino de redirecionamento pós-login contra uma allowlist estrita (RF01, RF02, RNF01)
+ * Impede ataques de Open Redirect e execução de scripts por javascript:, data: ou hosts externos
+ * @param {string} redirectUrl - Valor do parâmetro redirect da query string
+ * @param {string} [baseOrigin] - Origem base para validação (padrão: window.location.origin)
+ * @returns {string} Destino seguro permitido ou 'admin.html' como padrão
+ */
+function validarRedirect(redirectUrl, baseOrigin) {
+    const DEFAULT_REDIRECT = 'admin.html';
+    const ALLOWED_PAGES = ['admin.html'];
+
+    if (!redirectUrl || typeof redirectUrl !== 'string') {
+        return DEFAULT_REDIRECT;
+    }
+
+    const trimmed = redirectUrl.trim();
+    if (!trimmed) {
+        return DEFAULT_REDIRECT;
+    }
+
+    // Bloqueia barras invertidas e caracteres de controle
+    if (/[\x00-\x1F\x7F\\]/.test(trimmed)) {
+        return DEFAULT_REDIRECT;
+    }
+
+    // Bloqueia explicitamente URLs protocol-relative (//host)
+    if (trimmed.startsWith('//')) {
+        return DEFAULT_REDIRECT;
+    }
+
+    // Determina a origem base
+    let origin = baseOrigin;
+    if (!origin) {
+        if (typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null') {
+            origin = window.location.origin;
+        } else {
+            origin = 'http://localhost';
+        }
+    }
+
+    try {
+        // RNF01: Resolver o valor com new URL(valor, location.origin)
+        const parsed = new URL(trimmed, origin);
+        const expectedOrigin = new URL(origin).origin;
+
+        // RNF01: Checar se origin === location.origin
+        if (parsed.origin !== expectedOrigin) {
+            return DEFAULT_REDIRECT;
+        }
+
+        // Garante protocolo estritamente http: ou https:
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+            return DEFAULT_REDIRECT;
+        }
+
+        // RF01 / RNF01: Checar se pathname está na allowlist interna
+        const normalizedPath = parsed.pathname.replace(/^\/+/, '');
+
+        const isAllowed = ALLOWED_PAGES.some((allowed) => {
+            const normalizedAllowed = allowed.replace(/^\/+/, '');
+            return normalizedPath === normalizedAllowed;
+        });
+
+        if (!isAllowed) {
+            return DEFAULT_REDIRECT;
+        }
+
+        // Retorna o destino seguro preservando parâmetros de consulta e hash válidos
+        return normalizedPath + parsed.search + parsed.hash;
+    } catch (_) {
+        return DEFAULT_REDIRECT;
+    }
+}
+
 // Aliases para compatibilidade e semântica
 const validarCorHex = sanitizeHexColor;
 const safeHexColor = sanitizeHexColor;
+const safeRedirect = validarRedirect;
+const getSafeRedirect = validarRedirect;
 
 // Exportação no escopo global do navegador
 if (typeof window !== 'undefined') {
@@ -104,6 +180,9 @@ if (typeof window !== 'undefined') {
     window.sanitizeHexColor = sanitizeHexColor;
     window.validarCorHex = validarCorHex;
     window.safeHexColor = safeHexColor;
+    window.validarRedirect = validarRedirect;
+    window.safeRedirect = safeRedirect;
+    window.getSafeRedirect = getSafeRedirect;
 }
 
 // Suporte para testes automatizados em ambiente Node.js / CommonJS
@@ -113,6 +192,10 @@ if (typeof module !== 'undefined' && module.exports) {
         safeUrl,
         sanitizeHexColor,
         validarCorHex,
-        safeHexColor
+        safeHexColor,
+        validarRedirect,
+        safeRedirect,
+        getSafeRedirect
     };
 }
+

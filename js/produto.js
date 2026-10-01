@@ -9,6 +9,165 @@ async function carregarProdutosDetalhe() {
     catalogoProdutos = await carregarProdutos();
 }
 
+/**
+ * Atualiza dinamicamente as tags de SEO (title, description, canonical, Open Graph, Twitter)
+ * e injeta o Schema.org JSON-LD Product com offers válidas para o Rich Results Test (RF02, CA03, RNF01, RNF02).
+ * @param {Object} produto - Dados do produto
+ * @param {Array<string>} [fotos] - Lista de URLs de fotos do produto
+ * @returns {Object|null} Objeto JSON-LD gerado ou null
+ */
+function atualizarMetadadosProduto(produto, fotos = []) {
+    if (!produto) return null;
+
+    const baseDomain = 'https://pacomoveis.com.br';
+    const safeTitle = `${produto.nome} | PACO Móveis de Design`;
+    const descText = produto.desc 
+        ? `${produto.nome} - ${produto.desc}` 
+        : `${produto.nome} | Móvel de design autoral contemporâneo da PACO Móveis.`;
+    const canonicalUrl = `${baseDomain}/produto.html?id=${encodeURIComponent(produto.id)}`;
+
+    // Resolve URL absoluta da imagem principal e da galeria
+    const toAbsoluteUrl = (url) => {
+        if (!url) return `${baseDomain}/assets/hero_product.webp`;
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        const cleanPath = url.startsWith('/') ? url.slice(1) : url;
+        return `${baseDomain}/${cleanPath}`;
+    };
+
+    const fotosValidas = Array.isArray(fotos) && fotos.length > 0 ? fotos : [produto.img];
+    const absoluteImages = fotosValidas.map(toAbsoluteUrl);
+    const mainImageUrl = absoluteImages[0] || `${baseDomain}/assets/hero_product.webp`;
+
+    // Prepara preço numérico em centavos/reais para a oferta do Google
+    let precoCentavos = produto.preco_centavos;
+    if ((precoCentavos === undefined || precoCentavos === null) && produto.preco) {
+        if (typeof parsePrecoParaCentavos === 'function') {
+            precoCentavos = parsePrecoParaCentavos(produto.preco);
+        } else {
+            const str = String(produto.preco).replace(/[^\d,\.]/g, '').trim();
+            if (str) {
+                if (str.includes(',')) {
+                    const limpo = str.replace(/\./g, '').replace(',', '.');
+                    const val = parseFloat(limpo);
+                    if (!isNaN(val) && val > 0) precoCentavos = Math.round(val * 100);
+                } else {
+                    const val = parseFloat(str);
+                    if (!isNaN(val) && val > 0) precoCentavos = Math.round(val * 100);
+                }
+            }
+        }
+    }
+    
+    const priceFormatted = (precoCentavos && precoCentavos > 0)
+        ? (precoCentavos / 100).toFixed(2)
+        : null;
+
+    // Mapeamento de disponibilidade Schema.org
+    const availabilityMap = {
+        'pronta_entrega': 'https://schema.org/InStock',
+        'encomenda_15': 'https://schema.org/PreOrder',
+        'encomenda_30': 'https://schema.org/PreOrder'
+    };
+    const availabilityUrl = availabilityMap[produto.disponibilidade] || 'https://schema.org/InStock';
+
+    // Monta objeto JSON-LD Product Schema.org
+    const productLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": produto.nome,
+        "image": absoluteImages,
+        "description": descText,
+        "sku": `PACO-${produto.id}`,
+        "category": produto.categoria || "Móveis",
+        "brand": {
+            "@type": "Brand",
+            "name": "PACO Móveis"
+        },
+        "offers": {
+            "@type": "Offer",
+            "url": canonicalUrl,
+            "priceCurrency": "BRL",
+            "price": priceFormatted || "0.00",
+            "availability": availabilityUrl,
+            "itemCondition": "https://schema.org/NewCondition",
+            "seller": {
+                "@type": "Organization",
+                "name": "PACO Móveis",
+                "url": `${baseDomain}/`
+            }
+        }
+    };
+
+    if (typeof document !== 'undefined') {
+        // Atualiza title da página dinamicamente
+        document.title = safeTitle;
+
+        // Atualiza ou cria meta description
+        let metaDesc = document.querySelector('meta[name="description"]');
+        if (!metaDesc) {
+            metaDesc = document.createElement('meta');
+            metaDesc.setAttribute('name', 'description');
+            document.head.appendChild(metaDesc);
+        }
+        metaDesc.setAttribute('content', descText);
+
+        // Atualiza ou cria link canonical
+        let linkCanonical = document.querySelector('link[rel="canonical"]');
+        if (!linkCanonical) {
+            linkCanonical = document.createElement('link');
+            linkCanonical.setAttribute('rel', 'canonical');
+            document.head.appendChild(linkCanonical);
+        }
+        linkCanonical.setAttribute('href', canonicalUrl);
+
+        // Atualiza tags Open Graph e Twitter Cards
+        const setMetaProperty = (prop, content) => {
+            let el = document.querySelector(`meta[property="${prop}"]`);
+            if (!el) {
+                el = document.createElement('meta');
+                el.setAttribute('property', prop);
+                document.head.appendChild(el);
+            }
+            el.setAttribute('content', content);
+        };
+
+        const setMetaName = (name, content) => {
+            let el = document.querySelector(`meta[name="${name}"]`);
+            if (!el) {
+                el = document.createElement('meta');
+                el.setAttribute('name', name);
+                document.head.appendChild(el);
+            }
+            el.setAttribute('content', content);
+        };
+
+        setMetaProperty('og:title', safeTitle);
+        setMetaProperty('og:description', descText);
+        setMetaProperty('og:image', mainImageUrl);
+        setMetaProperty('og:url', canonicalUrl);
+        setMetaProperty('og:type', 'product');
+        setMetaProperty('og:site_name', 'PACO Móveis');
+        setMetaProperty('og:locale', 'pt_BR');
+
+        setMetaName('twitter:card', 'summary_large_image');
+        setMetaName('twitter:title', safeTitle);
+        setMetaName('twitter:description', descText);
+        setMetaName('twitter:image', mainImageUrl);
+
+        // Injeta ou substitui o script JSON-LD na página
+        let scriptLd = document.getElementById('product-jsonld');
+        if (!scriptLd) {
+            scriptLd = document.createElement('script');
+            scriptLd.id = 'product-jsonld';
+            scriptLd.type = 'application/ld+json';
+            document.head.appendChild(scriptLd);
+        }
+        scriptLd.textContent = JSON.stringify(productLd, null, 2);
+    }
+
+    return productLd;
+}
+
 async function renderizarProduto() {
     const detailContent = document.getElementById('produto-detail-content');
     const urlParams = new URLSearchParams(window.location.search);
@@ -20,6 +179,7 @@ async function renderizarProduto() {
                 <h2>Produto não especificado.</h2>
                 <a href="catalogo.html" class="fun-btn-dark" style="margin-top: 1rem;">Voltar ao Catálogo</a>
             </div>`;
+        destacarCategoriaProduto(null);
         return;
     }
 
@@ -30,8 +190,12 @@ async function renderizarProduto() {
                 <h2>Produto não encontrado.</h2>
                 <a href="catalogo.html" class="fun-btn-dark" style="margin-top: 1rem;">Voltar ao Catálogo</a>
             </div>`;
+        destacarCategoriaProduto(null);
         return;
     }
+
+    // Destaca a categoria do produto atual na navbar (RF02, CA02, CA04)
+    destacarCategoriaProduto(produto.categoria);
 
     const defaultImg = getDefaultImageForCategory(produto.categoria);
     let fotosRaw = Array.isArray(produto.imagens) && produto.imagens.length > 0 
@@ -69,8 +233,8 @@ async function renderizarProduto() {
 
     const dispText = dispMap[produto.disponibilidade] || '🟢 Pronta Entrega';
     
-    // Atualiza title da página dinamicamente
-    document.title = `${produto.nome} | PACO Móveis`;
+    // Atualiza title, meta description, Open Graph e JSON-LD Product dinamicamente (RF02, CA03, RNF01, RNF02)
+    atualizarMetadadosProduto(produto, fotos);
 
     const safeNome = escapeHtml(produto.nome);
     const safePreco = escapeHtml(typeof formatarPrecoProduto === 'function' ? formatarPrecoProduto(produto) : produto.preco);
@@ -344,9 +508,10 @@ function prevLightboxPhoto(e) {
     updateLightboxPhoto();
 }
 
-document.addEventListener('keydown', (e) => {
-    const overlay = document.getElementById('lightbox-overlay');
-    if (!overlay || !overlay.classList.contains('active')) return;
+if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', (e) => {
+        const overlay = document.getElementById('lightbox-overlay');
+        if (!overlay || !overlay.classList.contains('active')) return;
 
     if (e.key === 'Escape') {
         e.preventDefault();
@@ -382,6 +547,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
+}
 
 function initLightbox() {
     if (!document.getElementById('lightbox-overlay')) {
@@ -399,19 +565,94 @@ function initLightbox() {
     }
 }
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', async () => {
-    initLightbox();
+// Normalização de slug de categoria para correspondência robusta
+function normalizarCategoriaSlug(cat) {
+    if (!cat) return '';
+    const clean = String(cat)
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim();
+    if (clean === 'poltrona' || clean === 'poltronas') return 'poltrona';
+    if (clean === 'mesa' || clean === 'mesas') return 'mesa';
+    if (clean === 'cadeira' || clean === 'cadeiras') return 'cadeira';
+    if (clean === 'luminaria' || clean === 'luminarias') return 'luminaria';
+    return clean;
+}
 
-    // Filtros de categoria na página de produto redirecionam para o catálogo
-    document.querySelectorAll('.fun-navbar-filters .fun-pill-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const cat = e.currentTarget.dataset.category || 'all';
-            window.location.href = `catalogo.html?categoria=${cat}`;
+// Destaca o botão da categoria correspondente ao produto atual na navbar (RF02, CA02, CA04)
+function destacarCategoriaProduto(categoria) {
+    const slug = normalizarCategoriaSlug(categoria);
+    const filterLinks = document.querySelectorAll('.fun-navbar-filters .fun-pill-btn');
+
+    filterLinks.forEach(link => {
+        const linkCat = normalizarCategoriaSlug(link.dataset.category);
+        const isActive = Boolean(slug && linkCat && linkCat === slug);
+
+        link.classList.toggle('active', isActive);
+        link.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        link.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        if (isActive) {
+            link.setAttribute('aria-current', 'page');
+        } else {
+            link.removeAttribute('aria-current');
+        }
+    });
+}
+
+// Configura os links de categoria da navbar para navegação no catálogo (RF01, RF03, CA01, CA03, RNF01)
+function configurarFiltrosCategoriaProduto() {
+    const filterLinks = document.querySelectorAll('.fun-navbar-filters .fun-pill-btn');
+    filterLinks.forEach(link => {
+        const cat = (link.dataset.category || 'all').toLowerCase();
+        if (!link.getAttribute('href') && cat) {
+            link.setAttribute('href', `catalogo.html?categoria=${cat}`);
+        }
+
+        link.addEventListener('click', (e) => {
+            // Permite abertura nativa em nova aba/janela com teclas modificadoras ou clique com botão do meio (CA03)
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e.button !== undefined && e.button !== 0)) {
+                return;
+            }
+
+            // Se for link <a> com href válido, a navegação padrão do navegador já funciona perfeitamente (RF01, CA01).
+            // Caso seja outro elemento (ex.: button legado) ou sem href, navega via location.href sem erros (RNF01).
+            if (link.tagName.toLowerCase() !== 'a' || !link.getAttribute('href')) {
+                e.preventDefault();
+                window.location.href = `catalogo.html?categoria=${cat}`;
+            }
         });
     });
+}
 
-    await carregarProdutosDetalhe();
-    await renderizarProduto();
-});
+// Inicialização
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        initLightbox();
+        configurarFiltrosCategoriaProduto();
+
+        await carregarProdutosDetalhe();
+        await renderizarProduto();
+    });
+}
+
+if (typeof window !== 'undefined') {
+    window.destacarCategoriaProduto = destacarCategoriaProduto;
+    window.configurarFiltrosCategoriaProduto = configurarFiltrosCategoriaProduto;
+    window.normalizarCategoriaSlug = normalizarCategoriaSlug;
+    window.renderizarProduto = renderizarProduto;
+    window.carregarProdutosDetalhe = carregarProdutosDetalhe;
+    window.atualizarMetadadosProduto = atualizarMetadadosProduto;
+}
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        destacarCategoriaProduto,
+        configurarFiltrosCategoriaProduto,
+        normalizarCategoriaSlug,
+        renderizarProduto,
+        carregarProdutosDetalhe,
+        atualizarMetadadosProduto
+    };
+}
+
 
