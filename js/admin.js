@@ -860,6 +860,12 @@ productForm.addEventListener('submit', async (e) => {
         }, 1200);
     }
 
+    if (typeof limparCacheProdutos === 'function') {
+        limparCacheProdutos();
+    } else if (typeof sessionStorage !== 'undefined') {
+        try { sessionStorage.removeItem('paco_produtos_cache_v1'); } catch (_) {}
+    }
+
     resetForm();
     await renderTable();
 });
@@ -879,6 +885,12 @@ async function deleteProduct(id) {
         localProducts = localProducts.filter(p => String(p.id) !== String(id));
         localStorage.setItem('fun_produtos', JSON.stringify(localProducts));
         showToast("Móvel removido localmente!");
+    }
+
+    if (typeof limparCacheProdutos === 'function') {
+        limparCacheProdutos();
+    } else if (typeof sessionStorage !== 'undefined') {
+        try { sessionStorage.removeItem('paco_produtos_cache_v1'); } catch (_) {}
     }
 
     if (productIdInput.value === String(id)) {

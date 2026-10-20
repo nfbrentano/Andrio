@@ -114,6 +114,9 @@ function inicializarSlider() {
 
 function renderizarProdutos(categoria = 'poltrona') {
     destruirSlider();
+    if (catalogo) {
+        catalogo.setAttribute('aria-busy', 'false');
+    }
     
     const produtosFiltrados = categoria === 'all' 
         ? produtosAtuais 
@@ -154,13 +157,13 @@ function renderizarProdutos(categoria = 'poltrona') {
                             <!-- Image 1 (default view) -->
                             <div class="absolute-inset-0 hover-opacity-0">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
+                                    <img loading="lazy" decoding="async" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
                                 </div>
                             </div>
                             <!-- Image 2 (hover view) -->
                             <div class="absolute-inset-0 opacity-0 hover-opacity-100">
                                 <div class="size-full">
-                                    <img loading="lazy" alt="${safeNome} em outro ângulo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
+                                    <img loading="lazy" decoding="async" fetchpriority="low" alt="${safeNome} em outro ângulo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';" width="500" height="669">
                                 </div>
                             </div>
                         </div>

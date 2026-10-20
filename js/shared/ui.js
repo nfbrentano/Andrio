@@ -135,13 +135,15 @@ function inicializarMenuMobile() {
 function inicializarNavbar() {
     const navbar = document.querySelector('.fun-navbar');
     if (navbar) {
-        window.addEventListener('scroll', () => {
+        const updateNavbarScrollState = () => {
             if (window.scrollY > 10) {
                 navbar.classList.add('scrolled');
             } else {
                 navbar.classList.remove('scrolled');
             }
-        });
+        };
+        updateNavbarScrollState();
+        window.addEventListener('scroll', updateNavbarScrollState, { passive: true });
     }
 }
 

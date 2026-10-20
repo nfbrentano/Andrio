@@ -7,7 +7,7 @@
 const BUILD_VERSION = '__BUILD_VERSION__';
 const VERSION = (BUILD_VERSION && !BUILD_VERSION.startsWith('__'))
     ? BUILD_VERSION.slice(0, 8)
-    : 'v20';
+    : 'v21';
 
 const CACHE_NAME = `paco-cache-${VERSION}`;
 const RUNTIME_CACHE_NAME = `paco-runtime-${VERSION}`;

@@ -138,6 +138,10 @@ function renderizarCatalogo() {
         catalogoCount.textContent = formatarContador(filtrados.length);
     }
 
+    if (catalogoGrid) {
+        catalogoGrid.setAttribute('aria-busy', 'false');
+    }
+
     // Estado Vazio (RF05, CT05)
     if (filtrados.length === 0) {
         catalogoGrid.innerHTML = `
@@ -183,10 +187,10 @@ function renderizarCatalogo() {
                         <div class="aspect-3-4-inner">
                             <div class="size-full">
                                 <div class="absolute-inset-0 hover-opacity-0">
-                                    <img loading="lazy" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
+                                    <img loading="lazy" decoding="async" width="500" height="669" alt="${safeNome}" class="object-cover-img" src="${safeMainImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
                                 </div>
                                 <div class="absolute-inset-0 opacity-0 hover-opacity-100">
-                                    <img loading="lazy" alt="${safeNome} ângulo alternativo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
+                                    <img loading="lazy" decoding="async" fetchpriority="low" width="500" height="669" alt="${safeNome} ângulo alternativo" class="object-cover-img" src="${safeHoverImg}" data-fallback="assets/imagem-indisponivel.svg" onerror="this.onerror=null; this.src='assets/imagem-indisponivel.svg';">
                                 </div>
                             </div>
                         </div>

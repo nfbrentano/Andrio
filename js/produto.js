@@ -170,6 +170,9 @@ function atualizarMetadadosProduto(produto, fotos = []) {
 
 async function renderizarProduto() {
     const detailContent = document.getElementById('produto-detail-content');
+    if (detailContent) {
+        detailContent.setAttribute('aria-busy', 'false');
+    }
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
 

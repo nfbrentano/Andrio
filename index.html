@@ -30,12 +30,30 @@
     
     <!-- Preconnect CDNs -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 
     <!-- Preload Critical Assets -->
     <link rel="preload" href="js/app.js" as="script">
     <link rel="preload" href="assets/hero_left_chair.webp" as="image" type="image/webp" fetchpriority="high">
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
+
+    <!-- Critical CSS Inline (Anti-FOUC & Zero CLS Above the Fold) -->
+    <style id="critical-css">
+        :root { --fun-bg-main: #f4f2ea; --fun-text-main: #1a1a1a; --brand-blue: #2b7fff; --navbar-scrolled-offset: 94px; }
+        body { background-color: #f4f2ea; color: #1a1a1a; font-family: 'Bookman Old Style', serif; margin: 0; padding: 0; }
+        .skip-link { position: absolute; top: -100px; left: 16px; z-index: 99999; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .fun-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; padding: 16px; }
+        .fun-navbar.scrolled { padding: 12px 16px; background: rgba(244, 242, 234, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .fun-hero { display: flex; width: 100%; min-height: 75vh; }
+        .hero-col { width: 50%; position: relative; overflow: hidden; }
+        .skeleton-box, .skeleton-line { background: #e8e4da; border-radius: 12px; }
+        .skeleton-card { display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-card .skeleton-box { width: 100%; aspect-ratio: 3 / 4; }
+        .skeleton-line { height: 16px; border-radius: 6px; }
+    </style>
     
     <!-- Defer CSS -->
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.css" as="style" integrity="sha384-c33HE1mLXmDEd7Ir2k6bCPjErFY+gVW8y6h8x7HN5BHlqc7KFbvhXd8uO5eTPcVZ" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'">
@@ -130,11 +148,12 @@
                 <img src="assets/hero_left_chair.webp" alt="Poltrona de design autoral em madeira e couro" fetchpriority="high" width="750" height="822">
                 <div class="hero-text-overlay">
                     <h1 id="hero-title">AUTORAL NA IDEIA, <span style="white-space: nowrap;">ARTESANAL NA CONSTRUÇÃO.</span></h1>
-
+                    <p>Peças exclusivas em madeira nobre, couro natural e acabamento artesanal.</p>
+                    <a href="catalogo.html" class="fun-btn-hero">Explorar Coleção →</a>
                 </div>
             </div>
             <div class="hero-col hero-img-right">
-                <img src="assets/hero_right_chair.webp" alt="Poltrona de balanço de design contemporâneo PACO" fetchpriority="high" width="750" height="1000">
+                <img src="assets/hero_right_chair.webp" alt="Poltrona de balanço de design contemporâneo PACO" decoding="async" width="750" height="1000">
             </div>
         </section>
 
@@ -151,8 +170,27 @@
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
                 </button>
-                <div id="catalogo" class="keen-slider" role="region" aria-label="Carrossel de Produtos">
-                    <!-- Dynamic products loaded by javascript -->
+                <div id="catalogo" class="keen-slider" role="region" aria-label="Carrossel de Produtos" aria-busy="true">
+                    <div class="keen-slider__slide skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="keen-slider__slide skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="keen-slider__slide skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="keen-slider__slide skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
                 </div>
                 <button class="arrow-btn next" id="arrow-next" aria-label="Visualizar próximo produto" aria-controls="catalogo">
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -170,10 +208,10 @@
                     <h3 id="design-autoral-heading">Design autoral e materiais nobres</h3>
                     <p>Nossas peças são produzidas com madeiras selecionadas, couros naturais e acabamentos artesanais. Cada móvel é pensado para unir funcionalidade, conforto e beleza atemporal ao seu espaço.</p>
                 </div>
-                <img loading="lazy" src="assets/pana_06.webp" alt="Coleção completa de cadeiras, bancos e luminária de design autoral" class="collection-banner-img" style="width: 100%; height: auto; object-fit: contain; display: block;">
+                <img loading="lazy" decoding="async" src="assets/pana_06.webp" alt="Coleção completa de cadeiras, bancos e luminária de design autoral" class="collection-banner-img" width="824" height="433" style="width: 100%; height: auto; object-fit: contain; display: block;">
             </div>
             <div class="middle-col middle-img" style="display: flex;">
-                <img loading="lazy" src="assets/nova_imagem.webp" alt="Detalhe em madeira" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
+                <img loading="lazy" decoding="async" src="assets/nova_imagem.webp" alt="Detalhe em madeira" width="1200" height="1801" style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;">
             </div>
         </section>
 
@@ -181,7 +219,7 @@
 
         <!-- Lineup Banner Section -->
         <section class="fun-lineup-section reveal" aria-label="Linha completa de produtos">
-            <img loading="lazy" src="assets/lineup_products.webp" alt="Fileira completa de móveis de design PACO" class="lineup-banner-img" width="1361" height="972">
+            <img loading="lazy" decoding="async" src="assets/lineup_products.webp" alt="Fileira completa de móveis de design PACO" class="lineup-banner-img" width="1361" height="972">
         </section>
     </main>
 
@@ -233,8 +271,8 @@
         <span class="floating-whatsapp-text">WhatsApp</span>
     </a>
 
-    <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js" defer></script>
     <script src="js/firebase-config.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/keen-slider@6.8.6/keen-slider.min.js" integrity="sha384-9eF9f0UaIDWPhfrk52yj49UhvXk0aNj+hFlIIhcYBvgkp6T8uK+e5rTrV2GtCBQs" crossorigin="anonymous" defer></script>
     <script src="js/shared/security.js" defer></script>

@@ -295,73 +295,157 @@ function parseDataTimestamp(val) {
     return isNaN(t) ? 0 : t;
 }
 
-// Carregamento unificado com suporte a Firestore, LocalStorage e Mock Padrão
-async function carregarProdutos() {
+// Cache de sessão Stale-While-Revalidate (RF05, CA05, CT05)
+const PRODUTOS_CACHE_KEY = 'paco_produtos_cache_v1';
+const PRODUTOS_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos
+let memoryProdutosCache = null;
+
+function lerCacheProdutos() {
+    if (typeof sessionStorage !== 'undefined') {
+        try {
+            const rawCache = sessionStorage.getItem(PRODUTOS_CACHE_KEY);
+            if (rawCache) {
+                const parsed = JSON.parse(rawCache);
+                if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+                    const timestamp = Number(parsed.timestamp) || 0;
+                    const isFresh = (Date.now() - timestamp) < PRODUTOS_CACHE_TTL_MS;
+                    return { items: parsed.items, timestamp, isFresh };
+                }
+            }
+        } catch (e) {
+            console.warn('[CatalogoData] Falha ao ler cache do sessionStorage:', e);
+        }
+    }
+    if (memoryProdutosCache && Array.isArray(memoryProdutosCache.items) && memoryProdutosCache.items.length > 0) {
+        const isFresh = (Date.now() - memoryProdutosCache.timestamp) < PRODUTOS_CACHE_TTL_MS;
+        return { items: memoryProdutosCache.items, timestamp: memoryProdutosCache.timestamp, isFresh };
+    }
+    return null;
+}
+
+function salvarCacheProdutos(items) {
+    if (!Array.isArray(items) || items.length === 0) return false;
+    const payload = {
+        timestamp: Date.now(),
+        items: items
+    };
+    memoryProdutosCache = payload;
+    if (typeof sessionStorage !== 'undefined') {
+        try {
+            sessionStorage.setItem(PRODUTOS_CACHE_KEY, JSON.stringify(payload));
+            return true;
+        } catch (e) {
+            console.warn('[CatalogoData] Falha ao gravar cache no sessionStorage:', e);
+        }
+    }
+    return true;
+}
+
+function limparCacheProdutos() {
+    memoryProdutosCache = null;
+    if (typeof sessionStorage !== 'undefined') {
+        try {
+            sessionStorage.removeItem(PRODUTOS_CACHE_KEY);
+        } catch (e) {
+            console.warn('[CatalogoData] Falha ao limpar cache do sessionStorage:', e);
+        }
+    }
+}
+
+async function buscarProdutosDoFirestore() {
+    const snapshot = await FirebaseService.db.collection('produtos').get();
+
+    const items = [];
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const defaultImg = getDefaultImageForCategory(data.categoria);
+        const defaultHover = getDefaultHoverImageForCategory(data.categoria);
+        const mainImg = data.img ? normalizarUrlImagem(data.img, data.categoria) : defaultImg;
+        let imagens = Array.isArray(data.imagens) && data.imagens.length > 0
+            ? data.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, data.categoria))
+            : [mainImg, defaultHover];
+        if (imagens.length === 0) imagens = [mainImg, defaultHover];
+
+        // Resolução e normalização de preço (RF01, RF04, CA01, CA04, CA05)
+        const sobConsulta = Boolean(
+            data.preco_sob_consulta === true || 
+            isSobConsulta(data.preco)
+        );
+        let precoCentavos = null;
+        if (!sobConsulta) {
+            if (typeof data.preco_centavos === 'number' && !isNaN(data.preco_centavos) && data.preco_centavos > 0) {
+                precoCentavos = Math.round(data.preco_centavos);
+            } else if (data.preco !== undefined && data.preco !== null) {
+                precoCentavos = parsePrecoParaCentavos(data.preco);
+            }
+        }
+        const precoFormatado = sobConsulta || precoCentavos === null
+            ? "Sob consulta"
+            : formatarPrecoCentavos(precoCentavos);
+
+        items.push({ 
+            id: doc.id, 
+            ...data,
+            preco_centavos: precoCentavos,
+            preco_sob_consulta: sobConsulta,
+            preco: precoFormatado,
+            img: mainImg,
+            imagens: imagens
+        });
+    });
+
+    // Ordena por created_at desc em memória mantendo documentos sem created_at (RF03, CA04)
+    items.sort((a, b) => {
+        const timeA = parseDataTimestamp(a.created_at);
+        const timeB = parseDataTimestamp(b.created_at);
+        return timeB - timeA;
+    });
+
+    const normalized = items.map(item => {
+        const safeColor = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.color, '#2b7fff') : (item.color || '#2b7fff');
+        const safeBg = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.bg, safeColor) : (item.bg || item.color || "#4190de");
+        return {
+            ...item,
+            color: safeColor,
+            bg: safeBg,
+            subhead: item.subhead || "Design Autoral",
+            desc: item.desc || "Peça exclusiva de design autoral em materiais nobres."
+        };
+    });
+
+    if (normalized.length > 0) {
+        salvarCacheProdutos(normalized);
+    }
+    return normalized;
+}
+
+// Carregamento unificado com suporte a Cache SWR (sessionStorage), Firestore, LocalStorage e Mock Padrão
+async function carregarProdutos(options = {}) {
+    const forceRefresh = Boolean(options && options.forceRefresh);
+
+    if (!forceRefresh) {
+        const cached = lerCacheProdutos();
+        if (cached && Array.isArray(cached.items) && cached.items.length > 0) {
+            // Revalidação silenciosa em background (Stale-While-Revalidate) se Firestore estiver disponível
+            if (typeof FirebaseService !== 'undefined') {
+                try {
+                    FirebaseService.init();
+                    if (FirebaseService.isConfigured && FirebaseService.db) {
+                        buscarProdutosDoFirestore().catch(() => {});
+                    }
+                } catch (_) {}
+            }
+            return cached.items;
+        }
+    }
+
     if (typeof FirebaseService !== 'undefined') {
         FirebaseService.init();
 
         if (FirebaseService.isConfigured && FirebaseService.db) {
             try {
                 // Busca sem orderBy('created_at') para não excluir documentos legados sem o campo (RF03, CA04)
-                const snapshot = await FirebaseService.db.collection('produtos').get();
-
-                const items = [];
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const defaultImg = getDefaultImageForCategory(data.categoria);
-                    const defaultHover = getDefaultHoverImageForCategory(data.categoria);
-                    const mainImg = data.img ? normalizarUrlImagem(data.img, data.categoria) : defaultImg;
-                    let imagens = Array.isArray(data.imagens) && data.imagens.length > 0
-                        ? data.imagens.filter(Boolean).map(u => normalizarUrlImagem(u, data.categoria))
-                        : [mainImg, defaultHover];
-                    if (imagens.length === 0) imagens = [mainImg, defaultHover];
-
-                    // Resolução e normalização de preço (RF01, RF04, CA01, CA04, CA05)
-                    const sobConsulta = Boolean(
-                        data.preco_sob_consulta === true || 
-                        isSobConsulta(data.preco)
-                    );
-                    let precoCentavos = null;
-                    if (!sobConsulta) {
-                        if (typeof data.preco_centavos === 'number' && !isNaN(data.preco_centavos) && data.preco_centavos > 0) {
-                            precoCentavos = Math.round(data.preco_centavos);
-                        } else if (data.preco !== undefined && data.preco !== null) {
-                            precoCentavos = parsePrecoParaCentavos(data.preco);
-                        }
-                    }
-                    const precoFormatado = sobConsulta || precoCentavos === null
-                        ? "Sob consulta"
-                        : formatarPrecoCentavos(precoCentavos);
-
-                    items.push({ 
-                        id: doc.id, 
-                        ...data,
-                        preco_centavos: precoCentavos,
-                        preco_sob_consulta: sobConsulta,
-                        preco: precoFormatado,
-                        img: mainImg,
-                        imagens: imagens
-                    });
-                });
-
-                // Ordena por created_at desc em memória mantendo documentos sem created_at (RF03, CA04)
-                items.sort((a, b) => {
-                    const timeA = parseDataTimestamp(a.created_at);
-                    const timeB = parseDataTimestamp(b.created_at);
-                    return timeB - timeA;
-                });
-
-                return items.map(item => {
-                    const safeColor = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.color, '#2b7fff') : (item.color || '#2b7fff');
-                    const safeBg = typeof sanitizeHexColor === 'function' ? sanitizeHexColor(item.bg, safeColor) : (item.bg || item.color || "#4190de");
-                    return {
-                        ...item,
-                        color: safeColor,
-                        bg: safeBg,
-                        subhead: item.subhead || "Design Autoral",
-                        desc: item.desc || "Peça exclusiva de design autoral em materiais nobres."
-                    };
-                });
+                return await buscarProdutosDoFirestore();
             } catch (e) {
                 console.error("[CatalogoData] Erro ao buscar produtos do Firestore:", e);
             }
@@ -457,6 +541,8 @@ async function carregarProdutos() {
 if (typeof window !== 'undefined') {
     window.PLACEHOLDER_IMAGEM_INDISPONIVEL = PLACEHOLDER_IMAGEM_INDISPONIVEL;
     window.PLACEHOLDER_IMAGE = PLACEHOLDER_IMAGE;
+    window.PRODUTOS_CACHE_KEY = PRODUTOS_CACHE_KEY;
+    window.PRODUTOS_CACHE_TTL_MS = PRODUTOS_CACHE_TTL_MS;
     window.extractDriveFileId = extractDriveFileId;
     window.isGoogleDriveUrl = isGoogleDriveUrl;
     window.getDefaultImageForCategory = getDefaultImageForCategory;
@@ -471,6 +557,9 @@ if (typeof window !== 'undefined') {
     window.formatarPrecoProduto = formatarPrecoProduto;
     window.compararPreco = compararPreco;
     window.parseDataTimestamp = parseDataTimestamp;
+    window.lerCacheProdutos = lerCacheProdutos;
+    window.salvarCacheProdutos = salvarCacheProdutos;
+    window.limparCacheProdutos = limparCacheProdutos;
     window.carregarProdutos = carregarProdutos;
 }
 
@@ -478,6 +567,8 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         PLACEHOLDER_IMAGEM_INDISPONIVEL,
         PLACEHOLDER_IMAGE,
+        PRODUTOS_CACHE_KEY,
+        PRODUTOS_CACHE_TTL_MS,
         extractDriveFileId,
         isGoogleDriveUrl,
         getDefaultImageForCategory,
@@ -492,6 +583,9 @@ if (typeof module !== 'undefined' && module.exports) {
         formatarPrecoProduto,
         compararPreco,
         parseDataTimestamp,
+        lerCacheProdutos,
+        salvarCacheProdutos,
+        limparCacheProdutos,
         carregarProdutos
     };
 }

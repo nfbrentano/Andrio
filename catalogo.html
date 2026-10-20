@@ -46,8 +46,26 @@
     
     <!-- Preconnect CDNs -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
 
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='46' fill='%232b7fff'/><text x='50' y='64' font-family='sans-serif' font-weight='900' font-size='32' fill='white' text-anchor='middle'>PACO</text></svg>">
+
+    <!-- Critical CSS Inline (Anti-FOUC & Zero CLS Above the Fold) -->
+    <style id="critical-css">
+        :root { --fun-bg-main: #f4f2ea; --fun-text-main: #1a1a1a; --brand-blue: #2b7fff; --navbar-scrolled-offset: 94px; }
+        body { background-color: #f4f2ea; color: #1a1a1a; font-family: 'Bookman Old Style', serif; margin: 0; padding: 0; }
+        .skip-link { position: absolute; top: -100px; left: 16px; z-index: 99999; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        .fun-navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; padding: 16px; }
+        .fun-navbar.scrolled { padding: 12px 16px; background: rgba(244, 242, 234, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        .catalogo-hero { background: #ebe8e0; padding: 180px 0 45px 0; text-align: center; }
+        .catalogo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 20px; }
+        .skeleton-box, .skeleton-line { background: #e8e4da; border-radius: 12px; }
+        .skeleton-card { display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-card .skeleton-box { width: 100%; aspect-ratio: 3 / 4; }
+        .skeleton-line { height: 16px; border-radius: 6px; }
+    </style>
     
     <!-- Defer CSS -->
     <link rel="preload" href="css/antigravity.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -57,8 +75,8 @@
     <noscript><link rel="stylesheet" href="css/style.css"></noscript>
     
     <!-- Firebase SDK Compat -->
-    <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-app-compat.js" defer></script>
-    <script src="https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore-compat.js" defer></script>
     <script src="js/firebase-config.js" defer></script>
 </head>
 <body class="catalogo-page">
@@ -103,8 +121,12 @@
 
     <main id="catalogo-main" tabindex="-1">
         <!-- Hero Header do Catálogo -->
-        <section class="catalogo-hero">
-
+        <section class="catalogo-hero" aria-labelledby="catalogo-page-title">
+            <div class="ag-container">
+                <span class="catalogo-hero-tag">Coleção Autoral</span>
+                <h1 id="catalogo-page-title" class="catalogo-hero-title">Catálogo Completo</h1>
+                <p class="catalogo-hero-subtitle">Explore nossa curadoria de poltronas, mesas, cadeiras e luminárias esculpidas em madeira nobre e materiais naturais.</p>
+            </div>
         </section>
 
         <!-- Barra de Controle (Busca, Contador e Ordenação) -->
@@ -138,8 +160,27 @@
         <!-- Grid de Produtos do Catálogo -->
         <section class="catalogo-grid-section">
             <div style="max-width: 100%; padding: 0 20px;">
-                <div id="catalogo-grid" class="catalogo-grid">
-                    <!-- Cards inseridos dinamicamente pelo JS -->
+                <div id="catalogo-grid" class="catalogo-grid" aria-busy="true">
+                    <div class="skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
+                    <div class="skeleton-card" aria-hidden="true">
+                        <div class="skeleton-box"></div>
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                    </div>
                 </div>
             </div>
         </section>
